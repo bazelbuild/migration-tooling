@@ -28,6 +28,9 @@ import java.util.Collection;
  */
 @RunWith(JUnit4.class)
 public class ResolverTest {
+  private static final String GROUP_ID = "x";
+  private static final String ARTIFACT_ID = "y";
+
   @Test
   public void testGetSha1Url() throws Exception {
     assertThat(Resolver.getSha1Url("http://example.com/foo.pom", "jar"))
@@ -64,5 +67,39 @@ public class ResolverTest {
     assertThat(Resolver.extractSha1(
          "83cd2cd674a217ade95a4bb83a8a14f351f48bd0  /home/maven/repository-staging/to-ibiblio/maven2/antlr/antlr/2.7.7/antlr-2.7.7.jar"))
         .isEqualTo("83cd2cd674a217ade95a4bb83a8a14f351f48bd0");
+  }
+
+  @Test
+  public void basicVersion() throws Exception {
+    assertThat(Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "1.2.3"))
+        .isEqualTo("1.2.3");
+  }
+
+  @Test
+  public void exactVersion() throws Exception {
+    assertThat(Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3]"))
+        .isEqualTo("1.2.3");
+  }
+
+  @Test
+  public void versionRange() throws Exception {
+    assertThat(Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3,1.2.5]"))
+        .isEqualTo("1.2.5");
+  }
+
+  @Test
+  public void versionRangeExclusive() throws Exception {
+    assertThat(Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3,1.2.5)"))
+        .isEqualTo("1.2.3");
+  }
+
+  @Test(expected = Resolver.InvalidArtifactCoordinateException.class)
+  public void versionRangeAllExclusive() throws Exception {
+    Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "(1.2.3,1.2.5)");
+  }
+
+  @Test(expected = Resolver.InvalidArtifactCoordinateException.class)
+  public void unparsableVersion() throws Exception {
+    Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3");
   }
 }

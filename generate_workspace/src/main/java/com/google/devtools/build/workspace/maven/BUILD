@@ -18,6 +18,7 @@ java_library(
         "//third_party:maven_model",
         "@guava//jar",
         "@jsr305//jar",
+        "@maven_artifact//jar",
         "@plexus_component_annotations//jar",
     ],
 )
