@@ -97,6 +97,7 @@ public class DefaultModelResolver implements ModelResolver {
   @Override
   public ModelSource resolveModel(String groupId, String artifactId, String version)
       throws UnresolvableModelException {
+    logger.info("Resolving maven artifact " + groupId + ":" + artifactId + ":" + version);
     String ruleName = Rule.name(groupId, artifactId);
     if (ruleNameToModelSource.containsKey(ruleName)) {
       return ruleNameToModelSource.get(ruleName);
