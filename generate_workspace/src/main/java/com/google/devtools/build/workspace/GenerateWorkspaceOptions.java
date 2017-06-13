@@ -16,12 +16,14 @@ package com.google.devtools.build.workspace;
 
 import com.beust.jcommander.Parameter;
 
+import com.beust.jcommander.Parameters;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Command-line options for generate_workspace tool.
  */
+@Parameters(separators = "=")
 public class GenerateWorkspaceOptions {
   @Parameter(
       names = "--help",
