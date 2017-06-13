@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.devtools.build.workspace;
+package com.google.devtools.build.workspace.output;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -33,24 +33,24 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Tests for @{link ResultWriter}.
+ * Tests for @{link WorkspaceWriter}.
  */
 @RunWith(JUnit4.class)
-public class ResultWriterTest {
+public class WorkspaceWriterTest {
 
-  public String getWorkspaceFileContent(List<String> sources, Set<Rule> rules) throws Exception{
+  public String getWorkspaceFileContent(List<String> sources, Set<Rule> rules) throws Exception {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     PrintStream ps = new PrintStream(baos);
-    ResultWriter writer = new ResultWriter(sources, rules);
-    writer.writeWorkspace(ps);
+    WorkspaceWriter writer = new WorkspaceWriter(System.getenv("TEST_TMPDIR"));
+    writer.writeWorkspace(ps, sources, rules);
     return baos.toString(String.valueOf(Charset.defaultCharset()));
   }
 
   public String getBuildFileContent(List<String> sources, Set<Rule> rules) throws Exception {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     PrintStream ps = new PrintStream(baos);
-    ResultWriter writer = new ResultWriter(sources, rules);
-    writer.writeBuild(ps);
+    WorkspaceWriter writer = new WorkspaceWriter(System.getenv("TEST_TMPDIR"));
+    writer.writeBuild(ps, sources, rules);
     return baos.toString(String.valueOf(Charset.defaultCharset()));
   }
 

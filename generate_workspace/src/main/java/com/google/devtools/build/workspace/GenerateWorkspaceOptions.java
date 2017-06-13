@@ -46,9 +46,16 @@ public class GenerateWorkspaceOptions {
   
   @Parameter(
       names = {"--output_dir", "-o"},
-      description = "Output directory to store the WORKSPACE and BUILD files. If unspecified, a "
-          + "temporary directory is used."
+      description = "Output directory to write the output file(s). If unspecified, uses the"
+          + " current directory."
   )
   public String outputDir = "";
 
+  @Parameter(
+      names = {"--direct-to-ws"},
+      description = "Write generated rules to files named WORKSPACE and BUILD, respectively."
+      + " If not specified, generate_workspace will write generated rules to a .bzl"
+      + " file that can be loaded from hand-written WORKSPACE and BUILD files."
+  )
+  public boolean directToWorkspace = false;
 }
