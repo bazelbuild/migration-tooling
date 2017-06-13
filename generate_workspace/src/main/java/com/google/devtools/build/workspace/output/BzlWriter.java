@@ -81,17 +81,7 @@ public class BzlWriter extends AbstractWriter {
       outputStream.println("  pass\n");
     }
     for (Rule rule : rules) {
-      outputStream.println("  native.java_library(");
-      outputStream.println("      name = \"" + rule.name() + "\",");
-      outputStream.println("      visibility = [\"//visibility:public\"],");
-      outputStream.println("      exports = [");
-      outputStream.println("          \"@" + rule.name() + "//jar\",");
-      for (Rule r : rule.getDependencies()) {
-        outputStream.println("          \"@" + r.name() + "//jar\",");
-      }
-      outputStream.println("      ],");
-      outputStream.println("  )");
-      outputStream.println();
+      outputStream.println(formatJavaLibrary(rule));
     }
   }
 
@@ -108,6 +98,21 @@ public class BzlWriter extends AbstractWriter {
             ? "      repository = \"" + rule.getRepository() + "\",\n" : "")
         + (rule.getSha1() != null ? "      sha1 = \"" + rule.getSha1() + "\",\n" : "")
         + "  )");
+    return builder.toString();
+  }
+
+  private String formatJavaLibrary(Rule rule) {
+    StringBuilder builder = new StringBuilder();
+    builder.append("  native.java_library(\n");
+    builder.append("      name = \"" + rule.name() + "\",\n");
+    builder.append("      visibility = [\"//visibility:public\"],\n");
+    builder.append("      exports = [\n");
+    builder.append("          \"@" + rule.name() + "//jar\",\n");
+    for (Rule r : rule.getDependencies()) {
+      builder.append("          \"@" + r.name() + "//jar\",\n");
+    }
+    builder.append("      ],\n");
+    builder.append("  )\n\n");
     return builder.toString();
   }
 
