@@ -24,6 +24,12 @@ maven_jar(
 )
 
 maven_jar(
+    name = "maven_artifact",
+    artifact = "org.apache.maven:maven-artifact:3.5.0",
+)
+
+# Testing
+maven_jar(
     name = "org_mockito",
     artifact = "org.mockito:mockito-all:1.9.5",
 )

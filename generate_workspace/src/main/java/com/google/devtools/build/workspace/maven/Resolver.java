@@ -20,6 +20,9 @@ import com.google.common.io.CharStreams;
 
 import java.lang.invoke.MethodHandles;
 import java.util.logging.Logger;
+import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
+import org.apache.maven.artifact.versioning.Restriction;
+import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
@@ -63,7 +66,7 @@ public class Resolver {
     }
   }
   
-  public static Artifact getArtifact(String atrifactCoords)
+  static Artifact getArtifact(String atrifactCoords)
       throws InvalidArtifactCoordinateException {
     try {
       return new DefaultArtifact(atrifactCoords);
@@ -72,10 +75,50 @@ public class Resolver {
     }
   }
 
-  public static Artifact getArtifact(Dependency dependency)
+  private static Artifact getArtifact(Dependency dependency)
       throws InvalidArtifactCoordinateException {
     return getArtifact(dependency.getGroupId() + ":" + dependency.getArtifactId() + ":"
-        + dependency.getVersion());
+        + resolveVersion(
+            dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion()));
+  }
+
+  /**
+   * Takes a version specification (as defined in
+   * http://maven.apache.org/enforcer/enforcer-rules/versionRanges.html) and finds a valid version
+   * that is likely to exist.  Basically: 1.2.3 is 1.2.3+, [1.2.3] is exactly 1.2.3, and then
+   * there is comma-separated range notation.
+   */
+  static String resolveVersion(String groupId, String artifactId, String unparsedVersion)
+      throws InvalidArtifactCoordinateException {
+    VersionRange versionRange;
+    try {
+      versionRange = VersionRange.createFromVersionSpec(unparsedVersion);
+    } catch (InvalidVersionSpecificationException e) {
+      throw new InvalidArtifactCoordinateException("Invalid version: " + e.getLocalizedMessage()
+          + " for " + groupId + ":" + artifactId + ":" + unparsedVersion);
+    }
+    if (versionRange.getRecommendedVersion() != null) {
+      return versionRange.getRecommendedVersion().toString();
+    }
+
+    // There is a range or set of possible versions.
+    for (Restriction restriction : versionRange.getRestrictions()) {
+      // Look for an exact match.
+      if (restriction.getLowerBound().equals(restriction.getUpperBound())) {
+        return restriction.getLowerBound().toString();
+      }
+      // If this is a more complex version restriction, look for an inclusive bound.
+      if (restriction.isUpperBoundInclusive()) {
+        return restriction.getUpperBound().toString();
+      } else if (restriction.isLowerBoundInclusive()) {
+        return restriction.getLowerBound().toString();
+      }
+      // All bounds were exclusive.
+    }
+
+    // TODO(kchodorow): figure out a version in another way.
+    throw new InvalidArtifactCoordinateException("Unable to find a version for " + groupId + ":"
+        + artifactId + ":" + unparsedVersion);
   }
   
   private static final String COMPILE_SCOPE = "compile";
@@ -141,13 +184,12 @@ public class Resolver {
   /**
    * Resolves all dependencies from a given "model source," which could be either a URL or a local
    * file.
-   * @return the model.
    */
-  @Nullable
-  public Model resolveEffectiveModel(ModelSource modelSource, Set<String> exclusions, Rule parent) {
+  private void resolveEffectiveModel(
+      ModelSource modelSource, Set<String> exclusions, Rule parent) {
     Model model = modelResolver.getEffectiveModel(modelSource);
     if (model == null) {
-      return null;
+      return;
     }
     for (Repository repo : model.getRepositories()) {
       modelResolver.addRepository(repo);
@@ -193,7 +235,6 @@ public class Resolver {
             + e.getMessage());
       }
     }
-    return model;
   }
 
   /**
@@ -242,7 +283,7 @@ public class Resolver {
    * was newly added. If the artifact was in the list at a different version, adds an comment
    * about the desired version.
    */
-  public boolean addArtifact(Rule dependency, String parent) {
+  private boolean addArtifact(Rule dependency, String parent) {
     String artifactName = dependency.name();
     if (deps.containsKey(artifactName)) {
       Rule existingDependency = deps.get(artifactName);
@@ -267,7 +308,7 @@ public class Resolver {
   /**
    * Downloads the SHA-1 for the given artifact.
    */
-  public String downloadSha1(Rule rule) {
+  private String downloadSha1(Rule rule) {
     String sha1Url = getSha1Url(rule.getUrl(), rule.getArtifact().getExtension());
     try {
       HttpURLConnection connection = (HttpURLConnection) new URL(sha1Url).openConnection();
