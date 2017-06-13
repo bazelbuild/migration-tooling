@@ -25,8 +25,6 @@ import java.util.List;
 public abstract class AbstractWriter {
   public abstract void write(List<String> sources, Collection<Rule> rules);
 
-  public abstract String formatMavenJar(Rule rule);
-
   /**
    * Writes the list of sources as a comment to outputStream.
    */
@@ -36,5 +34,43 @@ public abstract class AbstractWriter {
       outputStream.println("# " + header);
     }
     outputStream.print("\n\n");
+  }
+
+  protected String formatMavenJar(Rule rule, String ruleName, String indent) {
+    StringBuilder builder = new StringBuilder();
+    for (String parent : rule.getParents()) {
+      builder.append(indent).append("# ").append(parent).append("\n");
+    }
+    builder.append(indent).append(ruleName).append("(\n");
+    builder.append(indent).append("    name = \"").append(rule.name()).append("\",\n");
+    builder.append(indent).append("    artifact = \"").append(rule.toMavenArtifactString())
+        .append("\",\n");
+    if (rule.hasCustomRepository()) {
+      builder.append(indent).append("    repository = \"").append(rule.getRepository())
+          .append("\",\n");
+    }
+    if (rule.getSha1() != null) {
+      builder.append(indent).append("    sha1 = \"").append(rule.getSha1()).append("\",\n");
+    }
+    builder.append(indent).append(")\n\n");
+    return builder.toString();
+  }
+
+  /**
+   * Write library rules to depend on the transitive closure of all of these rules.
+   */
+  protected String formatJavaLibrary(Rule rule, String ruleName, String indent) {
+    StringBuilder builder = new StringBuilder();
+    builder.append(indent).append(ruleName).append("(\n");
+    builder.append(indent).append("    name = \"").append(rule.name()).append("\",\n");
+    builder.append(indent).append("    visibility = [\"//visibility:public\"],\n");
+    builder.append(indent).append("    exports = [\n");
+    builder.append(indent).append("        \"@").append(rule.name()).append("//jar\",\n");
+    for (Rule r : rule.getDependencies()) {
+      builder.append(indent).append("        \"@").append(r.name()).append("//jar\",\n");
+    }
+    builder.append(indent).append("    ],\n");
+    builder.append(indent).append(")\n\n");
+    return builder.toString();
   }
 }

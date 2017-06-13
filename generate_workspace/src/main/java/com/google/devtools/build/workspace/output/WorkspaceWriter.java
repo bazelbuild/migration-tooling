@@ -85,44 +85,15 @@ public class WorkspaceWriter extends AbstractWriter {
       Collection<Rule> rules) {
     writeHeader(outputStream, sources);
     for (Rule rule : rules) {
-      outputStream.println(formatMavenJar(rule) + "\n");
+      outputStream.println(formatMavenJar(rule, "maven_jar", ""));
     }
   }
 
-  @Override
-  public String formatMavenJar(Rule rule) {
-    StringBuilder builder = new StringBuilder();
-    for (String parent : rule.getParents()) {
-      builder.append("# " + parent + "\n");
-    }
-    builder.append("maven_jar(\n"
-        + "    name = \"" + rule.name() + "\",\n"
-        + "    artifact = \"" + rule.toMavenArtifactString() + "\",\n"
-        + (rule.hasCustomRepository()
-            ? "    repository = \"" + rule.getRepository() + "\",\n" : "")
-        + (rule.getSha1() != null ? "    sha1 = \"" + rule.getSha1() + "\",\n" : "")
-        + ")");
-    return builder.toString();
-  }
-
-  /**
-   * Write library rules to depend on the transitive closure of all of these rules.
-   */
   public void writeBuild(PrintStream outputStream, List<String> sources,
       Collection<Rule> rules) {
     writeHeader(outputStream, sources);
     for (Rule rule : rules) {
-      outputStream.println("java_library(");
-      outputStream.println("    name = \"" + rule.name() + "\",");
-      outputStream.println("    visibility = [\"//visibility:public\"],");
-      outputStream.println("    exports = [");
-      outputStream.println("        \"@" + rule.name() + "//jar\",");
-      for (Rule r : rule.getDependencies()) {
-        outputStream.println("        \"@" + r.name() + "//jar\",");
-      }
-      outputStream.println("    ],");
-      outputStream.println(")");
-      outputStream.println();
+      outputStream.println(formatJavaLibrary(rule, "java_library", ""));
     }
   }
 }
