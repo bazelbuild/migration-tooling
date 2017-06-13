@@ -15,9 +15,9 @@
 package com.google.devtools.build.workspace.maven;
 
 import static com.google.devtools.build.workspace.maven.Rule.MAVEN_CENTRAL_URL;
+import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.io.IOException;
@@ -109,11 +109,8 @@ public class DefaultModelResolver implements ModelResolver {
       }
     }
 
-    // TODO(kchodorow): use Java 8 features to make this a one-liner.
-    List<String> attemptedUrls = Lists.newArrayList();
-    for (Repository repository : repositories) {
-      attemptedUrls.add(repository.getUrl());
-    }
+    List<String> attemptedUrls =
+            repositories.stream().map(Repository::getUrl).collect(toList());
     throw new UnresolvableModelException("Could not find any repositories that knew how to "
         + "resolve " + groupId + ":" + artifactId + ":" + version + " (checked "
         + Joiner.on(", ").join(attemptedUrls) + ")", groupId, artifactId, version);
