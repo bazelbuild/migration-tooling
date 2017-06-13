@@ -160,7 +160,7 @@ public final class Rule implements Comparable<Rule> {
     return builder.toString();
   }
 
-  private boolean hasCustomRepository() {
+  public boolean hasCustomRepository() {
     return !MAVEN_CENTRAL_URL.equals(repository);
   }
 
@@ -187,5 +187,17 @@ public final class Rule implements Comparable<Rule> {
   @Override
   public int compareTo(Rule o) {
     return name().compareTo(o.name());
+  }
+
+  public Set<String> getParents() {
+    return parents;
+  }
+
+  public String getRepository() {
+    return repository;
+  }
+
+  public String getSha1() {
+    return sha1;
   }
 }

@@ -26,10 +26,7 @@ java_library(
 java_library(
     name = "rule",
     srcs = ["Rule.java"],
-    visibility = [
-        "//generate_workspace/src/main/java/com/google/devtools/build/workspace:__pkg__",
-        "//generate_workspace/src/test:__subpackages__",
-    ],
+    visibility = ["//generate_workspace/src:__subpackages__"],
     deps = [
         "//third_party:aether",
         "//third_party:maven_model",

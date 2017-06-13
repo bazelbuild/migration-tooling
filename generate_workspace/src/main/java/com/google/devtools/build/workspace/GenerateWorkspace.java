@@ -15,18 +15,16 @@
 package com.google.devtools.build.workspace;
 
 import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 import com.google.common.collect.Lists;
 import com.google.devtools.build.workspace.maven.DefaultModelResolver;
 import com.google.devtools.build.workspace.maven.Resolver;
-import java.io.File;
+import com.google.devtools.build.workspace.output.AbstractWriter;
+import com.google.devtools.build.workspace.output.BzlWriter;
+import com.google.devtools.build.workspace.output.WorkspaceWriter;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.lang.invoke.MethodHandles;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -40,19 +38,26 @@ public class GenerateWorkspace {
 
   private final Resolver resolver;
   private final List<String> inputs;
-  private final Path outputDir;
+  private final AbstractWriter resultWriter;
 
   public static void main(String[] args) throws InterruptedException {
     GenerateWorkspaceOptions options = new GenerateWorkspaceOptions();
     JCommander optionParser = JCommander.newBuilder().addObject(options).build();
-    optionParser.parse(args);
+    try {
+      optionParser.parse(args);
+    } catch (ParameterException e) {
+      System.out.println("Unable to parse options: " + e.getLocalizedMessage());
+      optionParser.usage();
+      return;
+    }
     if (options.mavenProjects.isEmpty() && options.artifacts.isEmpty()) {
       optionParser.usage();
       return;
     }
 
     try {
-      GenerateWorkspace workspaceFileGenerator = new GenerateWorkspace(options.outputDir);
+      GenerateWorkspace workspaceFileGenerator = new GenerateWorkspace(
+          options.outputDir, options.directToWorkspace);
       workspaceFileGenerator.generateFromPom(options.mavenProjects);
       workspaceFileGenerator.generateFromArtifacts(options.artifacts);
       workspaceFileGenerator.writeResults();
@@ -62,14 +67,12 @@ public class GenerateWorkspace {
     }
   }
 
-  private GenerateWorkspace(String outputDir) throws IOException {
+  private GenerateWorkspace(String outputDirStr, boolean directToWorkspace) throws IOException {
     this.resolver = new Resolver(new DefaultModelResolver());
     this.inputs = Lists.newArrayList();
-    if (outputDir.isEmpty()) {
-      this.outputDir = Files.createTempDirectory("generate_workspace");
-    } else {
-      this.outputDir = Paths.get(outputDir);
-    }
+    this.resultWriter = directToWorkspace
+        ? new WorkspaceWriter(outputDirStr)
+        : new BzlWriter(outputDirStr);
   }
 
   private void generateFromPom(List<String> projects) {
@@ -93,28 +96,6 @@ public class GenerateWorkspace {
   }
 
   private void writeResults() {
-    String date = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
-    File workspaceFile = outputDir.resolve("WORKSPACE").toFile();
-    File buildFile = outputDir.resolve("BUILD").toFile();
-
-    // Don't overwrite existing files with generated ones.
-    if (workspaceFile.exists()) {
-      workspaceFile = outputDir.resolve(date + ".WORKSPACE").toFile();
-    }
-    if (buildFile.exists()) {
-      buildFile = outputDir.resolve(date + ".BUILD").toFile();
-    }
-
-    try (PrintStream workspaceStream = new PrintStream(workspaceFile);
-         PrintStream buildStream = new PrintStream(buildFile)) {
-      ResultWriter writer = new ResultWriter(inputs, resolver.getRules());
-      writer.writeWorkspace(workspaceStream);
-      writer.writeBuild(buildStream);
-    } catch (IOException e) {
-      logger.severe(
-          "Could not write WORKSPACE and BUILD files to " + outputDir + ": " + e.getMessage());
-      return;
-    }
-    System.err.println("Wrote:\n" + workspaceFile + "\n" + buildFile);
+    resultWriter.write(inputs, resolver.getRules());
   }
 }
