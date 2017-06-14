@@ -189,6 +189,8 @@ public class Resolver {
     if (model == null) {
       return;
     }
+    logger.info("\tDownloading pom for " + model.getGroupId() + ":"
+            + model.getArtifactId() + ":" + model.getVersion());
     for (Repository repo : model.getRepositories()) {
       modelResolver.addRepository(repo);
     }
