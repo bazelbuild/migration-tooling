@@ -1,3 +1,5 @@
+[![Build Status](http://ci.bazel.io/buildStatus/icon?job=migration-tooling)](http://ci.bazel.io/job/migration-tooling)
+
 # Migration tooling
 
 This repository contains tools used for migrating existing projects to Bazel.
