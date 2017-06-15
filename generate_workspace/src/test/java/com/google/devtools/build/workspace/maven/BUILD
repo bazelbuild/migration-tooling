@@ -4,8 +4,8 @@ java_test(
     deps = [
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven",
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven:rule",
-        "@com_google_truth//jar",
-        "@org_junit//jar",
+        "@com_google_truth_truth//jar",
+        "@junit_junit//jar",
     ],
 )
 
@@ -15,8 +15,8 @@ java_test(
     deps = [
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven",
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven:rule",
-        "@com_google_truth//jar",
-        "@org_junit//jar",
-        "@org_mockito//jar",
+        "@com_google_truth_truth//jar",
+        "@junit_junit//jar",
+        "@org_mockito_mockito_all//jar",
     ],
 )

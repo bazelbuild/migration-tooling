@@ -4,7 +4,7 @@ java_test(
     deps = [
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace",
         "//third_party/jcommander",
-        "@com_google_truth//jar",
-        "@org_junit//jar",
+        "@com_google_truth_truth//jar",
+        "@junit_junit//jar",
     ],
 )
