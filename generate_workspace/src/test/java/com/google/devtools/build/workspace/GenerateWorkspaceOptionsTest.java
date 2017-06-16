@@ -41,4 +41,21 @@ public class GenerateWorkspaceOptionsTest {
     optionParser.parse("--artifact", "foo:bar:1.2.3");
     assertThat(options.artifacts).contains("foo:bar:1.2.3");
   }
+
+  @Test
+  public void noCommaDelimiter() throws Exception {
+    GenerateWorkspaceOptions options = new GenerateWorkspaceOptions();
+    JCommander optionParser = JCommander.newBuilder().addObject(options).build();
+    optionParser.parse("--artifact", "foo:bar:[1.2.3,)");
+    assertThat(options.artifacts).contains("foo:bar:[1.2.3,)");
+  }
+
+  @Test
+  public void multipleArtifacts() throws Exception {
+    GenerateWorkspaceOptions options = new GenerateWorkspaceOptions();
+    JCommander optionParser = JCommander.newBuilder().addObject(options).build();
+    optionParser.parse("--artifact", "a:b1:[1.2,2.0]", "--artifact", "a:b2:[1.0,2.0)");
+    assertThat(options.artifacts).containsExactly("a:b1:[1.2,2.0]", "a:b2:[1.0,2.0)");
+  }
+
 }
