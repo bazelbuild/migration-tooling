@@ -7,9 +7,9 @@ java_test(
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace/output",
         "//third_party:aether",
         "//third_party:maven_model",
-        "@com_google_truth//jar",
-        "@guava//jar",
-        "@org_junit//jar",
+        "@com_google_truth_truth//jar",
+        "@com_google_guava_guava//jar",
+        "@junit_junit//jar",
     ],
 )
 
@@ -20,8 +20,8 @@ java_test(
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven:rule",
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace/output",
         "//third_party:aether",
-        "@com_google_truth//jar",
-        "@guava//jar",
-        "@org_junit//jar",
+        "@com_google_truth_truth//jar",
+        "@com_google_guava_guava//jar",
+        "@junit_junit//jar",
     ],
 )

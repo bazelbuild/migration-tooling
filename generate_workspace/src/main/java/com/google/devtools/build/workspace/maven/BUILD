@@ -9,17 +9,17 @@ java_library(
         "//generate_workspace/src/test:__subpackages__",
     ],
     runtime_deps = [
-        "@plexus_interpolation//jar",
-        "@plexus_utils//jar",
+        "@org_codehaus_plexus_plexus_interpolation//jar",
+        "@org_codehaus_plexus_plexus_utils//jar",
     ],
     deps = [
         ":rule",
         "//third_party:aether",
         "//third_party:maven_model",
-        "@guava//jar",
-        "@jsr305//jar",
-        "@maven_artifact//jar",
-        "@plexus_component_annotations//jar",
+        "@com_google_guava_guava//jar",
+        "@com_google_code_findbugs_jsr305//jar",
+        "@org_apache_maven_maven_artifact//jar",
+        "@org_codehaus_plexus_plexus_component_annotations//jar",
     ],
 )
 
@@ -30,6 +30,6 @@ java_library(
     deps = [
         "//third_party:aether",
         "//third_party:maven_model",
-        "@guava//jar",
+        "@com_google_guava_guava//jar",
     ],
 )
