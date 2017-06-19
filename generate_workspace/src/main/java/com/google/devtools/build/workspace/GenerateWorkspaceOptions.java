@@ -15,9 +15,11 @@
 package com.google.devtools.build.workspace;
 
 import com.beust.jcommander.Parameter;
-
 import com.beust.jcommander.Parameters;
+import com.beust.jcommander.converters.IParameterSplitter;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -40,6 +42,7 @@ public class GenerateWorkspaceOptions {
 
   @Parameter(
       names = {"--artifact", "-a"},
+      splitter = NoSplitter.class,
       description = "Maven artifact coordinates (e.g. groupId:artifactId:version)."
   )
   public List<String> artifacts = new ArrayList<>();
@@ -58,4 +61,19 @@ public class GenerateWorkspaceOptions {
       + " file that can be loaded from hand-written WORKSPACE and BUILD files."
   )
   public boolean directToWorkspace = false;
+
+
+  /**
+   * Jcommander defaults to splitting each parameter by comma. For example,
+   * --a=group:artifact:[x1,x2] is parsed as two items 'group:artifact:[x1' and 'x2]',
+   * instead of the intended 'group:artifact:[x1,x2]'
+   *
+   * For more information: http://jcommander.org/#_splitting
+   */
+  private static class NoSplitter implements IParameterSplitter {
+    @Override
+    public List<String> split(String value) {
+      return Arrays.asList(value);
+    }
+  }
 }
