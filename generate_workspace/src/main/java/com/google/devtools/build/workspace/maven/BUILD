@@ -3,6 +3,8 @@ java_library(
     srcs = [
         "DefaultModelResolver.java",
         "Resolver.java",
+        "ShaDownloader.java",
+        "VersionResolver.java"
     ],
     visibility = [
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace:__pkg__",

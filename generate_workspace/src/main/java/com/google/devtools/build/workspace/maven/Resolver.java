@@ -17,11 +17,6 @@ package com.google.devtools.build.workspace.maven;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.io.CharStreams;
-
-import java.lang.invoke.MethodHandles;
-import java.util.logging.Logger;
-import javax.annotation.Nullable;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.Restriction;
 import org.apache.maven.artifact.versioning.VersionRange;
@@ -39,16 +34,17 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.Charset;
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
+
+import static com.google.devtools.build.workspace.maven.ShaDownloader.downloadSha1;
 
 /**
  * Resolves Maven dependencies.
@@ -68,10 +64,10 @@ public class Resolver {
     }
   }
   
-  static Artifact getArtifact(String atrifactCoords)
+  static Artifact getArtifact(String artifactCoords)
       throws InvalidArtifactCoordinateException {
     try {
-      return new DefaultArtifact(atrifactCoords);
+      return new DefaultArtifact(artifactCoords);
     } catch (IllegalArgumentException e) {
       throw new InvalidArtifactCoordinateException(e.getMessage());
     }
@@ -244,7 +240,7 @@ public class Resolver {
             dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion());
         if (depModelSource != null) {
           artifactRule.setRepository(depModelSource.getLocation());
-          artifactRule.setSha1(downloadSha1(artifactRule));
+          artifactRule.setSha1(downloadSha1(artifactRule, logger));
           Model depModel = modelResolver.getEffectiveModel(depModelSource);
           if (depModel != null) {
             traverseDeps(depModel, localDepExclusions, artifactRule);
@@ -331,29 +327,4 @@ public class Resolver {
     return true;
   }
 
-  static String getSha1Url(String url, String extension) {
-    return url.replaceAll(".pom$", "." + extension + ".sha1");
-  }
-
-  /**
-   * Downloads the SHA-1 for the given artifact.
-   */
-  private String downloadSha1(Rule rule) {
-    String sha1Url = getSha1Url(rule.getUrl(), rule.getArtifact().getExtension());
-    try {
-      HttpURLConnection connection = (HttpURLConnection) new URL(sha1Url).openConnection();
-      connection.setInstanceFollowRedirects(true);
-      connection.connect();
-      return extractSha1(
-          CharStreams.toString(
-              new InputStreamReader(connection.getInputStream(), Charset.defaultCharset())));
-    } catch (IOException e) {
-      logger.warning("Failed to download the sha1 at " + sha1Url);
-    }
-    return null;
-  }
-
-  static String extractSha1(String sha1Contents) {
-    return sha1Contents.split("\\s+")[0];
-  }
 }
