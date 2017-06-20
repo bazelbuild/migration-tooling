@@ -4,7 +4,8 @@ java_library(
         "DefaultModelResolver.java",
         "Resolver.java",
         "ShaDownloader.java",
-        "VersionResolver.java"
+        "VersionResolver.java",
+        "VersionHTMLScraper.java"
     ],
     visibility = [
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace:__pkg__",
@@ -22,6 +23,7 @@ java_library(
         "@com_google_guava_guava//jar",
         "@org_apache_maven_maven_artifact//jar",
         "@org_codehaus_plexus_plexus_component_annotations//jar",
+        "@org_jsoup_jsoup//jar",
     ],
 )
 

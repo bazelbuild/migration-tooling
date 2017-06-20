@@ -39,7 +39,11 @@ java_test(
     srcs = ["VersionResolverTest.java"],
     deps = [
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven",
+        "@com_google_guava_guava//jar",
+        "@org_jsoup_jsoup//jar",
         "@com_google_truth_truth//jar",
         "@junit_junit//jar",
+        "@org_mockito_mockito_all//jar",
+        "@org_apache_maven_maven_artifact//jar",
     ],
 )

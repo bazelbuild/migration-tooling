@@ -49,7 +49,6 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import static com.google.devtools.build.workspace.maven.Rule.MAVEN_CENTRAL_URL;
-import static com.google.devtools.build.workspace.maven.VersionResolver.resolveVersion;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -71,6 +70,7 @@ public class DefaultModelResolver implements ModelResolver {
   private final Set<Repository> repositories;
   private final Map<String, ModelSource> ruleNameToModelSource;
   private final DefaultModelBuilder modelBuilder;
+  private final VersionResolver versionResolver;
 
   public DefaultModelResolver() {
     this(
@@ -88,6 +88,8 @@ public class DefaultModelResolver implements ModelResolver {
       Set<Repository> repositories, Map<String, ModelSource> ruleNameToModelSource,
       DefaultModelBuilder modelBuilder) {
     this.repositories = repositories;
+    //TODO(petros): add support for other repositories.
+    this.versionResolver = new VersionResolver();
     this.ruleNameToModelSource = ruleNameToModelSource;
     this.modelBuilder = modelBuilder;
   }
@@ -123,7 +125,7 @@ public class DefaultModelResolver implements ModelResolver {
       String url, String groupId, String artifactId, String version)
       throws UnresolvableModelException {
     try {
-      version = resolveVersion(groupId, artifactId, version);
+      version = versionResolver.resolveVersion(groupId, artifactId, version);
     } catch (Resolver.InvalidArtifactCoordinateException e) {
       throw new UnresolvableModelException(
           "Unable to resolve version", groupId, artifactId, version, e);
@@ -243,5 +245,11 @@ public class DefaultModelResolver implements ModelResolver {
       return null;
     }
     return model;
+  }
+
+  /** Wrapper around version resolver. */
+  String resolveVersion(String groupId, String artifactId, String versionSpec)
+      throws Resolver.InvalidArtifactCoordinateException {
+    return versionResolver.resolveVersion(groupId, artifactId, versionSpec);
   }
 }
