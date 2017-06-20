@@ -14,16 +14,19 @@
 
 package com.google.devtools.build.workspace.maven;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.CharStreams;
 
 import java.lang.invoke.MethodHandles;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.Restriction;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Exclusion;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Repository;
@@ -52,13 +55,14 @@ import java.util.Set;
  */
 public class Resolver {
 
-  private final static Logger logger = Logger.getLogger(
+  private static final Logger logger = Logger.getLogger(
       MethodHandles.lookup().lookupClass().getName());
+  private static final String TOP_LEVEL_ARTIFACT = "pom.xml";
 
   /**
    * Exception thrown if an artifact coordinate could not be parsed.
    */
-  public static class InvalidArtifactCoordinateException extends Exception {
+  static class InvalidArtifactCoordinateException extends Exception {
     InvalidArtifactCoordinateException(String message) {
       super(message);
     }
@@ -78,6 +82,14 @@ public class Resolver {
     return getArtifact(dependency.getGroupId() + ":" + dependency.getArtifactId() + ":"
         + resolveVersion(
             dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion()));
+  }
+
+  private static String unversionedCoordinate(Dependency dependency) {
+    return dependency.getGroupId() + ":" + dependency.getArtifactId();
+  }
+
+  private static String unversionedCoordinate(Exclusion exclusion) {
+    return exclusion.getGroupId() + ":" + exclusion.getArtifactId();
   }
 
   /**
@@ -138,10 +150,6 @@ public class Resolver {
     return deps.values();
   }
 
-  public DefaultModelResolver getModelResolver() {
-    return modelResolver;
-  }
-
   /**
    * Given a local path to a Maven project, this attempts to find the transitive dependencies of
    * the project.
@@ -156,7 +164,10 @@ public class Resolver {
     // First resolve the model source locations.
     resolveSourceLocations(pomSource);
     // Next, fully resolve the models.
-    resolveEffectiveModel(pomSource, Sets.<String>newHashSet(), null);
+    Model model = modelResolver.getEffectiveModel(pomSource);
+    if (model != null) {
+      traverseDeps(model, Sets.newHashSet(), null);
+    }
     return pom.getAbsolutePath();
   }
 
@@ -175,65 +186,84 @@ public class Resolver {
     }
 
     Rule rule = new Rule(artifact);
-    deps.put(rule.name(), rule); // add the artifact rule to the workspace
-    resolveEffectiveModel(modelSource, Sets.<String>newHashSet(), rule);
+    deps.put(rule.name(), rule);  // add the artifact rule to the workspace
+    Model model = modelResolver.getEffectiveModel(modelSource);
+    if (model != null) {
+      traverseDeps(model, Sets.newHashSet(), rule);
+    }
   }
   
   /**
    * Resolves all dependencies from a given "model source," which could be either a URL or a local
    * file.
    */
-  private void resolveEffectiveModel(
-      ModelSource modelSource, Set<String> exclusions, Rule parent) {
-    Model model = modelResolver.getEffectiveModel(modelSource);
-    if (model == null) {
-      return;
-    }
+  @VisibleForTesting
+  void traverseDeps(Model model, Set<String> exclusions, Rule parent) {
     logger.info("\tDownloading pom for " + model.getGroupId() + ":"
-            + model.getArtifactId() + ":" + model.getVersion());
+        + model.getArtifactId() + ":" + model.getVersion());
     for (Repository repo : model.getRepositories()) {
       modelResolver.addRepository(repo);
     }
 
+    if (model.getDependencyManagement() != null) {
+      // Dependencies described in the DependencyManagement section of the pom override all others,
+      // so resolve them first.
+      for (Dependency dependency : model.getDependencyManagement().getDependencies()) {
+        addDependency(dependency, model, exclusions, parent);
+      }
+    }
     for (Dependency dependency : model.getDependencies()) {
-      if (!dependency.getScope().equals(COMPILE_SCOPE)) {
-        continue;
-      }
-      if (dependency.isOptional()) {
-        continue;
-      }
-      if (exclusions.contains(dependency.getGroupId() + ":" + dependency.getArtifactId())) {
-        continue;
-      }
-      try {
-        Rule artifactRule = new Rule(getArtifact(dependency), dependency.getExclusions());
-        HashSet<String> localDepExclusions = new HashSet<>(exclusions);
-        localDepExclusions.addAll(artifactRule.getExclusions());
+      addDependency(dependency, model, exclusions, parent);
+    }
+  }
 
-        boolean isNewDependency = addArtifact(artifactRule, model.toString());
-        if (isNewDependency) {
-          ModelSource depModelSource = modelResolver.resolveModel(
-              dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion());
-          if (depModelSource != null) {
-            artifactRule.setRepository(depModelSource.getLocation());
-            artifactRule.setSha1(downloadSha1(artifactRule));
-            resolveEffectiveModel(depModelSource, localDepExclusions, artifactRule);
-          } else {
-            logger.warning("Could not get a model for " + dependency);
+  private void addDependency(
+      Dependency dependency,
+      Model model,
+      Set<String> exclusions,
+      @Nullable Rule parent) {
+    // DependencyManagement dependencies don't have scope.
+    if (dependency.getScope() != null && !dependency.getScope().equals(COMPILE_SCOPE)) {
+      return;
+    }
+    if (dependency.isOptional()) {
+      return;
+    }
+    if (exclusions.contains(unversionedCoordinate(dependency))) {
+      return;
+    }
+    try {
+      Rule artifactRule = new Rule(getArtifact(dependency));
+      HashSet<String> localDepExclusions = Sets.newHashSet(exclusions);
+      dependency.getExclusions().forEach(
+          exclusion -> localDepExclusions.add(unversionedCoordinate(exclusion)));
+
+      boolean isNewDependency = addArtifact(artifactRule, model.toString());
+      if (isNewDependency) {
+        ModelSource depModelSource = modelResolver.resolveModel(
+            dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion());
+        if (depModelSource != null) {
+          artifactRule.setRepository(depModelSource.getLocation());
+          artifactRule.setSha1(downloadSha1(artifactRule));
+          Model depModel = modelResolver.getEffectiveModel(depModelSource);
+          if (depModel != null) {
+            traverseDeps(depModel, localDepExclusions, artifactRule);
           }
-        }
-
-        if (parent != null) {
-          parent.addDependency(artifactRule);
-          parent.getDependencies().addAll(artifactRule.getDependencies());
         } else {
-          addArtifact(artifactRule, modelSource.getLocation());
+          logger.warning("Could not get a model for " + dependency);
         }
-      } catch (UnresolvableModelException | InvalidArtifactCoordinateException e) {
-        logger.warning("Could not resolve dependency " + dependency.getGroupId()
-            + ":" + dependency.getArtifactId() + ":" + dependency.getVersion() + ": "
-            + e.getMessage());
       }
+
+      if (parent == null) {
+        addArtifact(artifactRule, TOP_LEVEL_ARTIFACT);
+      } else {
+        parent.addDependency(artifactRule);
+        parent.getDependencies().addAll(artifactRule.getDependencies());
+      }
+    } catch (UnresolvableModelException | InvalidArtifactCoordinateException e) {
+      logger.warning("Could not resolve dependency " + dependency.getGroupId()
+          + ":" + dependency.getArtifactId() + ":" + dependency.getVersion() + ": "
+          + e.getMessage());
     }
   }
 
@@ -291,7 +321,7 @@ public class Resolver {
       if (!existingDependency.version().equals(dependency.version())) {
         existingDependency.addParent(parent + " wanted version " + dependency.version());
       } else {
-        existingDependency.addParent(parent);
+        existingDependency.addParent(parent + " got requested version");
       }
       return false;
     }

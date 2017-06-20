@@ -15,6 +15,9 @@ java_test(
     deps = [
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven",
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven:rule",
+        "//third_party:aether",
+        "//third_party:maven_model",
+        "@com_google_guava_guava//jar",
         "@com_google_truth_truth//jar",
         "@junit_junit//jar",
         "@org_mockito_mockito_all//jar",

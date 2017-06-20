@@ -15,11 +15,23 @@
 package com.google.devtools.build.workspace.maven;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
+import java.util.HashSet;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.DependencyManagement;
+import org.apache.maven.model.Exclusion;
+import org.apache.maven.model.InputLocation;
+import org.apache.maven.model.Model;
+import org.eclipse.aether.artifact.DefaultArtifact;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mockito;
 
 import java.util.Collection;
 
@@ -47,7 +59,7 @@ public class ResolverTest {
 
   @Test
   public void testArtifactResolution() throws Exception {
-    DefaultModelResolver modelResolver = Mockito.mock(DefaultModelResolver.class);
+    DefaultModelResolver modelResolver = mock(DefaultModelResolver.class);
     Resolver resolver = new Resolver(modelResolver);
     resolver.resolveArtifact("x:y:1.2.3");
     Collection<Rule> rules = resolver.getRules();
@@ -102,4 +114,48 @@ public class ResolverTest {
   public void unparsableVersion() throws Exception {
     Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3");
   }
+
+  private Dependency getDependency(String coordinates) {
+    String[] coordinateArray = coordinates.split(":");
+    Preconditions.checkState(coordinateArray.length == 3);
+    Dependency dependency = new Dependency();
+    dependency.setGroupId(coordinateArray[0]);
+    dependency.setArtifactId(coordinateArray[1]);
+    dependency.setVersion(coordinateArray[2]);
+    return dependency;
+  }
+
+  @Test
+  public void dependencyManagementWins() throws Exception {
+    Dependency v1 = getDependency("a:b:1.0");
+    Dependency v2 = getDependency("a:b:2.0");
+
+    Model mockModel = mock(Model.class);
+    DependencyManagement dependencyManagement = new DependencyManagement();
+    dependencyManagement.addDependency(v1);
+    when(mockModel.getDependencyManagement()).thenReturn(dependencyManagement);
+    when(mockModel.getDependencies()).thenReturn(ImmutableList.of(v2));
+
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class));
+    resolver.traverseDeps(mockModel, Sets.newHashSet(), new Rule(new DefaultArtifact("par:ent:1.2.3")));
+    Collection<Rule> rules = resolver.getRules();
+    assertThat(rules).hasSize(1);
+    Rule actual = rules.iterator().next();
+    assertThat(actual.version()).isEqualTo("1.0");
+  }
+
+  @Test
+  public void exclusions() throws Exception {
+    Model mockModel = mock(Model.class);
+    when(mockModel.getDependencies()).thenReturn(ImmutableList.of(getDependency("a:b:1.0")));
+
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class));
+    resolver.traverseDeps(
+        mockModel,
+        Sets.newHashSet("a:b"),
+        new Rule(new DefaultArtifact("par:ent:1.2.3")));
+    Collection<Rule> rules = resolver.getRules();
+    assertThat(rules).isEmpty();
+  }
+
 }
