@@ -19,10 +19,9 @@ import com.google.common.collect.Sets;
 
 import java.lang.invoke.MethodHandles;
 import java.util.logging.Logger;
-import org.apache.maven.model.Exclusion;
+import javax.annotation.Nullable;
 import org.eclipse.aether.artifact.Artifact;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -35,6 +34,8 @@ public final class Rule implements Comparable<Rule> {
   static final String MAVEN_CENTRAL_URL = "https://repo1.maven.org/maven2/";
 
   private final Artifact artifact;
+  @Nullable
+  private final String alias;
   private final Set<String> parents;
   private final Set<String> exclusions;
   private final Set<Rule> dependencies;
@@ -42,20 +43,16 @@ public final class Rule implements Comparable<Rule> {
   private String sha1;
 
   public Rule(Artifact artifact) {
+    this(artifact, null);
+  }
+
+  public Rule(Artifact artifact, String alias) {
     this.artifact = artifact;
     this.parents = Sets.newHashSet();
     this.dependencies = Sets.newTreeSet();
     this.exclusions = Sets.newHashSet();
     this.repository = MAVEN_CENTRAL_URL;
-  }
-
-  public Rule(Artifact artifact, List<Exclusion> exclusions) {
-    this(artifact);
-
-    for (Exclusion exclusion : exclusions) {
-      String coord = String.format("%s:%s", exclusion.getGroupId(), exclusion.getArtifactId());
-      this.exclusions.add(coord);
-    }
+    this.alias = alias;
   }
 
   public void addParent(String parent) {
@@ -74,10 +71,6 @@ public final class Rule implements Comparable<Rule> {
     return artifact.getArtifactId();
   }
 
-  public Set<String> getExclusions() {
-    return exclusions;
-  }
-
   public String groupId() {
     return artifact.getGroupId();
   }
@@ -90,6 +83,9 @@ public final class Rule implements Comparable<Rule> {
    * A unique name for this artifact to use in maven_jar's name attribute.
    */
   public String name() {
+    if (alias != null) {
+      return alias;
+    }
     return Rule.name(groupId(), artifactId());
   }
 
@@ -142,24 +138,6 @@ public final class Rule implements Comparable<Rule> {
     return repository + getUri();
   }
 
-  /**
-   * The way this jar should be stringified for the WORKSPACE file.
-   */
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    for (String parent : parents) {
-      builder.append("# " + parent + "\n");
-    }
-    builder.append("maven_jar(\n"
-        + "    name = \"" + name() + "\",\n"
-        + "    artifact = \"" + toMavenArtifactString() + "\",\n"
-        + (hasCustomRepository() ? "    repository = \"" + repository + "\",\n" : "")
-        + (sha1 != null ? "    sha1 = \"" + sha1 + "\",\n" : "")
-        + ")");
-    return builder.toString();
-  }
-
   public boolean hasCustomRepository() {
     return !MAVEN_CENTRAL_URL.equals(repository);
   }
@@ -199,5 +177,9 @@ public final class Rule implements Comparable<Rule> {
 
   public String getSha1() {
     return sha1;
+  }
+
+  public boolean aliased() {
+    return alias != null;
   }
 }

@@ -17,6 +17,7 @@ package com.google.devtools.build.workspace;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.beust.jcommander.JCommander;
+import com.google.devtools.build.workspace.maven.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -56,6 +57,38 @@ public class GenerateWorkspaceOptionsTest {
     JCommander optionParser = JCommander.newBuilder().addObject(options).build();
     optionParser.parse("--artifact", "a:b1:[1.2,2.0]", "--artifact", "a:b2:[1.0,2.0)");
     assertThat(options.artifacts).containsExactly("a:b1:[1.2,2.0]", "a:b2:[1.0,2.0)");
+  }
+
+  @Test
+  public void alias() throws Exception {
+    GenerateWorkspaceOptions options = new GenerateWorkspaceOptions();
+    JCommander optionParser = JCommander.newBuilder().addObject(options).build();
+    optionParser.parse("--declare=a:b=c");
+    assertThat(options.aliases).hasSize(1);
+    Rule aliasedRule = options.aliases.get(0);
+    assertThat(aliasedRule.name()).isEqualTo("c");
+    assertThat(aliasedRule.toMavenArtifactString()).isEqualTo("a:b:0");
+  }
+
+  @Test
+  public void versionedAlias() throws Exception {
+    GenerateWorkspaceOptions options = new GenerateWorkspaceOptions();
+    JCommander optionParser = JCommander.newBuilder().addObject(options).build();
+    optionParser.parse("--declare=a:b:1.2.3=c");
+    assertThat(options.aliases).hasSize(1);
+    Rule aliasedRule = options.aliases.get(0);
+    assertThat(aliasedRule.name()).isEqualTo("c");
+    assertThat(aliasedRule.toMavenArtifactString()).isEqualTo("a:b:1.2.3");
+  }
+
+  @Test
+  public void declareDefault() throws Exception {
+    GenerateWorkspaceOptions options = new GenerateWorkspaceOptions();
+    JCommander optionParser = JCommander.newBuilder().addObject(options).build();
+    optionParser.parse("--declare=a:b");
+    assertThat(options.aliases).hasSize(1);
+    Rule aliasedRule = options.aliases.get(0);
+    assertThat(aliasedRule.name()).isEqualTo("a_b");
   }
 
 }

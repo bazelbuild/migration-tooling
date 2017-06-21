@@ -22,11 +22,9 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import java.util.HashSet;
+import java.util.List;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
-import org.apache.maven.model.Exclusion;
-import org.apache.maven.model.InputLocation;
 import org.apache.maven.model.Model;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.junit.Test;
@@ -42,6 +40,7 @@ import java.util.Collection;
 public class ResolverTest {
   private static final String GROUP_ID = "x";
   private static final String ARTIFACT_ID = "y";
+  private static final List<Rule> ALIASES = ImmutableList.of();
 
   @Test
   public void testGetSha1Url() throws Exception {
@@ -60,7 +59,7 @@ public class ResolverTest {
   @Test
   public void testArtifactResolution() throws Exception {
     DefaultModelResolver modelResolver = mock(DefaultModelResolver.class);
-    Resolver resolver = new Resolver(modelResolver);
+    Resolver resolver = new Resolver(modelResolver, ALIASES);
     resolver.resolveArtifact("x:y:1.2.3");
     Collection<Rule> rules = resolver.getRules();
     assertThat(rules).hasSize(1);
@@ -136,8 +135,9 @@ public class ResolverTest {
     when(mockModel.getDependencyManagement()).thenReturn(dependencyManagement);
     when(mockModel.getDependencies()).thenReturn(ImmutableList.of(v2));
 
-    Resolver resolver = new Resolver(mock(DefaultModelResolver.class));
-    resolver.traverseDeps(mockModel, Sets.newHashSet(), new Rule(new DefaultArtifact("par:ent:1.2.3")));
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), ALIASES);
+    resolver.traverseDeps(
+        mockModel, Sets.newHashSet(), new Rule(new DefaultArtifact("par:ent:1.2.3")));
     Collection<Rule> rules = resolver.getRules();
     assertThat(rules).hasSize(1);
     Rule actual = rules.iterator().next();
@@ -149,13 +149,32 @@ public class ResolverTest {
     Model mockModel = mock(Model.class);
     when(mockModel.getDependencies()).thenReturn(ImmutableList.of(getDependency("a:b:1.0")));
 
-    Resolver resolver = new Resolver(mock(DefaultModelResolver.class));
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), ALIASES);
     resolver.traverseDeps(
         mockModel,
         Sets.newHashSet("a:b"),
         new Rule(new DefaultArtifact("par:ent:1.2.3")));
     Collection<Rule> rules = resolver.getRules();
     assertThat(rules).isEmpty();
+  }
+
+  @Test
+  public void aliasWins() throws Exception {
+    Rule aliasedRule = new Rule(Resolver.getArtifact("a:b:0"), "c");
+    Model mockModel = mock(Model.class);
+    when(mockModel.getDependencies()).thenReturn(ImmutableList.of(getDependency("a:b:1.0")));
+
+    Resolver resolver = new Resolver(
+        mock(DefaultModelResolver.class), ImmutableList.of(aliasedRule));
+    resolver.traverseDeps(
+        mockModel,
+        Sets.newHashSet(),
+        new Rule(new DefaultArtifact("par:ent:1.2.3")));
+    Collection<Rule> rules = resolver.getRules();
+    assertThat(rules).hasSize(2);
+    rules.iterator().next();
+    Rule actualRule = rules.iterator().next();
+    assertThat(actualRule).isSameAs(aliasedRule);
   }
 
 }

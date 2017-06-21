@@ -3,12 +3,12 @@ java_test(
     srcs = ["WorkspaceWriterTest.java"],
     deps = [
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace",
-        "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven:rule",
+        "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven",
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace/output",
         "//third_party:aether",
         "//third_party:maven_model",
-        "@com_google_truth_truth//jar",
         "@com_google_guava_guava//jar",
+        "@com_google_truth_truth//jar",
         "@junit_junit//jar",
     ],
 )
@@ -17,11 +17,11 @@ java_test(
     name = "BzlWriterTest",
     srcs = ["BzlWriterTest.java"],
     deps = [
-        "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven:rule",
+        "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven",
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace/output",
         "//third_party:aether",
-        "@com_google_truth_truth//jar",
         "@com_google_guava_guava//jar",
+        "@com_google_truth_truth//jar",
         "@junit_junit//jar",
     ],
 )

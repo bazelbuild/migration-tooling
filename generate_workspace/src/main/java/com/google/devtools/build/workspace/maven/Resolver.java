@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 import com.google.common.io.CharStreams;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
@@ -62,13 +63,13 @@ public class Resolver {
   /**
    * Exception thrown if an artifact coordinate could not be parsed.
    */
-  static class InvalidArtifactCoordinateException extends Exception {
+  public static class InvalidArtifactCoordinateException extends Exception {
     InvalidArtifactCoordinateException(String message) {
       super(message);
     }
   }
   
-  static Artifact getArtifact(String atrifactCoords)
+  public static Artifact getArtifact(String atrifactCoords)
       throws InvalidArtifactCoordinateException {
     try {
       return new DefaultArtifact(atrifactCoords);
@@ -138,9 +139,10 @@ public class Resolver {
   // Mapping of maven_jar name to Rule.
   private final Map<String, Rule> deps;
 
-  public Resolver(DefaultModelResolver resolver) {
+  public Resolver(DefaultModelResolver resolver, List<Rule> aliases) {
     this.deps = Maps.newHashMap();
     this.modelResolver = resolver;
+    aliases.forEach(alias -> addArtifact(alias, TOP_LEVEL_ARTIFACT));
   }
 
   /**
