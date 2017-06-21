@@ -36,10 +36,12 @@ public class WorkspaceWriter extends AbstractWriter {
   private final static Logger logger = Logger.getLogger(
       MethodHandles.lookup().lookupClass().getName());
 
+  private final String[] args;
   private final File workspaceFile;
   private final File buildFile;
 
-  public WorkspaceWriter(String outputDirStr) throws IOException {
+  public WorkspaceWriter(String[] args, String outputDirStr) throws IOException {
+    this.args = args;
     Path outputDir;
     if (outputDirStr.isEmpty()) {
       outputDir = Files.createTempDirectory("generate_workspace");
@@ -83,7 +85,7 @@ public class WorkspaceWriter extends AbstractWriter {
    */
   public void writeWorkspace(PrintStream outputStream, List<String> sources,
       Collection<Rule> rules) {
-    writeHeader(outputStream, sources);
+    writeHeader(outputStream, args, sources);
     for (Rule rule : rules) {
       outputStream.println(formatMavenJar(rule, "maven_jar", ""));
     }
@@ -91,7 +93,7 @@ public class WorkspaceWriter extends AbstractWriter {
 
   public void writeBuild(PrintStream outputStream, List<String> sources,
       Collection<Rule> rules) {
-    writeHeader(outputStream, sources);
+    writeHeader(outputStream, args, sources);
     for (Rule rule : rules) {
       outputStream.println(formatJavaLibrary(rule, "java_library", ""));
     }

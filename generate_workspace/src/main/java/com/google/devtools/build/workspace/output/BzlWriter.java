@@ -32,10 +32,12 @@ public class BzlWriter extends AbstractWriter {
   private final static Logger logger = Logger.getLogger(
       MethodHandles.lookup().lookupClass().getName());
 
+  private final String[] argv;
   private final Path generatedFile;
 
-  public BzlWriter(String outputDirStr) {
-    generatedFile = Paths.get(outputDirStr).resolve("generate_workspace.bzl");
+  public BzlWriter(String[] argv, String outputDirStr) {
+    this.argv = argv;
+    this.generatedFile = Paths.get(outputDirStr).resolve("generate_workspace.bzl");
   }
 
   @Override
@@ -65,7 +67,7 @@ public class BzlWriter extends AbstractWriter {
             + "# For either, make sure that there is a BUILD file in your top-level directory, so"
             + " that //:generate_workspace.bzl resolves correctly.\n\n"
     );
-    writeHeader(outputStream, sources);
+    writeHeader(outputStream, argv, sources);
     outputStream.println("def generated_maven_jars():");
     if (rules.isEmpty()) {
       outputStream.println("  pass\n");
