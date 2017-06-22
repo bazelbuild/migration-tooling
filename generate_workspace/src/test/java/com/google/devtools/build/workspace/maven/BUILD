@@ -3,7 +3,6 @@ java_test(
     srcs = ["RuleTest.java"],
     deps = [
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven",
-        "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven:rule",
         "@com_google_truth_truth//jar",
         "@junit_junit//jar",
     ],
@@ -14,7 +13,6 @@ java_test(
     srcs = ["ResolverTest.java"],
     deps = [
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven",
-        "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven:rule",
         "//third_party:aether",
         "//third_party:maven_model",
         "@com_google_guava_guava//jar",

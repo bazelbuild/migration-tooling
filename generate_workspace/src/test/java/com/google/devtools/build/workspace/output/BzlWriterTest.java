@@ -66,6 +66,20 @@ public class BzlWriterTest {
   }
 
   @Test
+  public void writeAlias() throws Exception {
+    BzlWriter writer = new BzlWriter(System.getenv("TEST_TMPDIR"));
+    writer.write(
+        ImmutableList.of(), ImmutableList.of(new Rule(new DefaultArtifact("x:y:1.2.3"), "z")));
+    String fileContents = Files.toString(
+        new File(System.getenv("TEST_TMPDIR") + "/generate_workspace.bzl"),
+        Charset.defaultCharset());
+    assertThat(fileContents).doesNotContain("x:y:1.2.3");
+    assertThat(fileContents).contains(
+        "      exports = [\n"
+        + "          \"@z//jar\",\n"
+        + "      ],\n");
+  }
+  
   public void writeCommand() throws Exception {
     BzlWriter writer = new BzlWriter(new String[]{"x", "y", "z"}, System.getenv("TEST_TMPDIR"));
     writer.write(ImmutableList.of(), ImmutableList.of());

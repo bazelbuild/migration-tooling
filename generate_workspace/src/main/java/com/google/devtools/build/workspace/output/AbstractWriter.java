@@ -38,6 +38,11 @@ public abstract class AbstractWriter {
   }
 
   protected String formatMavenJar(Rule rule, String ruleName, String indent) {
+    if (rule.aliased()) {
+      // If the rule was aliased, then it is already declared somewhere else and we don't need to
+      // declare it again.
+      return "";
+    }
     StringBuilder builder = new StringBuilder();
     for (String parent : rule.getParents()) {
       builder.append(indent).append("# ").append(parent).append("\n");

@@ -19,6 +19,7 @@ import com.beust.jcommander.ParameterException;
 import com.google.common.collect.Lists;
 import com.google.devtools.build.workspace.maven.DefaultModelResolver;
 import com.google.devtools.build.workspace.maven.Resolver;
+import com.google.devtools.build.workspace.maven.Rule;
 import com.google.devtools.build.workspace.output.AbstractWriter;
 import com.google.devtools.build.workspace.output.BzlWriter;
 import com.google.devtools.build.workspace.output.WorkspaceWriter;
@@ -57,7 +58,7 @@ public class GenerateWorkspace {
 
     try {
       GenerateWorkspace workspaceFileGenerator = new GenerateWorkspace(
-          args, options.outputDir, options.directToWorkspace);
+          args, options.outputDir, options.directToWorkspace, options.aliases);
       workspaceFileGenerator.generateFromPom(options.mavenProjects);
       workspaceFileGenerator.generateFromArtifacts(options.artifacts);
       workspaceFileGenerator.writeResults();
@@ -67,9 +68,9 @@ public class GenerateWorkspace {
     }
   }
 
-  private GenerateWorkspace(String[] args, String outputDirStr, boolean directToWorkspace)
+  private GenerateWorkspace(String[] args, String outputDirStr, boolean directToWorkspace, List<Rule> aliases)
       throws IOException {
-    this.resolver = new Resolver(new DefaultModelResolver());
+    this.resolver = new Resolver(new DefaultModelResolver(), aliases);
     this.inputs = Lists.newArrayList();
     this.resultWriter = directToWorkspace
         ? new WorkspaceWriter(args, outputDirStr)

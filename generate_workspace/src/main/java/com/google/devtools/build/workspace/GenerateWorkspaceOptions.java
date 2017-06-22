@@ -14,19 +14,28 @@
 
 package com.google.devtools.build.workspace;
 
+import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.converters.IParameterSplitter;
 
+import com.google.devtools.build.workspace.maven.Resolver;
+import com.google.devtools.build.workspace.maven.Resolver.InvalidArtifactCoordinateException;
+import com.google.devtools.build.workspace.maven.Rule;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.eclipse.aether.artifact.Artifact;
 
 /**
  * Command-line options for generate_workspace tool.
  */
 @Parameters(separators = "=")
 public class GenerateWorkspaceOptions {
+
+  private static final String MIN_VERSION = "0";
+
   @Parameter(
       names = "--help",
       description = "This message.",
@@ -62,6 +71,18 @@ public class GenerateWorkspaceOptions {
   )
   public boolean directToWorkspace = false;
 
+  @Parameter(
+      names = {"--declare"},
+      description = "Reuse a repository that is already defined elsewhere. For example, "
+          + "--declare=org.mockito:mockito-all=mockito will use @mockito instead of "
+          + "@org_mockito_mockito_all for references to Mockito. You can also leave off the "
+          + "\"=mockito\" to use the default generated name (--declare=org.mockito:mockito-all "
+          + "will use @org_mockito_mockito_all for references). If this option is specified, it "
+          + "is assumed that you already have the repository defined somewhere else, so a "
+          + "maven_jar is not created for it.",
+      listConverter = AliasSplitter.class
+  )
+  public List<Rule> aliases = new ArrayList<>();
 
   /**
    * Jcommander defaults to splitting each parameter by comma. For example,
@@ -74,6 +95,43 @@ public class GenerateWorkspaceOptions {
     @Override
     public List<String> split(String value) {
       return Arrays.asList(value);
+    }
+  }
+
+  private static class AliasSplitter implements IStringConverter<Rule> {
+
+    @Override
+    public Rule convert(String s) {
+      if (s.contains("=")) {
+        return getMapping(s);
+      }
+
+      // Alternatively, maybe this is just a coordinate that's declared elsewhere.
+      return new Rule(getArtifact(s));
+    }
+
+    private Artifact getArtifact(String coordinate) {
+      if (coordinate.split(":").length == 2) {
+        // Add a version.
+        coordinate = coordinate + ":" + MIN_VERSION;
+      }
+      Artifact artifact;
+      try {
+        artifact = Resolver.getArtifact(coordinate);
+      } catch (InvalidArtifactCoordinateException e) {
+        throw new ParameterException(
+            "Invalid format for alias: " + coordinate + ": " + e.getLocalizedMessage());
+      }
+      return artifact;
+    }
+
+    private Rule getMapping(String s) {
+      String[] parts = s.split("=");
+      if (parts.length != 2) {
+        throw new ParameterException(
+            "Invalid format for alias: " + s + ", expected groupId:artifactId=repository_name");
+      }
+      return new Rule(getArtifact(parts[0]), parts[1]);
     }
   }
 }
