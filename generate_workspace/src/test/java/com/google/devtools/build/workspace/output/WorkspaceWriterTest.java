@@ -29,7 +29,6 @@ import org.junit.runners.JUnit4;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -38,34 +37,39 @@ import java.util.Set;
 @RunWith(JUnit4.class)
 public class WorkspaceWriterTest {
 
-  public String getWorkspaceFileContent(List<String> sources, Set<Rule> rules) throws Exception {
+  public String getWorkspaceFileContent(Set<Rule> rules) throws Exception {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     PrintStream ps = new PrintStream(baos);
     WorkspaceWriter writer = new WorkspaceWriter(new String[]{}, System.getenv("TEST_TMPDIR"));
-    writer.writeWorkspace(ps, sources, rules);
+    writer.writeWorkspace(ps, rules);
     return baos.toString(String.valueOf(Charset.defaultCharset()));
   }
 
-  public String getBuildFileContent(List<String> sources, Set<Rule> rules) throws Exception {
+  public String getBuildFileContent(Set<Rule> rules) throws Exception {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     PrintStream ps = new PrintStream(baos);
     WorkspaceWriter writer = new WorkspaceWriter(new String[]{}, System.getenv("TEST_TMPDIR"));
-    writer.writeBuild(ps, sources, rules);
+    writer.writeBuild(ps, rules);
     return baos.toString(String.valueOf(Charset.defaultCharset()));
   }
 
   @Test
   public void testHeaders() throws Exception {
-    String content = getWorkspaceFileContent(
-        ImmutableList.of("foo", "bar"), Sets.<Rule>newHashSet());
-    assertThat(content).contains("# foo\n# bar");
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    PrintStream ps = new PrintStream(baos);
+    WorkspaceWriter writer = new WorkspaceWriter(
+        new String[]{"--artifact=x:y:1.2.3", "--artifact=a:b:3.2.1"},
+        System.getenv("TEST_TMPDIR"));
+    writer.writeWorkspace(ps, Sets.newHashSet());
+    assertThat(baos.toString(String.valueOf(Charset.defaultCharset()))).contains(
+        "# generate_workspace --artifact=x:y:1.2.3 --artifact=a:b:3.2.1");
   }
 
   @Test
   public void testArtifacts() throws Exception {
     Set<Rule> rules = ImmutableSet.of(
         new Rule(new DefaultArtifact("x:y:1.2.3")));
-    String content = getWorkspaceFileContent(ImmutableList.<String>of(), rules);
+    String content = getWorkspaceFileContent(rules);
     assertThat(content).contains("maven_jar(\n"
         + "    name = \"x_y\",\n"
         + "    artifact = \"x:y:1.2.3\",\n"
@@ -78,7 +82,7 @@ public class WorkspaceWriterTest {
     Rule rule = new Rule(new DefaultArtifact("x:y:1.2.3"));
     rule.addParent("some parent");
     Set<Rule> rules = ImmutableSet.of(rule);
-    String content = getWorkspaceFileContent(ImmutableList.<String>of(), rules);
+    String content = getWorkspaceFileContent(rules);
     assertThat(content).contains("# some parent\n"
             + "maven_jar(\n"
             + "    name = \"x_y\",\n"
@@ -95,14 +99,14 @@ public class WorkspaceWriterTest {
     Rule dep2 = new Rule(new DefaultArtifact("dep:dep2:7.8.9"));
     rule.addDependency(dep2);
     Set<Rule> rules = ImmutableSet.of(rule, dep1, dep2);
-    String content = getBuildFileContent(ImmutableList.<String>of(), rules);
+    String content = getBuildFileContent(rules);
     assertThat(content).contains("java_library(\n"
             + "    name = \"x_y\",\n"
             + "    visibility = [\"//visibility:public\"],\n"
-            + "    exports = [\n"
-            + "        \"@x_y//jar\",\n"
-            + "        \"@dep_dep1//jar\",\n"
-            + "        \"@dep_dep2//jar\",\n"
+            + "    exports = [\"@x_y//jar\"],\n"
+            + "    runtime_deps = [\n"
+            + "        \":dep_dep1\",\n"
+            + "        \":dep_dep2\",\n"
             + "    ],\n"
             + ")"
     );

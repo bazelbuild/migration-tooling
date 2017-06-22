@@ -35,7 +35,7 @@ public class BzlWriterTest {
   @Test
   public void writeEmpty() throws Exception {
     BzlWriter writer = new BzlWriter(new String[]{}, System.getenv("TEST_TMPDIR"));
-    writer.write(ImmutableList.of(), ImmutableList.of());
+    writer.write(ImmutableList.of());
     String fileContents = Files.toString(
         new File(System.getenv("TEST_TMPDIR") + "/generate_workspace.bzl"),
         Charset.defaultCharset());
@@ -46,9 +46,7 @@ public class BzlWriterTest {
   @Test
   public void writeRules() throws Exception {
     BzlWriter writer = new BzlWriter(new String[]{}, System.getenv("TEST_TMPDIR"));
-    writer.write(ImmutableList.of(), ImmutableList.of(
-        new Rule(new DefaultArtifact("x:y:1.2.3"))
-    ));
+    writer.write(ImmutableList.of(new Rule(new DefaultArtifact("x:y:1.2.3"))));
     String fileContents = Files.toString(
         new File(System.getenv("TEST_TMPDIR") + "/generate_workspace.bzl"),
         Charset.defaultCharset());
@@ -59,30 +57,24 @@ public class BzlWriterTest {
     assertThat(fileContents).contains("def generated_java_libraries():\n  native.java_library(\n"
         + "      name = \"x_y\",\n"
         + "      visibility = [\"//visibility:public\"],\n"
-        + "      exports = [\n"
-        + "          \"@x_y//jar\",\n"
-        + "      ],\n"
+        + "      exports = [\"@x_y//jar\"],\n"
         + "  )\n");
   }
 
   @Test
   public void writeAlias() throws Exception {
     BzlWriter writer = new BzlWriter(new String[]{}, System.getenv("TEST_TMPDIR"));
-    writer.write(
-        ImmutableList.of(), ImmutableList.of(new Rule(new DefaultArtifact("x:y:1.2.3"), "z")));
+    writer.write(ImmutableList.of(new Rule(new DefaultArtifact("x:y:1.2.3"), "z")));
     String fileContents = Files.toString(
         new File(System.getenv("TEST_TMPDIR") + "/generate_workspace.bzl"),
         Charset.defaultCharset());
     assertThat(fileContents).doesNotContain("x:y:1.2.3");
-    assertThat(fileContents).contains(
-        "      exports = [\n"
-        + "          \"@z//jar\",\n"
-        + "      ],\n");
+    assertThat(fileContents).contains("exports = [\"@z//jar\"],");
   }
   
   public void writeCommand() throws Exception {
     BzlWriter writer = new BzlWriter(new String[]{"x", "y", "z"}, System.getenv("TEST_TMPDIR"));
-    writer.write(ImmutableList.of(), ImmutableList.of());
+    writer.write(ImmutableList.of());
     String fileContents = Files.toString(
         new File(System.getenv("TEST_TMPDIR") + "/generate_workspace.bzl"),
         Charset.defaultCharset());

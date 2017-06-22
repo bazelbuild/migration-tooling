@@ -26,7 +26,6 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -66,11 +65,11 @@ public class WorkspaceWriter extends AbstractWriter {
   }
 
   @Override
-  public void write(List<String> sources, Collection<Rule> rules) {
+  public void write(Collection<Rule> rules) {
     try (PrintStream workspaceStream = new PrintStream(workspaceFile);
         PrintStream buildStream = new PrintStream(buildFile)) {
-      writeWorkspace(workspaceStream, sources, rules);
-      writeBuild(buildStream, sources, rules);
+      writeWorkspace(workspaceStream, rules);
+      writeBuild(buildStream, rules);
     } catch (IOException e) {
       logger.severe(
           "Could not write WORKSPACE and BUILD files to " + buildFile.getParent() + ": "
@@ -83,17 +82,15 @@ public class WorkspaceWriter extends AbstractWriter {
   /**
    * Writes all resolved dependencies in WORKSPACE file format to the outputStream.
    */
-  public void writeWorkspace(PrintStream outputStream, List<String> sources,
-      Collection<Rule> rules) {
-    writeHeader(outputStream, args, sources);
+  public void writeWorkspace(PrintStream outputStream, Collection<Rule> rules) {
+    writeHeader(outputStream, args);
     for (Rule rule : rules) {
       outputStream.println(formatMavenJar(rule, "maven_jar", ""));
     }
   }
 
-  public void writeBuild(PrintStream outputStream, List<String> sources,
-      Collection<Rule> rules) {
-    writeHeader(outputStream, args, sources);
+  public void writeBuild(PrintStream outputStream, Collection<Rule> rules) {
+    writeHeader(outputStream, args);
     for (Rule rule : rules) {
       outputStream.println(formatJavaLibrary(rule, "java_library", ""));
     }
