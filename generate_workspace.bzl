@@ -21,6 +21,7 @@
 # org.mockito:mockito-all:1.9.5
 # junit:junit:4.4
 # com.google.truth:truth:0.30
+# org.jsoup:jsoup:1.10.1
 
 
 def generated_maven_jars():
@@ -81,6 +82,12 @@ def generated_maven_jars():
   native.maven_jar(
       name = "org_codehaus_plexus_plexus_interpolation",
       artifact = "org.codehaus.plexus:plexus-interpolation:1.24",
+  )
+
+
+  native.maven_jar(
+      name = "org_jsoup_jsoup",
+      artifact = "org.jsoup:jsoup:1.10.1",
   )
 
 
@@ -182,6 +189,15 @@ def generated_java_libraries():
       visibility = ["//visibility:public"],
       exports = [
           "@org_codehaus_plexus_plexus_interpolation//jar",
+      ],
+  )
+
+
+  native.java_library(
+      name = "org_jsoup_jsoup",
+      visibility = ["//visibility:public"],
+      exports = [
+          "@org_jsoup_jsoup//jar",
       ],
   )
 

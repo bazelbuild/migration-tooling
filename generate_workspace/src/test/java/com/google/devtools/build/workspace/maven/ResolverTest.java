@@ -15,18 +15,14 @@
 package com.google.devtools.build.workspace.maven;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import java.util.HashSet;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
-import org.apache.maven.model.Exclusion;
-import org.apache.maven.model.InputLocation;
 import org.apache.maven.model.Model;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.junit.Test;
@@ -34,28 +30,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.Collection;
-
 /**
  * Tests for {@link Resolver}.
  */
 @RunWith(JUnit4.class)
 public class ResolverTest {
-  private static final String GROUP_ID = "x";
-  private static final String ARTIFACT_ID = "y";
-
-  @Test
-  public void testGetSha1Url() throws Exception {
-    assertThat(Resolver.getSha1Url("http://example.com/foo.pom", "jar"))
-        .isEqualTo("http://example.com/foo.jar.sha1");
-    assertThat(Resolver.getSha1Url("http://example.com/foo.pom", "aar"))
-        .isEqualTo("http://example.com/foo.aar.sha1");
-  }
-
-  @Test
-  public void testGetSha1UrlOnlyAtEOL() throws Exception {
-    assertThat(Resolver.getSha1Url("http://example.pom/foo.pom", "jar"))
-        .isEqualTo("http://example.pom/foo.jar.sha1");
-  }
 
   @Test
   public void testArtifactResolution() throws Exception {
@@ -66,53 +45,6 @@ public class ResolverTest {
     assertThat(rules).hasSize(1);
     Rule rule = rules.iterator().next();
     assertThat(rule.name()).isEqualTo("x_y");
-  }
-
-  @Test
-  public void testExtractSha1() {
-    assertThat(Resolver.extractSha1("5fe28b9518e58819180a43a850fbc0dd24b7c050"))
-        .isEqualTo("5fe28b9518e58819180a43a850fbc0dd24b7c050");
-
-    assertThat(Resolver.extractSha1("5fe28b9518e58819180a43a850fbc0dd24b7c050\n"))
-        .isEqualTo("5fe28b9518e58819180a43a850fbc0dd24b7c050");
-
-    assertThat(Resolver.extractSha1(
-         "83cd2cd674a217ade95a4bb83a8a14f351f48bd0  /home/maven/repository-staging/to-ibiblio/maven2/antlr/antlr/2.7.7/antlr-2.7.7.jar"))
-        .isEqualTo("83cd2cd674a217ade95a4bb83a8a14f351f48bd0");
-  }
-
-  @Test
-  public void basicVersion() throws Exception {
-    assertThat(Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "1.2.3"))
-        .isEqualTo("1.2.3");
-  }
-
-  @Test
-  public void exactVersion() throws Exception {
-    assertThat(Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3]"))
-        .isEqualTo("1.2.3");
-  }
-
-  @Test
-  public void versionRange() throws Exception {
-    assertThat(Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3,1.2.5]"))
-        .isEqualTo("1.2.5");
-  }
-
-  @Test
-  public void versionRangeExclusive() throws Exception {
-    assertThat(Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3,1.2.5)"))
-        .isEqualTo("1.2.3");
-  }
-
-  @Test(expected = Resolver.InvalidArtifactCoordinateException.class)
-  public void versionRangeAllExclusive() throws Exception {
-    Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "(1.2.3,1.2.5)");
-  }
-
-  @Test(expected = Resolver.InvalidArtifactCoordinateException.class)
-  public void unparsableVersion() throws Exception {
-    Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3");
   }
 
   private Dependency getDependency(String coordinates) {
@@ -157,5 +89,4 @@ public class ResolverTest {
     Collection<Rule> rules = resolver.getRules();
     assertThat(rules).isEmpty();
   }
-
 }
