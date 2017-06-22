@@ -57,7 +57,7 @@ public class GenerateWorkspace {
 
     try {
       GenerateWorkspace workspaceFileGenerator = new GenerateWorkspace(
-          options.outputDir, options.directToWorkspace);
+          args, options.outputDir, options.directToWorkspace);
       workspaceFileGenerator.generateFromPom(options.mavenProjects);
       workspaceFileGenerator.generateFromArtifacts(options.artifacts);
       workspaceFileGenerator.writeResults();
@@ -67,12 +67,13 @@ public class GenerateWorkspace {
     }
   }
 
-  private GenerateWorkspace(String outputDirStr, boolean directToWorkspace) throws IOException {
+  private GenerateWorkspace(String[] args, String outputDirStr, boolean directToWorkspace)
+      throws IOException {
     this.resolver = new Resolver(new DefaultModelResolver());
     this.inputs = Lists.newArrayList();
     this.resultWriter = directToWorkspace
-        ? new WorkspaceWriter(outputDirStr)
-        : new BzlWriter(outputDirStr);
+        ? new WorkspaceWriter(args, outputDirStr)
+        : new BzlWriter(args, outputDirStr);
   }
 
   private void generateFromPom(List<String> projects) {
