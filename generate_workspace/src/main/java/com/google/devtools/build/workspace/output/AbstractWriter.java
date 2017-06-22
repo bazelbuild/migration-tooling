@@ -28,8 +28,9 @@ public abstract class AbstractWriter {
   /**
    * Writes the list of sources as a comment to outputStream.
    */
-  void writeHeader(PrintStream outputStream, List<String> sources) {
+  void writeHeader(PrintStream outputStream, String[] argv, List<String> sources) {
     outputStream.println("# The following dependencies were calculated from:");
+    outputStream.println("# generate_workspace " + String.join(" ", argv));
     for (String header : sources) {
       outputStream.println("# " + header);
     }

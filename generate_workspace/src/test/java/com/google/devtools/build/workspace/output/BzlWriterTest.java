@@ -34,7 +34,7 @@ public class BzlWriterTest {
 
   @Test
   public void writeEmpty() throws Exception {
-    BzlWriter writer = new BzlWriter(System.getenv("TEST_TMPDIR"));
+    BzlWriter writer = new BzlWriter(new String[]{}, System.getenv("TEST_TMPDIR"));
     writer.write(ImmutableList.of(), ImmutableList.of());
     String fileContents = Files.toString(
         new File(System.getenv("TEST_TMPDIR") + "/generate_workspace.bzl"),
@@ -45,7 +45,7 @@ public class BzlWriterTest {
 
   @Test
   public void writeRules() throws Exception {
-    BzlWriter writer = new BzlWriter(System.getenv("TEST_TMPDIR"));
+    BzlWriter writer = new BzlWriter(new String[]{}, System.getenv("TEST_TMPDIR"));
     writer.write(ImmutableList.of(), ImmutableList.of(
         new Rule(new DefaultArtifact("x:y:1.2.3"))
     ));
@@ -78,5 +78,14 @@ public class BzlWriterTest {
         "      exports = [\n"
         + "          \"@z//jar\",\n"
         + "      ],\n");
+  }
+  
+  public void writeCommand() throws Exception {
+    BzlWriter writer = new BzlWriter(new String[]{"x", "y", "z"}, System.getenv("TEST_TMPDIR"));
+    writer.write(ImmutableList.of(), ImmutableList.of());
+    String fileContents = Files.toString(
+        new File(System.getenv("TEST_TMPDIR") + "/generate_workspace.bzl"),
+        Charset.defaultCharset());
+    assertThat(fileContents).contains("# generate_workspace x y z");
   }
 }
