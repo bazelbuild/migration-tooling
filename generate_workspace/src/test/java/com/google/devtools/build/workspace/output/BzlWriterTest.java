@@ -67,7 +67,7 @@ public class BzlWriterTest {
 
   @Test
   public void writeAlias() throws Exception {
-    BzlWriter writer = new BzlWriter(System.getenv("TEST_TMPDIR"));
+    BzlWriter writer = new BzlWriter(new String[]{}, System.getenv("TEST_TMPDIR"));
     writer.write(
         ImmutableList.of(), ImmutableList.of(new Rule(new DefaultArtifact("x:y:1.2.3"), "z")));
     String fileContents = Files.toString(
