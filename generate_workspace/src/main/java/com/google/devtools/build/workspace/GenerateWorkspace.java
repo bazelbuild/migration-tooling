@@ -98,6 +98,6 @@ public class GenerateWorkspace {
   }
 
   private void writeResults() {
-    resultWriter.write(inputs, resolver.getRules());
+    resultWriter.write(resolver.getRules());
   }
 }

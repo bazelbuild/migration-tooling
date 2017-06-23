@@ -21,7 +21,6 @@ import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -41,9 +40,9 @@ public class BzlWriter extends AbstractWriter {
   }
 
   @Override
-  public void write(List<String> sources, Collection<Rule> rules) {
+  public void write(Collection<Rule> rules) {
     try (PrintStream outputStream = new PrintStream(generatedFile.toFile())) {
-      writeBzl(outputStream, sources, rules);
+      writeBzl(outputStream, rules);
     } catch (IOException e) {
       logger.severe("Could not write " + generatedFile + ": " + e.getMessage());
       return;
@@ -51,23 +50,8 @@ public class BzlWriter extends AbstractWriter {
     System.out.println("Wrote " + generatedFile.toAbsolutePath());
   }
 
-  private void writeBzl(PrintStream outputStream, List<String> sources, Collection<Rule> rules) {
-    outputStream.println(
-        "# To use, add the following lines to your WORKSPACE file:\n"
-            + "#\n"
-            + "#\tload('//:generate_workspace.bzl', 'generated_maven_jars')\n"
-            + "#\tgenerated_maven_jars()\n"
-            + "#\n"
-            + "# To use the java_library targets this generates, add the following lines to a "
-            + " BUILD file:\n"
-            + "#\n"
-            + "#\tload('//:generate_workspace.bzl', 'generated_java_libraries')\n"
-            + "#\tgenerated_java_libraries()\n"
-            + "#\n"
-            + "# For either, make sure that there is a BUILD file in your top-level directory, so"
-            + " that //:generate_workspace.bzl resolves correctly.\n\n"
-    );
-    writeHeader(outputStream, argv, sources);
+  private void writeBzl(PrintStream outputStream, Collection<Rule> rules) {
+    writeHeader(outputStream, argv);
     outputStream.println("def generated_maven_jars():");
     if (rules.isEmpty()) {
       outputStream.println("  pass\n");

@@ -17,23 +17,21 @@ package com.google.devtools.build.workspace.output;
 import com.google.devtools.build.workspace.maven.Rule;
 import java.io.PrintStream;
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Basic implementation for output writers.
  */
 public abstract class AbstractWriter {
-  public abstract void write(List<String> sources, Collection<Rule> rules);
+  public abstract void write(Collection<Rule> rules);
 
   /**
    * Writes the list of sources as a comment to outputStream.
    */
-  void writeHeader(PrintStream outputStream, String[] argv, List<String> sources) {
+  void writeHeader(PrintStream outputStream, String[] argv) {
     outputStream.println("# The following dependencies were calculated from:");
+    outputStream.println("#");
     outputStream.println("# generate_workspace " + String.join(" ", argv));
-    for (String header : sources) {
-      outputStream.println("# " + header);
-    }
     outputStream.print("\n\n");
   }
 
@@ -70,12 +68,15 @@ public abstract class AbstractWriter {
     builder.append(indent).append(ruleName).append("(\n");
     builder.append(indent).append("    name = \"").append(rule.name()).append("\",\n");
     builder.append(indent).append("    visibility = [\"//visibility:public\"],\n");
-    builder.append(indent).append("    exports = [\n");
-    builder.append(indent).append("        \"@").append(rule.name()).append("//jar\",\n");
-    for (Rule r : rule.getDependencies()) {
-      builder.append(indent).append("        \"@").append(r.name()).append("//jar\",\n");
+    builder.append(indent).append("    exports = [\"@").append(rule.name()).append("//jar\"],\n");
+    Set<Rule> dependencies = rule.getDependencies();
+    if (!dependencies.isEmpty()) {
+      builder.append(indent).append("    runtime_deps = [\n");
+      for (Rule r : rule.getDependencies()) {
+        builder.append(indent).append("        \":").append(r.name()).append("\",\n");
+      }
+      builder.append(indent).append("    ],\n");
     }
-    builder.append(indent).append("    ],\n");
     builder.append(indent).append(")\n\n");
     return builder.toString();
   }
