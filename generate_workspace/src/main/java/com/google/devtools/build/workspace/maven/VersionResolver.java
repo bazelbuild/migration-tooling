@@ -1,28 +1,37 @@
 package com.google.devtools.build.workspace.maven;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
-import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
-import org.apache.maven.artifact.versioning.VersionRange;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.VersionRangeRequest;
+import org.eclipse.aether.resolution.VersionRangeResolutionException;
+import org.eclipse.aether.resolution.VersionRangeResult;
+import org.eclipse.aether.version.Version;
 
-import static com.google.devtools.build.workspace.maven.Rule.MAVEN_CENTRAL_URL;
+import java.io.IOException;
+import java.util.List;
+
+import static com.google.devtools.build.workspace.maven.AetherUtils.*;
+import static java.util.stream.Collectors.toList;
 
 public class VersionResolver {
 
-  private final VersionHTMLScraper downloader;
+  private RepositorySystem repositorySystem;
+
+  private RepositorySystemSession systemSession;
+
+  private List<RemoteRepository> remoteRepositories;
 
   VersionResolver() {
-    this(new VersionHTMLScraper(MAVEN_CENTRAL_URL));
-  }
+    this.repositorySystem = newRepositorySystem();
+    this.systemSession = newRepositorySession(this.repositorySystem);
 
-  @VisibleForTesting
-  VersionResolver(VersionHTMLScraper downloader) {
-    this.downloader = downloader;
+    // TODO(petros): Add support for non-maven central remote repository systems.
+    this.remoteRepositories = ImmutableList.of(newCentralRepository());
   }
 
   /**
@@ -55,63 +64,32 @@ public class VersionResolver {
   // TODO(petros): add support for repositories other than Maven central.
   private List<String> getPotentialVersions(String groupId, String artifactId, String versionSpec)
       throws IOException, Resolver.InvalidArtifactCoordinateException {
-    List<String> hyperLinks = downloader.scrapeHyperLinksForArtifact(groupId, artifactId);
 
-    List<String> potentialVersions = new ArrayList<>();
-    for (String link : hyperLinks) {
-      String potentialVersion = removeForwardSlashAtEnd(link);
-      if (isSnapshotVersion(potentialVersion)
-          || !containedInSpecifiedRange(groupId, artifactId, versionSpec, potentialVersion)) {
-        continue;
-      }
-      potentialVersions.add(potentialVersion);
-    }
-    if (potentialVersions.isEmpty()) {
-      throw new Resolver.InvalidArtifactCoordinateException(
-          messageForInvalidArtifact(groupId, artifactId, versionSpec));
-    }
-    return potentialVersions;
-  }
+    Artifact artifact = new DefaultArtifact(groupId + ":" + artifactId + ":" + versionSpec);
 
-  /** Checks if a given version is within the bounds of a version range */
-  private static boolean containedInSpecifiedRange(
-      String groupId, String artifactId, String versionSpec, String potentialVersion)
-      throws Resolver.InvalidArtifactCoordinateException {
+    VersionRangeRequest rangeRequest = new VersionRangeRequest(artifact, remoteRepositories, null);
 
-    if (versionSpec.isEmpty()) {
-      return true;
-    }
-    versionSpec = transformBasicVersionIntoRange(versionSpec);
-    VersionRange range;
     try {
-      range = VersionRange.createFromVersionSpec(versionSpec);
-    } catch (InvalidVersionSpecificationException e) {
+      // FIXME(petros): This does not return all possible versions, and doesn't even handle version ranges.
+      // That is, despite being the default resolver, strange.
+      final VersionRangeResult versionRangeResult = repositorySystem.resolveVersionRange(systemSession, rangeRequest);
+      if (versionRangeResult.getHighestVersion() == null) {
+        throw new Resolver.InvalidArtifactCoordinateException("no versions matched the requested range ");
+      }
+
+      List<String> potentialVersions =
+          versionRangeResult.getVersions().stream().map(Version::toString).collect(toList());
+      System.out.println("\tVersions for "+groupId + ":" + artifactId + ":" + versionSpec + ":" + potentialVersions);
+      return versionRangeResult.getVersions().stream().map(Version::toString).collect(toList());
+
+    } catch (VersionRangeResolutionException e) {
       throw new Resolver.InvalidArtifactCoordinateException(
           messageForInvalidArtifact(groupId, artifactId, versionSpec));
     }
-    return range.containsVersion(new DefaultArtifactVersion(potentialVersion));
-  }
 
-  /** Transforms a basic version spec, i.e. "1.3.4" into "[1.3.4, )" */
-  private static String transformBasicVersionIntoRange(String versionSpec) {
-    if (versionSpec.contains("[") || versionSpec.contains("(")) {
-      // Already a version range.
-      return versionSpec;
-    }
-    return "[" + versionSpec + "," + ")";
-  }
-
-  /** Checks if a version is a snapshot versions, i.e. non-release versions */
-  // TODO add support for sequences of versions like "[2.0,2.4),(2.5,)"
-  private static boolean isSnapshotVersion(String version) {
-    return !Pattern.compile("\\d+(\\.\\d+)*(\\.\\d+)*").matcher(version).matches() || version.isEmpty();
-  }
-
-  private static String removeForwardSlashAtEnd(String s) {
-    return s.split("/")[0];
   }
 
   private static String messageForInvalidArtifact(String groupId, String artifactId, String versionSpec) {
-    return "Unable to find a version for " + groupId + ":" + artifactId + ":" + versionSpec;
+    return "Unable to find versions for " + groupId + ":" + artifactId + ":" + versionSpec;
   }
 }
