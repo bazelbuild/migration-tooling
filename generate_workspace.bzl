@@ -1,6 +1,6 @@
 # The following dependencies were calculated from:
 #
-# generate_workspace -a=org.apache.maven:maven-artifact:3.5.0 -a=com.google.guava:guava:20.0 -a=org.powermock:powermock-module-junit4:1.6.6 -a=com.google.code.findbugs:jsr305:3.0.1 -a=org.codehaus.plexus:plexus-utilgenerate_workspace -a=org.apache.maven:maven-artifact:3.5.0 -a=com.google.guava:guava:20.0 -a=com.google.code.findbugs:jsr305:3.0.1 -a=org.codehaus.plexus:plexus-utils:jar:3.0.24 -a=org.codehaus.plexus:plexus-component-annotations:1.7.1 -a=org.codehaus.plexus:plexus-interpolation:1.24 -a=org.mockito:mockito-all:1.9.5 -a=junit:junit:4.4 -a=com.google.truth:truth:0.30
+# generate_workspace -a org.apache.maven:maven-artifact:3.5.0 -a org.apache.maven:maven-aether-provider:3.3.9 -a org.eclipse.aether:aether-util:1.1.0 -a com.google.guava:20.0 -a org.powermock:powermock-module-junit4:1.6.6 -a com.google.code.findbugs:jsr305:3.0.1 -a org.codehaus.plexus:plexus-utils:jar:3.0.24 -a org.codehaus.plexus:plexus-component-annotations:1.7.1 -a org.codehaus.plexus:plexus-interpolation:1.24 -a org.mockito:mockito-all:1.9.5 -a junit:junit:4.4 -a com.google.truth:truth:0.30
 
 
 def generated_maven_jars():
@@ -50,6 +50,18 @@ def generated_maven_jars():
       artifact = "javax.annotation:jsr250-api:1.0",
       repository = "http://repository.jboss.org/maven2/",
       sha1 = "5025422767732a1ab45d93abfea846513d742dcf",
+  )
+
+
+  # org.eclipse.aether:aether-api:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-spi:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-connector-basic:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-util:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-impl:jar:1.1.0
+  native.maven_jar(
+      name = "org_eclipse_aether_aether_connector_basic",
+      artifact = "org.eclipse.aether:aether-connector-basic:1.1.0",
+      sha1 = "f5c784bdd704ff64166c086eb6b31e2784c87b66",
   )
 
 
@@ -770,6 +782,7 @@ def generated_maven_jars():
   # org.apache.xbean:xbean-telnet:bundle:3.7 got requested version
   # org.apache.maven.resolver:maven-resolver-util:jar:1.0.3 wanted version 1.6.2
   # org.apache.maven:maven-model-builder:jar:3.5.0 wanted version 1.7.22
+  # org.eclipse.aether:aether-connector-basic:jar:1.1.0 wanted version 1.6.2
   # org.apache.xbean:xbean-blueprint:bundle:3.7 got requested version
   # org.apache.xbean:xbean-finder:bundle:3.7 got requested version
   # org.apache.maven.wagon:wagon-ssh-common-test:jar:2.12 wanted version 1.7.22
@@ -796,6 +809,7 @@ def generated_maven_jars():
   # org.apache.maven:maven-embedder:jar:3.5.0 wanted version 1.7.22
   # org.apache.maven:maven-settings:jar:3.5.0 wanted version 1.7.22
   # org.apache.maven.wagon:wagon-provider-api:jar:2.12 wanted version 1.7.22
+  # org.eclipse.aether:aether-spi:jar:1.1.0 wanted version 1.6.2
   # org.apache.maven.resolver:maven-resolver-impl:jar:1.0.3 wanted version 1.6.2
   # org.eclipse.jetty.aggregate:jetty-all:jar:8.1.22.v20160922 wanted version 1.6.1
   # org.apache.maven:maven-resolver-provider:jar:3.5.0 wanted version 1.7.22
@@ -805,6 +819,7 @@ def generated_maven_jars():
   # org.apache.maven:maven-model:jar:3.5.0 wanted version 1.7.22
   # org.apache.mina:mina-core:bundle:2.0.5 wanted version 1.6.6
   # org.apache.maven:maven-repository-metadata:jar:3.5.0 wanted version 1.7.22
+  # org.eclipse.aether:aether-api:jar:1.1.0 wanted version 1.6.2
   # org.apache.mina:mina-transport-apr:bundle:2.0.5 wanted version 1.6.6
   # org.slf4j:slf4j-simple:jar:1.5.11 got requested version
   # org.apache.maven.wagon:wagon-http:jar:2.12 wanted version 1.7.22
@@ -813,7 +828,9 @@ def generated_maven_jars():
   # org.apache.maven:maven-builder-support:jar:3.5.0 wanted version 1.7.22
   # org.apache.xbean:xbean-classloader:bundle:3.7 got requested version
   # org.apache.maven.resolver:maven-resolver-connector-basic:jar:1.0.3 wanted version 1.6.2
+  # org.eclipse.aether:aether-impl:jar:1.1.0 wanted version 1.6.2
   # org.apache.xbean:xbean-finder-shaded:jar:3.7
+  # org.eclipse.aether:aether-util:jar:1.1.0 wanted version 1.6.2
   # org.apache.xbean:xbean-naming:bundle:3.7 got requested version
   # org.apache.xbean:xbean-bundleutils:bundle:3.7 got requested version
   # org.slf4j:jcl-over-slf4j:jar:1.5.11 got requested version
@@ -987,6 +1004,19 @@ def generated_maven_jars():
       name = "org_springframework_spring_beans",
       artifact = "org.springframework:spring-beans:2.5.6",
       sha1 = "449ea46b27426eb846611a90b2fb8b4dcf271191",
+  )
+
+
+  # org.eclipse.aether:aether-api:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-spi:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-impl:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-connector-basic:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-util:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-util:jar:1.1.0
+  native.maven_jar(
+      name = "org_eclipse_aether_aether_api",
+      artifact = "org.eclipse.aether:aether-api:1.1.0",
+      sha1 = "05dd291e788f50dfb48822dab29defc16ad70860",
   )
 
 
@@ -1191,6 +1221,18 @@ def generated_maven_jars():
   )
 
 
+  # org.eclipse.aether:aether-api:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-impl:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-connector-basic:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-util:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-spi:jar:1.1.0
+  native.maven_jar(
+      name = "org_eclipse_aether_aether_impl",
+      artifact = "org.eclipse.aether:aether-impl:1.1.0",
+      sha1 = "8236fde6a1a4a7c6018d0a09e476f11c5ca8c2e1",
+  )
+
+
   # axion:axion:jar:1.0-M3-dev
   native.maven_jar(
       name = "commons_primitives_commons_primitives",
@@ -1207,12 +1249,14 @@ def generated_maven_jars():
   )
 
 
+  # org.eclipse.aether:aether-api:jar:1.1.0 wanted version 0.1.1
   # org.apache.maven:maven-plugin-api:jar:3.5.0 got requested version
   # org.apache.maven.resolver:maven-resolver-spi:jar:1.0.3 wanted version 0.1.1
   # org.apache.maven:maven-settings-builder:jar:3.5.0 got requested version
   # org.apache.maven:maven-model:jar:3.5.0 got requested version
   # org.apache.maven:maven-model-builder:jar:3.5.0 got requested version
   # org.apache.maven:maven-artifact:jar:3.5.0 got requested version
+  # org.eclipse.aether:aether-connector-basic:jar:1.1.0 wanted version 0.1.1
   # org.apache.maven:maven-core:jar:3.5.0 got requested version
   # org.apache.maven:maven-slf4j-provider:jar:3.5.0
   # org.apache.maven:maven-compat:jar:3.5.0 got requested version
@@ -1220,11 +1264,14 @@ def generated_maven_jars():
   # org.apache.maven:maven-settings:jar:3.5.0 got requested version
   # org.apache.maven.resolver:maven-resolver-impl:jar:1.0.3 wanted version 0.1.1
   # org.apache.maven.resolver:maven-resolver-api:jar:1.0.3 wanted version 0.1.1
+  # org.eclipse.aether:aether-util:jar:1.1.0 wanted version 0.1.1
   # org.apache.maven:maven-embedder:jar:3.5.0 got requested version
   # org.apache.maven.resolver:maven-resolver-transport-wagon:jar:1.0.3 wanted version 0.1.1
   # org.apache.maven.resolver:maven-resolver-util:jar:1.0.3 wanted version 0.1.1
   # org.apache.maven:maven-repository-metadata:jar:3.5.0 got requested version
+  # org.eclipse.aether:aether-impl:jar:1.1.0 wanted version 0.1.1
   # org.apache.maven.resolver:maven-resolver-connector-basic:jar:1.0.3 wanted version 0.1.1
+  # org.eclipse.aether:aether-spi:jar:1.1.0 wanted version 0.1.1
   # org.apache.maven:maven-builder-support:jar:3.5.0 got requested version
   native.maven_jar(
       name = "org_eclipse_sisu_org_eclipse_sisu_plexus",
@@ -1383,7 +1430,6 @@ def generated_maven_jars():
   )
 
 
-  # com.google.guava:guava:bundle:20.0 got requested version
   # com.google.guava:guava:bundle:20.0
   native.maven_jar(
       name = "com_google_j2objc_j2objc_annotations",
@@ -1733,6 +1779,18 @@ def generated_maven_jars():
   )
 
 
+  # org.eclipse.aether:aether-api:jar:1.1.0
+  # org.eclipse.aether:aether-spi:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-impl:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-connector-basic:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-util:jar:1.1.0 got requested version
+  native.maven_jar(
+      name = "org_eclipse_aether_aether_spi",
+      artifact = "org.eclipse.aether:aether-spi:1.1.0",
+      sha1 = "a532baa7b965d2893ceace03e804b1882f448052",
+  )
+
+
   # org.ow2.asm:asm-tree:jar:5.0.2
   # org.ow2.asm:asm:jar:5.0.2 got requested version
   # org.ow2.asm:asm-analysis:jar:5.0.2 got requested version
@@ -2035,7 +2093,19 @@ def generated_maven_jars():
   )
 
 
+  # org.apache.maven:maven-plugin-api:jar:3.5.0 got requested version
+  # org.apache.maven:maven-settings-builder:jar:3.5.0 got requested version
+  # org.apache.maven:maven-model:jar:3.5.0 got requested version
+  # org.apache.maven:maven-model-builder:jar:3.5.0 got requested version
   # org.apache.maven:maven-artifact:jar:3.5.0 got requested version
+  # org.apache.maven:maven-core:jar:3.5.0 got requested version
+  # org.apache.maven:maven-compat:jar:3.5.0 got requested version
+  # org.apache.maven:maven-resolver-provider:jar:3.5.0 got requested version
+  # org.apache.maven:maven-slf4j-provider:jar:3.5.0 got requested version
+  # org.apache.maven:maven-settings:jar:3.5.0 got requested version
+  # org.apache.maven:maven-embedder:jar:3.5.0 got requested version
+  # org.apache.maven:maven-repository-metadata:jar:3.5.0 got requested version
+  # org.apache.maven:maven-builder-support:jar:3.5.0 got requested version
   native.maven_jar(
       name = "org_apache_maven_maven_artifact",
       artifact = "org.apache.maven:maven-artifact:3.5.0",
@@ -2318,6 +2388,12 @@ def generated_maven_jars():
   )
 
 
+  native.maven_jar(
+      name = "org_apache_maven_maven_aether_provider",
+      artifact = "org.apache.maven:maven-aether-provider:3.3.9",
+  )
+
+
   # org.apache.maven.resolver:maven-resolver-util:jar:1.0.3 got requested version
   # org.apache.maven.resolver:maven-resolver-transport-wagon:jar:1.0.3 got requested version
   # org.apache.maven:maven-plugin-api:jar:3.5.0 got requested version
@@ -2431,6 +2507,17 @@ def generated_maven_jars():
   )
 
 
+  # org.eclipse.aether:aether-api:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-spi:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-impl:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-connector-basic:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-util:jar:1.1.0 got requested version
+  native.maven_jar(
+      name = "org_eclipse_aether_aether_util",
+      artifact = "org.eclipse.aether:aether-util:1.1.0",
+  )
+
+
   # org.powermock:powermock-module-junit4:jar:1.6.6
   native.maven_jar(
       name = "org_powermock_powermock_module_junit4_common",
@@ -2532,7 +2619,12 @@ def generated_maven_jars():
   # org.apache.maven.resolver:maven-resolver-util:jar:1.0.3 got requested version
   # org.apache.maven.resolver:maven-resolver-api:jar:1.0.3 got requested version
   # org.apache.maven.resolver:maven-resolver-transport-wagon:jar:1.0.3 got requested version
+  # org.eclipse.aether:aether-api:jar:1.1.0 got requested version
   # org.apache.maven.resolver:maven-resolver-connector-basic:jar:1.0.3
+  # org.eclipse.aether:aether-spi:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-connector-basic:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-impl:jar:1.1.0 got requested version
+  # org.eclipse.aether:aether-util:jar:1.1.0 got requested version
   # org.apache.maven.resolver:maven-resolver-impl:jar:1.0.3 got requested version
   native.maven_jar(
       name = "org_sonatype_sisu_sisu_guice",
@@ -2793,7 +2885,6 @@ def generated_maven_jars():
   # org.apache.maven:maven-model:jar:3.5.0 got requested version
   # org.codehaus.plexus:plexus-component-annotations:jar:1.6 wanted version 2.0.9
   # org.apache.maven:maven-model-builder:jar:3.5.0 got requested version
-  # org.apache.maven:maven-artifact:jar:3.5.0 got requested version
   # org.apache.maven:maven-core:jar:3.5.0 got requested version
   # org.apache.maven:maven-compat:jar:3.5.0 got requested version
   # org.apache.maven:maven-resolver-provider:jar:3.5.0 got requested version
@@ -2810,7 +2901,6 @@ def generated_maven_jars():
   )
 
 
-  # com.google.guava:guava:bundle:20.0 got requested version
   # com.google.truth:truth:jar:0.30 wanted version 2.0.8
   # com.google.guava:guava:bundle:20.0
   native.maven_jar(
@@ -3112,11 +3202,16 @@ def generated_maven_jars():
 
   # org.apache.maven.resolver:maven-resolver-impl:jar:1.0.3 wanted version 0.1.1
   # org.apache.maven.resolver:maven-resolver-api:jar:1.0.3 wanted version 0.1.1
+  # org.eclipse.aether:aether-api:jar:1.1.0 wanted version 0.1.1
+  # org.eclipse.aether:aether-util:jar:1.1.0 wanted version 0.1.1
   # org.apache.maven.resolver:maven-resolver-spi:jar:1.0.3 wanted version 0.1.1
   # org.eclipse.sisu:org.eclipse.sisu.plexus:eclipse-plugin:0.3.3
   # org.apache.maven.resolver:maven-resolver-transport-wagon:jar:1.0.3 wanted version 0.1.1
   # org.apache.maven.resolver:maven-resolver-util:jar:1.0.3 wanted version 0.1.1
+  # org.eclipse.aether:aether-impl:jar:1.1.0 wanted version 0.1.1
   # org.apache.maven.resolver:maven-resolver-connector-basic:jar:1.0.3 wanted version 0.1.1
+  # org.eclipse.aether:aether-spi:jar:1.1.0 wanted version 0.1.1
+  # org.eclipse.aether:aether-connector-basic:jar:1.1.0 wanted version 0.1.1
   native.maven_jar(
       name = "org_eclipse_sisu_org_eclipse_sisu_inject",
       artifact = "org.eclipse.sisu:org.eclipse.sisu.inject:0.3.3",
@@ -3422,10 +3517,26 @@ def generated_maven_jars():
   )
 
 
+  # org.apache.maven:maven-plugin-api:jar:3.5.0 got requested version
+  # org.sonatype.sisu:sisu-guice:jar:3.1.6 wanted version 11.0.2
+  # org.apache.maven:maven-settings-builder:jar:3.5.0 got requested version
+  # org.apache.maven:maven-model:jar:3.5.0 got requested version
+  # org.apache.maven:maven-model-builder:jar:3.5.0 got requested version
+  # org.apache.maven:maven-artifact:jar:3.5.0 got requested version
+  # org.apache.maven:maven-core:jar:3.5.0 got requested version
+  # org.apache.maven:maven-slf4j-provider:jar:3.5.0
+  # org.apache.maven:maven-compat:jar:3.5.0 got requested version
+  # org.apache.maven:maven-resolver-provider:jar:3.5.0 got requested version
+  # org.apache.maven:maven-settings:jar:3.5.0 got requested version
+  # org.apache.maven:maven-embedder:jar:3.5.0 got requested version
+  # org.apache.maven:maven-repository-metadata:jar:3.5.0 got requested version
   # com.google.truth:truth:jar:0.30 wanted version 19.0
+  # com.google.inject:guice:jar:4.0 wanted version 16.0.1
+  # org.apache.maven:maven-builder-support:jar:3.5.0 got requested version
   native.maven_jar(
       name = "com_google_guava_guava",
       artifact = "com.google.guava:guava:20.0",
+      sha1 = "89507701249388e1ed5ddcf8c41f4ce1be7831ef",
   )
 
 
@@ -3514,6 +3625,24 @@ def generated_java_libraries():
       name = "javax_annotation_jsr250_api",
       visibility = ["//visibility:public"],
       exports = ["@javax_annotation_jsr250_api//jar"],
+  )
+
+
+  native.java_library(
+      name = "org_eclipse_aether_aether_connector_basic",
+      visibility = ["//visibility:public"],
+      exports = ["@org_eclipse_aether_aether_connector_basic//jar"],
+      runtime_deps = [
+          ":org_eclipse_aether_aether_api",
+          ":org_eclipse_aether_aether_connector_basic",
+          ":org_eclipse_aether_aether_impl",
+          ":org_eclipse_aether_aether_spi",
+          ":org_eclipse_aether_aether_util",
+          ":org_eclipse_sisu_org_eclipse_sisu_inject",
+          ":org_eclipse_sisu_org_eclipse_sisu_plexus",
+          ":org_slf4j_slf4j_api",
+          ":org_sonatype_sisu_sisu_guice",
+      ],
   )
 
 
@@ -5369,6 +5498,24 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "org_eclipse_aether_aether_api",
+      visibility = ["//visibility:public"],
+      exports = ["@org_eclipse_aether_aether_api//jar"],
+      runtime_deps = [
+          ":org_eclipse_aether_aether_api",
+          ":org_eclipse_aether_aether_connector_basic",
+          ":org_eclipse_aether_aether_impl",
+          ":org_eclipse_aether_aether_spi",
+          ":org_eclipse_aether_aether_util",
+          ":org_eclipse_sisu_org_eclipse_sisu_inject",
+          ":org_eclipse_sisu_org_eclipse_sisu_plexus",
+          ":org_slf4j_slf4j_api",
+          ":org_sonatype_sisu_sisu_guice",
+      ],
+  )
+
+
+  native.java_library(
       name = "org_codehaus_woodstox_wstx_asl",
       visibility = ["//visibility:public"],
       exports = ["@org_codehaus_woodstox_wstx_asl//jar"],
@@ -5965,6 +6112,24 @@ def generated_java_libraries():
           ":xml_apis_xml_apis",
           ":xpp3_xpp3",
           ":xstream_xstream",
+      ],
+  )
+
+
+  native.java_library(
+      name = "org_eclipse_aether_aether_impl",
+      visibility = ["//visibility:public"],
+      exports = ["@org_eclipse_aether_aether_impl//jar"],
+      runtime_deps = [
+          ":org_eclipse_aether_aether_api",
+          ":org_eclipse_aether_aether_connector_basic",
+          ":org_eclipse_aether_aether_impl",
+          ":org_eclipse_aether_aether_spi",
+          ":org_eclipse_aether_aether_util",
+          ":org_eclipse_sisu_org_eclipse_sisu_inject",
+          ":org_eclipse_sisu_org_eclipse_sisu_plexus",
+          ":org_slf4j_slf4j_api",
+          ":org_sonatype_sisu_sisu_guice",
       ],
   )
 
@@ -7036,6 +7201,24 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "org_eclipse_aether_aether_spi",
+      visibility = ["//visibility:public"],
+      exports = ["@org_eclipse_aether_aether_spi//jar"],
+      runtime_deps = [
+          ":org_eclipse_aether_aether_api",
+          ":org_eclipse_aether_aether_connector_basic",
+          ":org_eclipse_aether_aether_impl",
+          ":org_eclipse_aether_aether_spi",
+          ":org_eclipse_aether_aether_util",
+          ":org_eclipse_sisu_org_eclipse_sisu_inject",
+          ":org_eclipse_sisu_org_eclipse_sisu_plexus",
+          ":org_slf4j_slf4j_api",
+          ":org_sonatype_sisu_sisu_guice",
+      ],
+  )
+
+
+  native.java_library(
       name = "org_ow2_asm_asm_analysis",
       visibility = ["//visibility:public"],
       exports = ["@org_ow2_asm_asm_analysis//jar"],
@@ -7693,11 +7876,95 @@ def generated_java_libraries():
       visibility = ["//visibility:public"],
       exports = ["@org_apache_maven_maven_artifact//jar"],
       runtime_deps = [
+          ":ant_ant",
+          ":ant_ant_junit",
+          ":ant_ant_launcher",
+          ":antlr_antlr",
+          ":aopalliance_aopalliance",
+          ":asm_asm",
+          ":asm_asm_analysis",
+          ":asm_asm_attrs",
+          ":asm_asm_tree",
+          ":asm_asm_util",
+          ":avalon_framework_avalon_framework_api",
+          ":axion_axion",
+          ":biz_aQute_bndlib",
+          ":bouncycastle_bcprov_jdk15",
+          ":bsf_bsf",
+          ":cglib_cglib",
+          ":cglib_cglib_full",
+          ":cglib_cglib_nodep",
+          ":ch_ethz_ganymed_ganymed_ssh2",
+          ":ch_qos_cal10n_cal10n_api",
+          ":classworlds_classworlds",
+          ":com_google_code_findbugs_jsr305",
+          ":com_google_collections_google_collections",
+          ":com_google_errorprone_error_prone_annotations",
           ":com_google_guava_guava",
+          ":com_google_guava_guava_testlib",
           ":com_google_inject_guice",
+          ":com_google_j2objc_j2objc_annotations",
+          ":com_jcraft_jsch",
+          ":com_jcraft_jzlib",
+          ":com_thoughtworks_qdox_qdox",
+          ":commons_beanutils_commons_beanutils",
           ":commons_cli_commons_cli",
+          ":commons_codec_commons_codec",
+          ":commons_collections_commons_collections",
+          ":commons_discovery_commons_discovery",
+          ":commons_httpclient_commons_httpclient",
+          ":commons_io_commons_io",
           ":commons_jxpath_commons_jxpath",
+          ":commons_lang_commons_lang",
+          ":commons_logging_commons_logging",
+          ":commons_logging_commons_logging_api",
+          ":commons_primitives_commons_primitives",
+          ":geronimo_spec_geronimo_spec_jta",
+          ":groovy_groovy",
+          ":javacc_javacc",
+          ":javassist_javassist",
+          ":javax_activation_activation",
+          ":javax_annotation_jsr250_api",
+          ":javax_enterprise_cdi_api",
+          ":javax_faces_jsf_api",
+          ":javax_inject_javax_inject",
+          ":javax_inject_javax_inject_tck",
+          ":javax_jms_jms",
+          ":javax_jws_jsr181_api",
+          ":javax_mail_mail",
+          ":javax_persistence_persistence_api",
+          ":javax_servlet_javax_servlet_api",
+          ":javax_servlet_jsp_jsp_api",
+          ":javax_servlet_jstl",
+          ":javax_servlet_servlet_api",
+          ":javax_transaction_jta",
+          ":javax_validation_validation_api",
+          ":javax_xml_bind_jaxb_api",
+          ":javax_xml_soap_saaj_api",
+          ":javax_xml_stream_stax_api",
+          ":javax_xml_ws_jaxws_api",
+          ":jaxen_jaxen",
+          ":jboss_javassist",
+          ":jdom_jdom",
+          ":jetty_org_mortbay_jetty",
+          ":jmock_jmock",
+          ":jmock_jmock_cglib",
+          ":junit_junit",
+          ":log4j_log4j",
+          ":mockobjects_mockobjects_core",
+          ":mx4j_mx4j",
+          ":nekohtml_nekohtml",
+          ":net_java_dev_jna_jna",
+          ":net_java_dev_jna_jna_platform",
+          ":net_sf_ehcache_ehcache_core",
+          ":net_sf_jpam_jpam",
+          ":net_spy_spymemcached",
+          ":ognl_ognl",
+          ":openejb_openejb_loader",
+          ":org_apache_commons_commons_jexl",
           ":org_apache_commons_commons_lang3",
+          ":org_apache_httpcomponents_httpclient",
+          ":org_apache_httpcomponents_httpcore",
           ":org_apache_maven_maven_artifact",
           ":org_apache_maven_maven_builder_support",
           ":org_apache_maven_maven_compat",
@@ -7706,6 +7973,8 @@ def generated_java_libraries():
           ":org_apache_maven_maven_model",
           ":org_apache_maven_maven_model_builder",
           ":org_apache_maven_maven_plugin_api",
+          ":org_apache_maven_maven_plugin_tools_api",
+          ":org_apache_maven_maven_project",
           ":org_apache_maven_maven_repository_metadata",
           ":org_apache_maven_maven_resolver_provider",
           ":org_apache_maven_maven_settings",
@@ -7720,17 +7989,118 @@ def generated_java_libraries():
           ":org_apache_maven_shared_maven_shared_utils",
           ":org_apache_maven_wagon_wagon_file",
           ":org_apache_maven_wagon_wagon_http",
+          ":org_apache_maven_wagon_wagon_http_shared",
           ":org_apache_maven_wagon_wagon_provider_api",
+          ":org_apache_maven_wagon_wagon_provider_test",
+          ":org_apache_maven_wagon_wagon_ssh_common",
+          ":org_apache_maven_wagon_wagon_ssh_common_test",
+          ":org_apache_mina_mina_core",
+          ":org_apache_mina_mina_filter_compression",
+          ":org_apache_mina_mina_integration_beans",
+          ":org_apache_mina_mina_integration_jmx",
+          ":org_apache_mina_mina_integration_ognl",
+          ":org_apache_mina_mina_statemachine",
+          ":org_apache_mina_mina_transport_apr",
+          ":org_apache_sshd_sshd_core",
+          ":org_apache_xbean_xbean_asm_shaded",
+          ":org_apache_xbean_xbean_blueprint",
+          ":org_apache_xbean_xbean_bundleutils",
+          ":org_apache_xbean_xbean_classloader",
+          ":org_apache_xbean_xbean_classpath",
+          ":org_apache_xbean_xbean_finder",
+          ":org_apache_xbean_xbean_finder_shaded",
+          ":org_apache_xbean_xbean_naming",
+          ":org_apache_xbean_xbean_reflect",
+          ":org_apache_xbean_xbean_spring",
+          ":org_apache_xbean_xbean_telnet",
           ":org_codehaus_plexus_plexus_classworlds",
+          ":org_codehaus_plexus_plexus_cli",
           ":org_codehaus_plexus_plexus_component_annotations",
+          ":org_codehaus_plexus_plexus_component_metadata",
+          ":org_codehaus_plexus_plexus_container_default",
+          ":org_codehaus_plexus_plexus_interactivity_api",
           ":org_codehaus_plexus_plexus_interpolation",
           ":org_codehaus_plexus_plexus_utils",
+          ":org_easymock_easymock",
+          ":org_eclipse_jetty_aggregate_jetty_all",
+          ":org_eclipse_jetty_orbit_javax_activation",
+          ":org_eclipse_jetty_orbit_javax_annotation",
+          ":org_eclipse_jetty_orbit_javax_mail_glassfish",
+          ":org_eclipse_jetty_orbit_javax_security_auth_message",
+          ":org_eclipse_jetty_orbit_javax_servlet",
+          ":org_eclipse_jetty_orbit_javax_transaction",
+          ":org_eclipse_jetty_orbit_org_objectweb_asm",
+          ":org_eclipse_jetty_toolchain_jetty_test_helper",
+          ":org_eclipse_sisu_org_eclipse_sisu_inject",
           ":org_eclipse_sisu_org_eclipse_sisu_plexus",
           ":org_fusesource_jansi_jansi",
+          ":org_hamcrest_hamcrest_core",
+          ":org_hamcrest_hamcrest_library",
+          ":org_jboss_weld_weld_api",
+          ":org_jboss_weld_weld_spi",
+          ":org_jsoup_jsoup",
           ":org_mockito_mockito_core",
+          ":org_mortbay_jetty_jetty",
+          ":org_mortbay_jetty_jetty_client",
+          ":org_mortbay_jetty_jetty_sslengine",
+          ":org_mortbay_jetty_jetty_util",
+          ":org_mortbay_jetty_servlet_api_2_5",
+          ":org_objenesis_objenesis",
+          ":org_ops4j_base_ops4j_base_io",
+          ":org_ops4j_base_ops4j_base_lang",
+          ":org_ops4j_base_ops4j_base_monitors",
+          ":org_ops4j_base_ops4j_base_net",
+          ":org_ops4j_base_ops4j_base_util_property",
+          ":org_ops4j_pax_exam_pax_exam",
+          ":org_ops4j_pax_exam_pax_exam_container_default",
+          ":org_ops4j_pax_exam_pax_exam_container_rbc",
+          ":org_ops4j_pax_exam_pax_exam_container_rbc_client",
+          ":org_ops4j_pax_exam_pax_exam_junit",
+          ":org_ops4j_pax_exam_pax_exam_junit_extender",
+          ":org_ops4j_pax_exam_pax_exam_runtime",
+          ":org_ops4j_pax_exam_pax_exam_spi",
+          ":org_ops4j_pax_logging_pax_logging_api",
+          ":org_ops4j_pax_logging_pax_logging_service",
+          ":org_ops4j_pax_runner_pax_runner_no_jcl",
+          ":org_ops4j_pax_swissbox_pax_swissbox_core",
+          ":org_ops4j_pax_swissbox_pax_swissbox_extender",
+          ":org_ops4j_pax_swissbox_pax_swissbox_lifecycle",
+          ":org_ops4j_pax_swissbox_pax_swissbox_optional_jcl",
+          ":org_ow2_asm_asm",
+          ":org_ow2_asm_asm_all",
+          ":org_ow2_asm_asm_analysis",
+          ":org_ow2_asm_asm_commons",
+          ":org_ow2_asm_asm_tree",
+          ":org_ow2_asm_asm_util",
+          ":org_ow2_asm_asm_xml",
+          ":org_slf4j_jcl104_over_slf4j",
+          ":org_slf4j_jcl_over_slf4j",
+          ":org_slf4j_log4j_over_slf4j",
           ":org_slf4j_slf4j_api",
+          ":org_slf4j_slf4j_jcl",
+          ":org_slf4j_slf4j_jdk14",
+          ":org_slf4j_slf4j_log4j12",
+          ":org_slf4j_slf4j_simple",
           ":org_sonatype_plexus_plexus_cipher",
           ":org_sonatype_plexus_plexus_sec_dispatcher",
+          ":org_sonatype_sisu_sisu_guice",
+          ":org_springframework_spring",
+          ":org_springframework_spring_beans",
+          ":org_springframework_spring_context",
+          ":org_springframework_spring_core",
+          ":org_springframework_spring_web",
+          ":org_testng_testng",
+          ":pmd_pmd",
+          ":qdox_qdox",
+          ":radeox_radeox",
+          ":radeox_radeox_oro",
+          ":regexp_regexp",
+          ":tomcat_tomcat_apr",
+          ":tonic_jarjar",
+          ":xerces_xerces",
+          ":xml_apis_xml_apis",
+          ":xpp3_xpp3",
+          ":xstream_xstream",
       ],
   )
 
@@ -8040,6 +8410,13 @@ def generated_java_libraries():
       name = "radeox_radeox",
       visibility = ["//visibility:public"],
       exports = ["@radeox_radeox//jar"],
+  )
+
+
+  native.java_library(
+      name = "org_apache_maven_maven_aether_provider",
+      visibility = ["//visibility:public"],
+      exports = ["@org_apache_maven_maven_aether_provider//jar"],
   )
 
 
@@ -8473,6 +8850,24 @@ def generated_java_libraries():
       name = "org_hibernate_javax_persistence_hibernate_jpa_2_0_api",
       visibility = ["//visibility:public"],
       exports = ["@org_hibernate_javax_persistence_hibernate_jpa_2_0_api//jar"],
+  )
+
+
+  native.java_library(
+      name = "org_eclipse_aether_aether_util",
+      visibility = ["//visibility:public"],
+      exports = ["@org_eclipse_aether_aether_util//jar"],
+      runtime_deps = [
+          ":org_eclipse_aether_aether_api",
+          ":org_eclipse_aether_aether_connector_basic",
+          ":org_eclipse_aether_aether_impl",
+          ":org_eclipse_aether_aether_spi",
+          ":org_eclipse_aether_aether_util",
+          ":org_eclipse_sisu_org_eclipse_sisu_inject",
+          ":org_eclipse_sisu_org_eclipse_sisu_plexus",
+          ":org_slf4j_slf4j_api",
+          ":org_sonatype_sisu_sisu_guice",
+      ],
   )
 
 

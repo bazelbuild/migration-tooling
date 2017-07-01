@@ -13,5 +13,9 @@ java_library(
         "@com_google_guava_guava//jar",
         "@org_apache_maven_maven_artifact//jar",
         "@org_codehaus_plexus_plexus_component_annotations//jar",
-    ],
+        "@org_apache_maven_maven_aether_provider//jar",
+        "@org_apache_httpcomponents_httpclient//jar",
+        "@org_apache_httpcomponents_httpcore//jar",
+        "@commons_logging_commons_logging//jar",
+	],
 )
