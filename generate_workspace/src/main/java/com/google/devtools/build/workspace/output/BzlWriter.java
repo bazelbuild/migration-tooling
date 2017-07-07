@@ -15,11 +15,14 @@
 package com.google.devtools.build.workspace.output;
 
 import com.google.devtools.build.workspace.maven.Rule;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.invoke.MethodHandles;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.logging.Logger;
 
@@ -32,27 +35,33 @@ public class BzlWriter extends AbstractWriter {
       MethodHandles.lookup().lookupClass().getName());
 
   private final String[] argv;
-  private final Path generatedFile;
+  private final File generatedFile;
 
-  public BzlWriter(String[] argv, String outputDirStr) {
+  public BzlWriter(String[] argv, Path outputDir) {
     this.argv = argv;
-    this.generatedFile = Paths.get(outputDirStr).resolve("generate_workspace.bzl");
+    this.generatedFile = new File(outputDir.toString(), "generate_workspace.bzl");
   }
 
   @Override
   public void write(Collection<Rule> rules) {
-    try (PrintStream outputStream = new PrintStream(generatedFile.toFile())) {
-      writeBzl(outputStream, rules);
+    try {
+      createParentDirectory(generatedFile.getAbsoluteFile().toPath());
     } catch (IOException e) {
+      logger.severe("Could not create directories for " + generatedFile + ": " + e.getMessage());
+      return;
+    }
+    try (PrintStream outputStream = new PrintStream(generatedFile.getAbsoluteFile())) {
+      writeBzl(outputStream, rules);
+    } catch (FileNotFoundException e) {
       logger.severe("Could not write " + generatedFile + ": " + e.getMessage());
       return;
     }
-    System.out.println("Wrote " + generatedFile.toAbsolutePath());
   }
 
   private void writeBzl(PrintStream outputStream, Collection<Rule> rules) {
     writeHeader(outputStream, argv);
     outputStream.println("def generated_maven_jars():");
+
     if (rules.isEmpty()) {
       outputStream.println("  pass\n");
     }
@@ -70,4 +79,14 @@ public class BzlWriter extends AbstractWriter {
       outputStream.println(formatJavaLibrary(rule, "native.java_library", "  "));
     }
   }
+
+  /** Creates parent directories if they don't exist */
+  private static void createParentDirectory(Path generatedFile) throws IOException {
+    Path parentDirectory = generatedFile.toAbsolutePath().getParent();
+    if (Files.exists(parentDirectory)) {
+      return;
+    }
+    Files.createDirectories(parentDirectory);
+  }
+
 }

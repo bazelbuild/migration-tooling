@@ -23,5 +23,6 @@ java_test(
         "@com_google_guava_guava//jar",
         "@com_google_truth_truth//jar",
         "@junit_junit//jar",
+        "@com_google_jimfs_jimfs//jar",
     ],
 )

@@ -74,7 +74,7 @@ public class GenerateWorkspace {
     this.inputs = Lists.newArrayList();
     this.resultWriter = directToWorkspace
         ? new WorkspaceWriter(args, outputDirStr)
-        : new BzlWriter(args, outputDirStr);
+        : new BzlWriter(args, Paths.get(outputDirStr));
   }
 
   private void generateFromPom(List<String> projects) {
