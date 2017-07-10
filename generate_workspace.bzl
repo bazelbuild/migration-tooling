@@ -1,6 +1,6 @@
 # The following dependencies were calculated from:
 #
-# generate_workspace -a=org.apache.maven:maven-artifact:3.5.0 -a=com.google.guava:guava:20.0 -a=com.google.jimfs:jimfs:1.1 -a=com.google.code.findbugs:jsr305:3.0.1 -a=org.codehaus.plexus:plexus-utils:jar:3.0.24 -a=org.codehaus.plexus:plexus-component-annotations:1.7.1 -a=org.codehaus.plexus:plexus-interpolation:1.24 -a=org.mockito:mockito-all:1.9.5 -a=junit:junit:4.4 -a=com.google.truth:truth:0.30
+# generate_workspace -a=org.apache.maven:maven-artifact:3.5.0 -a=com.google.guava:guava:20.0 -a=org.powermock:powermock-module-junit4:1.6.6 -a=com.google.code.findbugs:jsr305:3.0.1 -a=org.codehaus.plexus:plexus-utilgenerate_workspace -a=org.apache.maven:maven-artifact:3.5.0 -a=com.google.guava:guava:20.0 -a=com.google.code.findbugs:jsr305:3.0.1 -a=org.codehaus.plexus:plexus-utils:jar:3.0.24 -a=org.codehaus.plexus:plexus-component-annotations:1.7.1 -a=org.codehaus.plexus:plexus-interpolation:1.24 -a=org.mockito:mockito-all:1.9.5 -a=junit:junit:4.4 -a=com.google.truth:truth:0.30
 
 
 def generated_maven_jars():
@@ -141,6 +141,12 @@ def generated_maven_jars():
 
 
   native.maven_jar(
+      name = "org_powermock_powermock_module_junit4",
+      artifact = "org.powermock:powermock-module-junit4:1.6.6",
+  )
+
+
+  native.maven_jar(
       name = "com_google_truth_truth",
       artifact = "com.google.truth:truth:0.30",
   )
@@ -180,6 +186,17 @@ def generated_maven_jars():
   native.maven_jar(
       name = "org_codehaus_plexus_plexus_component_annotations",
       artifact = "org.codehaus.plexus:plexus-component-annotations:1.7.1",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9
+  native.maven_jar(
+      name = "com_thoughtworks_xstream_xstream_benchmark",
+      artifact = "com.thoughtworks.xstream:xstream-benchmark:1.4.9",
+      sha1 = "78697fb2be125d4b0f09ec0154953f1428a01a50",
   )
 
 
@@ -424,6 +441,28 @@ def generated_maven_jars():
   )
 
 
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "xmlpull_xmlpull",
+      artifact = "xmlpull:xmlpull:1.1.3.1",
+      sha1 = "2b8e230d2ab644e4ecaa94db7cdedbc40c805dfa",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "net_sf_kxml_kxml2",
+      artifact = "net.sf.kxml:kxml2:2.3.0",
+      sha1 = "ccbc77a5fd907ef863c29f3596c6f54ffa4e9442",
+  )
+
+
   # groovy:groovy:jar:1.0-jsr-03
   native.maven_jar(
       name = "ant_ant_junit",
@@ -578,6 +617,15 @@ def generated_maven_jars():
   )
 
 
+  # org.hibernate:hibernate-entitymanager:jar:4.2.5.Final got requested version
+  # org.hibernate:hibernate-core:jar:4.2.5.Final
+  native.maven_jar(
+      name = "org_jboss_spec_javax_transaction_jboss_transaction_api_1_1_spec",
+      artifact = "org.jboss.spec.javax.transaction:jboss-transaction-api_1.1_spec:1.0.1.Final",
+      sha1 = "18f0e1d42f010a8b53aa447bf274a706d5148852",
+  )
+
+
   # org.jboss.weld:weld-api:jar:1.0 got requested version
   # org.jboss.weld:weld-spi:jar:1.0 got requested version
   # javax.enterprise:cdi-api:jar:1.0
@@ -585,6 +633,28 @@ def generated_maven_jars():
       name = "javax_transaction_jta",
       artifact = "javax.transaction:jta:1.0.1B",
       repository = "http://repository.jboss.org/maven2/",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "xpp3_xpp3_min",
+      artifact = "xpp3:xpp3_min:1.1.4c",
+      sha1 = "19d4e90b43059058f6e056f794f0ea4030d60b86",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "org_hibernate_hibernate_envers",
+      artifact = "org.hibernate:hibernate-envers:4.2.5.Final",
+      sha1 = "52286029c0823b183f3a0dde319084eb66c8b3fa",
   )
 
 
@@ -648,6 +718,15 @@ def generated_maven_jars():
   )
 
 
+  # org.hibernate:hibernate-entitymanager:jar:4.2.5.Final got requested version
+  # org.hibernate:hibernate-core:jar:4.2.5.Final
+  native.maven_jar(
+      name = "org_hibernate_common_hibernate_commons_annotations",
+      artifact = "org.hibernate.common:hibernate-commons-annotations:4.0.2.Final",
+      sha1 = "0094edcc5572efb02e123cc9ef7ad7d0fa5f76cf",
+  )
+
+
   # org.eclipse.jetty.aggregate:jetty-all:jar:8.1.22.v20160922 got requested version
   # org.eclipse.jetty.toolchain:jetty-test-helper:jar:2.5
   native.maven_jar(
@@ -670,6 +749,17 @@ def generated_maven_jars():
       name = "javax_inject_javax_inject_tck",
       artifact = "javax.inject:javax.inject-tck:1",
       sha1 = "bb0090d50219c265be40fcc8e034dae37fa7be99",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "com_megginson_sax_xml_writer",
+      artifact = "com.megginson.sax:xml-writer:0.2",
+      sha1 = "8177eb75d7a4cd0dbf274907e0f9cbea7789de79",
   )
 
 
@@ -731,6 +821,32 @@ def generated_maven_jars():
       name = "org_slf4j_slf4j_api",
       artifact = "org.slf4j:slf4j-api:1.5.11",
       sha1 = "d6a855b608971025b4fbb0970f829391cc6f727a",
+  )
+
+
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "com_thoughtworks_xstream_xstream_jmh",
+      artifact = "com.thoughtworks.xstream:xstream-jmh:1.4.9",
+      sha1 = "2353ee9a6adf28322c79eacc136f040c6a85831a",
+  )
+
+
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9 got requested version
+  # org.powermock:powermock-module-junit4:jar:1.6.6
+  # org.powermock:powermock-core:jar:1.6.6 got requested version
+  # org.powermock:powermock-module-junit4-common:jar:1.6.6 got requested version
+  # org.powermock:powermock-reflect:jar:1.6.6 got requested version
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "com_thoughtworks_xstream_xstream",
+      artifact = "com.thoughtworks.xstream:xstream:1.4.9",
+      sha1 = "c43f6e6bfa79b56e04a8898a923c3cf7144dd460",
   )
 
 
@@ -871,6 +987,17 @@ def generated_maven_jars():
       name = "org_springframework_spring_beans",
       artifact = "org.springframework:spring-beans:2.5.6",
       sha1 = "449ea46b27426eb846611a90b2fb8b4dcf271191",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "org_codehaus_woodstox_wstx_asl",
+      artifact = "org.codehaus.woodstox:wstx-asl:3.2.7",
+      sha1 = "252c7faae9ce98cb9c9d29f02db88f7373e7f407",
   )
 
 
@@ -1017,12 +1144,6 @@ def generated_maven_jars():
   )
 
 
-  native.maven_jar(
-      name = "com_google_jimfs_jimfs",
-      artifact = "com.google.jimfs:jimfs:1.1",
-  )
-
-
   # org.apache.sshd:sshd-core:jar:0.8.0
   native.maven_jar(
       name = "net_sf_jpam_jpam",
@@ -1121,9 +1242,24 @@ def generated_maven_jars():
   )
 
 
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "org_jdom_jdom2",
+      artifact = "org.jdom:jdom2:2.0.5",
+      sha1 = "2001db51c131e555bafdb77fc52af6a9408c505e",
+  )
+
+
   # org.mockito:mockito-core:jar:1.9.5 wanted version 1.1
   # org.hamcrest:hamcrest-library:jar:1.3
+  # org.powermock:powermock-module-junit4:jar:1.6.6 got requested version
+  # org.powermock:powermock-core:jar:1.6.6 got requested version
+  # org.powermock:powermock-module-junit4-common:jar:1.6.6 got requested version
   # org.eclipse.jetty.aggregate:jetty-all:jar:8.1.22.v20160922 got requested version
+  # org.powermock:powermock-reflect:jar:1.6.6 got requested version
   native.maven_jar(
       name = "org_hamcrest_hamcrest_core",
       artifact = "org.hamcrest:hamcrest-core:1.3",
@@ -1191,6 +1327,17 @@ def generated_maven_jars():
       name = "org_eclipse_jetty_aggregate_jetty_all",
       artifact = "org.eclipse.jetty.aggregate:jetty-all:8.1.22.v20160922",
       sha1 = "820e23b4af237fcb917d3f7fda48985856bce726",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "net_sf_kxml_kxml2_min",
+      artifact = "net.sf.kxml:kxml2-min:2.3.0",
+      sha1 = "16379c20c45424d5bc804b9dc6f8a786720496d5",
   )
 
 
@@ -1323,6 +1470,19 @@ def generated_maven_jars():
   )
 
 
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # org.hibernate:hibernate-entitymanager:jar:4.2.5.Final got requested version
+  # org.hibernate:hibernate-core:jar:4.2.5.Final got requested version
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "dom4j_dom4j",
+      artifact = "dom4j:dom4j:1.6.1",
+      sha1 = "5d3ccc056b6f056dbf0dddfdf43894b9065a8f94",
+  )
+
+
   # org.apache.maven.resolver:maven-resolver-util:jar:1.0.3 got requested version
   # org.apache.maven.resolver:maven-resolver-api:jar:1.0.3 got requested version
   # org.apache.maven.resolver:maven-resolver-transport-wagon:jar:1.0.3 got requested version
@@ -1418,7 +1578,11 @@ def generated_maven_jars():
   # org.apache.maven:maven-compat:jar:3.5.0 wanted version 1.4
   # org.apache.maven:maven-embedder:jar:3.5.0 wanted version 1.4
   # org.apache.maven:maven-builder-support:jar:3.5.0 wanted version 1.4
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 wanted version 1.1
   # org.apache.maven:maven-artifact:jar:3.5.0 wanted version 1.4
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 wanted version 1.1
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9 wanted version 1.1
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 wanted version 1.1
   # org.codehaus.plexus:plexus-component-metadata:maven-plugin:1.6 wanted version 1.2
   # org.apache.maven:maven-slf4j-provider:jar:3.5.0 wanted version 1.4
   # org.apache.maven:maven-repository-metadata:jar:3.5.0 wanted version 1.4
@@ -1491,14 +1655,6 @@ def generated_maven_jars():
   )
 
 
-  # com.google.jimfs:jimfs:bundle:1.1
-  native.maven_jar(
-      name = "com_ibm_icu_icu4j",
-      artifact = "com.ibm.icu:icu4j:51.2",
-      sha1 = "3afa6c786e9c3e0f51532f7365605c3f50f66400",
-  )
-
-
   # org.apache.sshd:sshd-core:jar:0.8.0
   native.maven_jar(
       name = "com_jcraft_jsch",
@@ -1527,6 +1683,17 @@ def generated_maven_jars():
       name = "javacc_javacc",
       artifact = "javacc:javacc:3.2",
       sha1 = "ee416cb5d6aa88473efe487f42dc1410360f7948",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "org_json_json",
+      artifact = "org.json:json:20080701",
+      sha1 = "d652f102185530c93b66158b1859f35d45687258",
   )
 
 
@@ -1615,6 +1782,28 @@ def generated_maven_jars():
   )
 
 
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "org_jdom_jdom",
+      artifact = "org.jdom:jdom:1.1.3",
+      sha1 = "8bdfeb39fa929c35f5e4f0b02d34350db39a1efc",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "com_thoughtworks_xstream_xstream_hibernate",
+      artifact = "com.thoughtworks.xstream:xstream-hibernate:1.4.9",
+      sha1 = "340bab230ead26225457a8968e342f3034dcb6c2",
+  )
+
+
   # org.apache.httpcomponents:httpclient:jar:4.5.2
   native.maven_jar(
       name = "net_sf_ehcache_ehcache_core",
@@ -1624,6 +1813,7 @@ def generated_maven_jars():
 
 
   # groovy:groovy:jar:1.0-jsr-03
+  # org.hibernate:hibernate-core:jar:4.2.5.Final wanted version 2.7.7
   native.maven_jar(
       name = "antlr_antlr",
       artifact = "antlr:antlr:2.7.5",
@@ -1696,11 +1886,15 @@ def generated_maven_jars():
 
 
   # org.apache.maven.wagon:wagon-ssh-common-test:jar:2.12 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 wanted version 1.4
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9 wanted version 1.4
   # org.apache.maven.shared:maven-shared-utils:jar:3.1.0
   # org.apache.maven.wagon:wagon-http:jar:2.12 got requested version
   # org.apache.maven.wagon:wagon-provider-test:jar:2.12 got requested version
   # org.apache.maven.wagon:wagon-file:jar:2.12 got requested version
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 wanted version 1.4
   # org.apache.maven.wagon:wagon-ssh-common:jar:2.12 got requested version
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 wanted version 1.4
   # org.apache.maven.wagon:wagon-provider-api:jar:2.12 got requested version
   # org.apache.maven.wagon:wagon-http-shared:jar:2.12 got requested version
   native.maven_jar(
@@ -1730,6 +1924,28 @@ def generated_maven_jars():
       name = "org_easymock_easymock",
       artifact = "org.easymock:easymock:3.2",
       sha1 = "00c82f7fa3ef377d8954b1db25123944b5af2ba4",
+  )
+
+
+  # org.hibernate.common:hibernate-commons-annotations:jar:4.0.2.Final wanted version 3.1.0.CR2
+  # org.hibernate:hibernate-entitymanager:jar:4.2.5.Final got requested version
+  # org.hibernate:hibernate-envers:jar:4.2.5.Final got requested version
+  # org.hibernate:hibernate-core:jar:4.2.5.Final
+  native.maven_jar(
+      name = "org_jboss_logging_jboss_logging",
+      artifact = "org.jboss.logging:jboss-logging:3.1.0.GA",
+      sha1 = "c71f2856e7b60efe485db39b37a31811e6c84365",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "org_hsqldb_hsqldb",
+      artifact = "org.hsqldb:hsqldb:2.2.8",
+      sha1 = "8231a3ff71ba5889f9e2d01ce13503cbdd4038e9",
   )
 
 
@@ -1772,7 +1988,11 @@ def generated_maven_jars():
   )
 
 
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9 wanted version 1.3.04
   # groovy:groovy:jar:1.0-jsr-03
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 wanted version 1.3.04
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 wanted version 1.3.04
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 wanted version 1.3.04
   native.maven_jar(
       name = "xml_apis_xml_apis",
       artifact = "xml-apis:xml-apis:1.0.b2",
@@ -1815,19 +2035,7 @@ def generated_maven_jars():
   )
 
 
-  # org.apache.maven:maven-plugin-api:jar:3.5.0 got requested version
-  # org.apache.maven:maven-settings-builder:jar:3.5.0 got requested version
-  # org.apache.maven:maven-model:jar:3.5.0 got requested version
-  # org.apache.maven:maven-model-builder:jar:3.5.0 got requested version
   # org.apache.maven:maven-artifact:jar:3.5.0 got requested version
-  # org.apache.maven:maven-core:jar:3.5.0 got requested version
-  # org.apache.maven:maven-compat:jar:3.5.0 got requested version
-  # org.apache.maven:maven-resolver-provider:jar:3.5.0 got requested version
-  # org.apache.maven:maven-slf4j-provider:jar:3.5.0 got requested version
-  # org.apache.maven:maven-settings:jar:3.5.0 got requested version
-  # org.apache.maven:maven-embedder:jar:3.5.0 got requested version
-  # org.apache.maven:maven-repository-metadata:jar:3.5.0 got requested version
-  # org.apache.maven:maven-builder-support:jar:3.5.0 got requested version
   native.maven_jar(
       name = "org_apache_maven_maven_artifact",
       artifact = "org.apache.maven:maven-artifact:3.5.0",
@@ -1841,6 +2049,14 @@ def generated_maven_jars():
       name = "org_jboss_weld_weld_api",
       artifact = "org.jboss.weld:weld-api:1.0",
       sha1 = "e6cafae11f89c3bf39012db726bb8062f2a3a7ac",
+  )
+
+
+  # org.openjdk.jmh:jmh-core:jar:1.11.1
+  native.maven_jar(
+      name = "net_sf_jopt_simple_jopt_simple",
+      artifact = "net.sf.jopt-simple:jopt-simple:4.6",
+      sha1 = "306816fb57cf94f108a43c95731b08934dcae15c",
   )
 
 
@@ -1881,6 +2097,14 @@ def generated_maven_jars():
   )
 
 
+  # org.powermock:powermock-module-junit4-common:jar:1.6.6
+  native.maven_jar(
+      name = "org_powermock_powermock_core",
+      artifact = "org.powermock:powermock-core:1.6.6",
+      sha1 = "8085fae46f60d7ff960f1cc711359c00b35c5887",
+  )
+
+
   # groovy:groovy:jar:1.0-jsr-03
   native.maven_jar(
       name = "radeox_radeox_oro",
@@ -1896,11 +2120,36 @@ def generated_maven_jars():
   )
 
 
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # org.codehaus.jettison:jettison:bundle:1.2 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9 got requested version
+  # stax:stax:jar:1.2.0
+  # org.codehaus.woodstox:wstx-asl:jar:3.2.7 got requested version
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "stax_stax_api",
+      artifact = "stax:stax-api:1.0.1",
+      sha1 = "49c100caf72d658aca8e58bd74a4ba90fa2b0d70",
+  )
+
+
   # jmock:jmock-cglib:jar:1.0.1
   native.maven_jar(
       name = "cglib_cglib_full",
       artifact = "cglib:cglib-full:2.0",
       sha1 = "1283640acefb2d20744398d9eda848d6d4d90339",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "org_openjdk_jmh_jmh_core",
+      artifact = "org.openjdk.jmh:jmh-core:1.11.1",
+      sha1 = "edf0778da76c9b487035285e558c4f27f4e4cd64",
   )
 
 
@@ -2004,17 +2253,25 @@ def generated_maven_jars():
 
   # org.apache.xbean:xbean-classpath:bundle:3.7 got requested version
   # org.apache.xbean:xbean-asm-shaded:bundle:3.7 got requested version
+  # org.powermock:powermock-module-junit4-common:jar:1.6.6 wanted version 2.2.2
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 wanted version 2.2
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 wanted version 2.2
   # org.apache.xbean:xbean-telnet:bundle:3.7 got requested version
   # org.easymock:easymock:jar:3.2 wanted version 2.2.2
   # org.apache.xbean:xbean-classloader:bundle:3.7 got requested version
   # org.apache.xbean:xbean-reflect:bundle:3.7 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 wanted version 2.2
+  # org.powermock:powermock-core:jar:1.6.6 wanted version 2.2.2
   # org.apache.xbean:xbean-blueprint:bundle:3.7 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9 wanted version 2.2
   # org.apache.xbean:xbean-finder-shaded:jar:3.7
   # org.apache.xbean:xbean-naming:bundle:3.7 got requested version
   # org.apache.xbean:xbean-spring:bundle:3.7 got requested version
   # org.apache.xbean:xbean-finder:bundle:3.7 got requested version
   # org.apache.xbean:xbean-bundleutils:bundle:3.7 got requested version
   # groovy:groovy:jar:1.0-jsr-03 wanted version 2.1
+  # org.powermock:powermock-module-junit4:jar:1.6.6 wanted version 2.2.2
+  # org.powermock:powermock-reflect:jar:1.6.6 wanted version 2.2.2
   native.maven_jar(
       name = "cglib_cglib_nodep",
       artifact = "cglib:cglib-nodep:2.1_2",
@@ -2037,6 +2294,19 @@ def generated_maven_jars():
   native.maven_jar(
       name = "biz_aQute_bndlib",
       artifact = "biz.aQute:bndlib:0.0.313",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # org.hibernate:hibernate-entitymanager:jar:4.2.5.Final got requested version
+  # org.hibernate:hibernate-envers:jar:4.2.5.Final got requested version
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "org_hibernate_hibernate_core",
+      artifact = "org.hibernate:hibernate-core:4.2.5.Final",
+      sha1 = "5966aaeec08af91a3b08d192a9eade4329275822",
   )
 
 
@@ -2152,6 +2422,23 @@ def generated_maven_jars():
   )
 
 
+  # org.hibernate:hibernate-entitymanager:jar:4.2.5.Final got requested version
+  # org.hibernate:hibernate-core:jar:4.2.5.Final
+  native.maven_jar(
+      name = "org_hibernate_javax_persistence_hibernate_jpa_2_0_api",
+      artifact = "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.1.Final",
+      sha1 = "3306a165afa81938fc3d8a0948e891de9f6b192b",
+  )
+
+
+  # org.powermock:powermock-module-junit4:jar:1.6.6
+  native.maven_jar(
+      name = "org_powermock_powermock_module_junit4_common",
+      artifact = "org.powermock:powermock-module-junit4-common:1.6.6",
+      sha1 = "6302c934d03f76fa348ec91c603e11ce05b61f44",
+  )
+
+
   # org.apache.maven.wagon:wagon-ssh-common-test:jar:2.12 got requested version
   # org.apache.mina:mina-core:bundle:2.0.5 wanted version 1.6.6
   # org.apache.maven.wagon:wagon-http:jar:2.12 got requested version
@@ -2202,6 +2489,17 @@ def generated_maven_jars():
       name = "org_apache_mina_mina_integration_beans",
       artifact = "org.apache.mina:mina-integration-beans:2.0.5",
       sha1 = "0b58a9bd5d3fd461cae5419c67c6fd0f1277f4d4",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "xom_xom",
+      artifact = "xom:xom:1.1",
+      sha1 = "6705564269d976dbc0d869b58aca25290c0eb4cb",
   )
 
 
@@ -2257,14 +2555,6 @@ def generated_maven_jars():
   )
 
 
-  # com.google.jimfs:jimfs:bundle:1.1
-  native.maven_jar(
-      name = "com_google_auto_service_auto_service",
-      artifact = "com.google.auto.service:auto-service:1.0-rc2",
-      sha1 = "51033a5b8fcf7039159e35b6878f106ccd5fb35f",
-  )
-
-
   # org.apache.xbean:xbean-classpath:bundle:3.7 got requested version
   # org.apache.xbean:xbean-asm-shaded:bundle:3.7 got requested version
   # org.apache.xbean:xbean-classloader:bundle:3.7 got requested version
@@ -2295,6 +2585,10 @@ def generated_maven_jars():
   )
 
 
+  # org.powermock:powermock-module-junit4:jar:1.6.6 wanted version 6.9.10
+  # org.powermock:powermock-core:jar:1.6.6 wanted version 6.9.10
+  # org.powermock:powermock-module-junit4-common:jar:1.6.6 wanted version 6.9.10
+  # org.powermock:powermock-reflect:jar:1.6.6 wanted version 6.9.10
   # org.jboss.weld:weld-api:jar:1.0 got requested version
   # org.jboss.weld:weld-spi:jar:1.0 got requested version
   # javax.enterprise:cdi-api:jar:1.0
@@ -2339,10 +2633,14 @@ def generated_maven_jars():
   # org.apache.mina:mina-integration-ognl:bundle:2.0.5 wanted version 2.6
   # org.apache.mina:mina-transport-apr:bundle:2.0.5 wanted version 2.6
   # org.apache.mina:mina-integration-jmx:bundle:2.0.5 wanted version 2.6
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 wanted version 2.4
   # org.apache.mina:mina-filter-compression:bundle:2.0.5 wanted version 2.6
   # commons-cli:commons-cli:jar:1.0
   # org.apache.mina:mina-integration-beans:bundle:2.0.5 wanted version 2.6
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9 wanted version 2.4
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 wanted version 2.4
   # org.apache.mina:mina-core:bundle:2.0.5 wanted version 2.6
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 wanted version 2.4
   # org.apache.mina:mina-statemachine:bundle:2.0.5 wanted version 2.6
   native.maven_jar(
       name = "commons_lang_commons_lang",
@@ -2453,6 +2751,15 @@ def generated_maven_jars():
   )
 
 
+  # org.powermock:powermock-core:jar:1.6.6
+  # org.powermock:powermock-module-junit4-common:jar:1.6.6 got requested version
+  native.maven_jar(
+      name = "org_powermock_powermock_reflect",
+      artifact = "org.powermock:powermock-reflect:1.6.6",
+      sha1 = "3fa5d0acee85c5662102ab2ef7a49bbb5a56bae5",
+  )
+
+
   # org.eclipse.jetty.aggregate:jetty-all:jar:8.1.22.v20160922
   native.maven_jar(
       name = "org_slf4j_log4j_over_slf4j",
@@ -2486,6 +2793,7 @@ def generated_maven_jars():
   # org.apache.maven:maven-model:jar:3.5.0 got requested version
   # org.codehaus.plexus:plexus-component-annotations:jar:1.6 wanted version 2.0.9
   # org.apache.maven:maven-model-builder:jar:3.5.0 got requested version
+  # org.apache.maven:maven-artifact:jar:3.5.0 got requested version
   # org.apache.maven:maven-core:jar:3.5.0 got requested version
   # org.apache.maven:maven-compat:jar:3.5.0 got requested version
   # org.apache.maven:maven-resolver-provider:jar:3.5.0 got requested version
@@ -2520,19 +2828,22 @@ def generated_maven_jars():
   )
 
 
-  # com.google.auto.service:auto-service:jar:1.0-rc2
-  native.maven_jar(
-      name = "com_google_auto_auto_common",
-      artifact = "com.google.auto:auto-common:0.3",
-      sha1 = "4073ab16ab4aceb9a217273da6442166bf51ae16",
-  )
-
-
   # com.google.inject:guice:jar:4.0
   native.maven_jar(
       name = "cglib_cglib",
       artifact = "cglib:cglib:3.1",
       sha1 = "1f1cb6c7a7479e0c7fd7987109e503914bebe84a",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "org_codehaus_jettison_jettison",
+      artifact = "org.codehaus.jettison:jettison:1.2",
+      sha1 = "0765a6181653f4b05c18c7a9e8f5c1f8269bf9b2",
   )
 
 
@@ -2559,10 +2870,22 @@ def generated_maven_jars():
 
   # org.mockito:mockito-core:jar:1.9.5 wanted version 1.0
   # org.easymock:easymock:jar:3.2
+  # org.powermock:powermock-module-junit4-common:jar:1.6.6 wanted version 2.4
+  # org.powermock:powermock-core:jar:1.6.6 wanted version 2.4
+  # org.powermock:powermock-reflect:jar:1.6.6 wanted version 2.4
+  # org.powermock:powermock-module-junit4:jar:1.6.6 wanted version 2.4
   native.maven_jar(
       name = "org_objenesis_objenesis",
       artifact = "org.objenesis:objenesis:1.3",
       sha1 = "dc13ae4faca6df981fc7aeb5a522d9db446d5d50",
+  )
+
+
+  # org.openjdk.jmh:jmh-core:jar:1.11.1
+  native.maven_jar(
+      name = "org_apache_commons_commons_math3",
+      artifact = "org.apache.commons:commons-math3:3.2",
+      sha1 = "ec2544ab27e110d2d431bdad7d538ed509b21e62",
   )
 
 
@@ -2615,6 +2938,14 @@ def generated_maven_jars():
   )
 
 
+  # org.hibernate:hibernate-envers:jar:4.2.5.Final
+  native.maven_jar(
+      name = "org_hibernate_hibernate_entitymanager",
+      artifact = "org.hibernate:hibernate-entitymanager:4.2.5.Final",
+      sha1 = "2f4e93876023b3c346c2db21a1d73cd4e9dbf243",
+  )
+
+
   # org.ow2.asm:asm:jar:5.0.2 got requested version
   # org.ow2.asm:asm-analysis:jar:5.0.2
   # org.ow2.asm:asm-xml:jar:5.0.2 got requested version
@@ -2640,6 +2971,19 @@ def generated_maven_jars():
   )
 
 
+  # org.powermock:powermock-module-junit4:jar:1.6.6
+  # org.hibernate:hibernate-entitymanager:jar:4.2.5.Final wanted version 3.15.0-GA
+  # org.powermock:powermock-core:jar:1.6.6 got requested version
+  # org.powermock:powermock-module-junit4-common:jar:1.6.6 got requested version
+  # org.powermock:powermock-reflect:jar:1.6.6 got requested version
+  # org.hibernate:hibernate-core:jar:4.2.5.Final wanted version 3.15.0-GA
+  native.maven_jar(
+      name = "org_javassist_javassist",
+      artifact = "org.javassist:javassist:3.21.0-GA",
+      sha1 = "598244f595db5c5fb713731eddbb1c91a58d959b",
+  )
+
+
   # org.apache.maven.wagon:wagon-ssh-common-test:jar:2.12 got requested version
   # org.apache.maven.wagon:wagon-provider-test:jar:2.12
   # org.apache.maven.wagon:wagon-http:jar:2.12 got requested version
@@ -2651,6 +2995,17 @@ def generated_maven_jars():
       name = "org_apache_maven_wagon_wagon_ssh_common_test",
       artifact = "org.apache.maven.wagon:wagon-ssh-common-test:2.12",
       sha1 = "33a0d0fc0b6a287386524880d7f614c363e9a2d1",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "oro_oro",
+      artifact = "oro:oro:2.0.8",
+      sha1 = "5592374f834645c4ae250f4c9fbb314c9369d698",
   )
 
 
@@ -2689,6 +3044,17 @@ def generated_maven_jars():
       name = "asm_asm_attrs",
       artifact = "asm:asm-attrs:2.0",
       sha1 = "14893c641d6162eeb0f4e8349497ce2733577fe2",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "joda_time_joda_time",
+      artifact = "joda-time:joda-time:1.6",
+      sha1 = "5a18504e34c5cbe9259d6fd0123ccf6f16115a41",
   )
 
 
@@ -2758,7 +3124,11 @@ def generated_maven_jars():
   )
 
 
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 wanted version 3.12.1.GA
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 wanted version 3.12.1.GA
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9 wanted version 3.12.1.GA
   # ognl:ognl:jar:3.0.5
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 wanted version 3.12.1.GA
   native.maven_jar(
       name = "javassist_javassist",
       artifact = "javassist:javassist:3.11.0.GA",
@@ -2804,6 +3174,17 @@ def generated_maven_jars():
       name = "org_ops4j_pax_exam_pax_exam_container_rbc",
       artifact = "org.ops4j.pax.exam:pax-exam-container-rbc:1.1.0",
       sha1 = "7f50c8d87d33451f31aafcc7bfaa925d0c55a374",
+  )
+
+
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "xerces_xercesImpl",
+      artifact = "xerces:xercesImpl:2.8.1",
+      sha1 = "25101e37ec0c907db6f0612cbf106ee519c1aef1",
   )
 
 
@@ -2952,6 +3333,17 @@ def generated_maven_jars():
   )
 
 
+  # com.thoughtworks.xstream:xstream-hibernate:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream:jar:1.4.9 got requested version
+  # com.thoughtworks.xstream:xstream-benchmark:jar:1.4.9
+  # com.thoughtworks.xstream:xstream-jmh:jar:1.4.9 got requested version
+  native.maven_jar(
+      name = "stax_stax",
+      artifact = "stax:stax:1.2.0",
+      sha1 = "c434800de5e4bbe1822805be5fb1c32d6834f830",
+  )
+
+
   # org.apache.mina:mina-transport-apr:bundle:2.0.5 got requested version
   # org.apache.mina:mina-filter-compression:bundle:2.0.5 got requested version
   # org.apache.mina:mina-integration-ognl:bundle:2.0.5 got requested version
@@ -3030,10 +3422,7 @@ def generated_maven_jars():
   )
 
 
-  # com.google.auto:auto-common:jar:0.3 wanted version 18.0
-  # com.google.auto.service:auto-service:jar:1.0-rc2 wanted version 18.0
   # com.google.truth:truth:jar:0.30 wanted version 19.0
-  # com.google.jimfs:jimfs:bundle:1.1 wanted version 18.0
   native.maven_jar(
       name = "com_google_guava_guava",
       artifact = "com.google.guava:guava:20.0",
@@ -3420,6 +3809,62 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "org_powermock_powermock_module_junit4",
+      visibility = ["//visibility:public"],
+      exports = ["@org_powermock_powermock_module_junit4//jar"],
+      runtime_deps = [
+          ":antlr_antlr",
+          ":cglib_cglib_nodep",
+          ":com_megginson_sax_xml_writer",
+          ":com_thoughtworks_xstream_xstream",
+          ":com_thoughtworks_xstream_xstream_benchmark",
+          ":com_thoughtworks_xstream_xstream_hibernate",
+          ":com_thoughtworks_xstream_xstream_jmh",
+          ":commons_cli_commons_cli",
+          ":commons_io_commons_io",
+          ":commons_lang_commons_lang",
+          ":dom4j_dom4j",
+          ":javassist_javassist",
+          ":joda_time_joda_time",
+          ":junit_junit",
+          ":net_sf_jopt_simple_jopt_simple",
+          ":net_sf_kxml_kxml2",
+          ":net_sf_kxml_kxml2_min",
+          ":org_apache_commons_commons_math3",
+          ":org_codehaus_jettison_jettison",
+          ":org_codehaus_woodstox_wstx_asl",
+          ":org_hamcrest_hamcrest_core",
+          ":org_hibernate_common_hibernate_commons_annotations",
+          ":org_hibernate_hibernate_core",
+          ":org_hibernate_hibernate_entitymanager",
+          ":org_hibernate_hibernate_envers",
+          ":org_hibernate_javax_persistence_hibernate_jpa_2_0_api",
+          ":org_hsqldb_hsqldb",
+          ":org_javassist_javassist",
+          ":org_jboss_logging_jboss_logging",
+          ":org_jboss_spec_javax_transaction_jboss_transaction_api_1_1_spec",
+          ":org_jdom_jdom",
+          ":org_jdom_jdom2",
+          ":org_json_json",
+          ":org_objenesis_objenesis",
+          ":org_openjdk_jmh_jmh_core",
+          ":org_powermock_powermock_core",
+          ":org_powermock_powermock_module_junit4_common",
+          ":org_powermock_powermock_reflect",
+          ":org_testng_testng",
+          ":oro_oro",
+          ":stax_stax",
+          ":stax_stax_api",
+          ":xerces_xercesImpl",
+          ":xml_apis_xml_apis",
+          ":xmlpull_xmlpull",
+          ":xom_xom",
+          ":xpp3_xpp3_min",
+      ],
+  )
+
+
+  native.java_library(
       name = "com_google_truth_truth",
       visibility = ["//visibility:public"],
       exports = ["@com_google_truth_truth//jar"],
@@ -3475,6 +3920,55 @@ def generated_java_libraries():
           ":org_codehaus_plexus_plexus_component_metadata",
           ":org_codehaus_plexus_plexus_container_default",
           ":org_codehaus_plexus_plexus_utils",
+      ],
+  )
+
+
+  native.java_library(
+      name = "com_thoughtworks_xstream_xstream_benchmark",
+      visibility = ["//visibility:public"],
+      exports = ["@com_thoughtworks_xstream_xstream_benchmark//jar"],
+      runtime_deps = [
+          ":antlr_antlr",
+          ":cglib_cglib_nodep",
+          ":com_megginson_sax_xml_writer",
+          ":com_thoughtworks_xstream_xstream",
+          ":com_thoughtworks_xstream_xstream_benchmark",
+          ":com_thoughtworks_xstream_xstream_hibernate",
+          ":com_thoughtworks_xstream_xstream_jmh",
+          ":commons_cli_commons_cli",
+          ":commons_io_commons_io",
+          ":commons_lang_commons_lang",
+          ":dom4j_dom4j",
+          ":javassist_javassist",
+          ":joda_time_joda_time",
+          ":net_sf_jopt_simple_jopt_simple",
+          ":net_sf_kxml_kxml2",
+          ":net_sf_kxml_kxml2_min",
+          ":org_apache_commons_commons_math3",
+          ":org_codehaus_jettison_jettison",
+          ":org_codehaus_woodstox_wstx_asl",
+          ":org_hibernate_common_hibernate_commons_annotations",
+          ":org_hibernate_hibernate_core",
+          ":org_hibernate_hibernate_entitymanager",
+          ":org_hibernate_hibernate_envers",
+          ":org_hibernate_javax_persistence_hibernate_jpa_2_0_api",
+          ":org_hsqldb_hsqldb",
+          ":org_javassist_javassist",
+          ":org_jboss_logging_jboss_logging",
+          ":org_jboss_spec_javax_transaction_jboss_transaction_api_1_1_spec",
+          ":org_jdom_jdom",
+          ":org_jdom_jdom2",
+          ":org_json_json",
+          ":org_openjdk_jmh_jmh_core",
+          ":oro_oro",
+          ":stax_stax",
+          ":stax_stax_api",
+          ":xerces_xercesImpl",
+          ":xml_apis_xml_apis",
+          ":xmlpull_xmlpull",
+          ":xom_xom",
+          ":xpp3_xpp3_min",
       ],
   )
 
@@ -3760,6 +4254,20 @@ def generated_java_libraries():
       name = "org_mockito_mockito_all",
       visibility = ["//visibility:public"],
       exports = ["@org_mockito_mockito_all//jar"],
+  )
+
+
+  native.java_library(
+      name = "xmlpull_xmlpull",
+      visibility = ["//visibility:public"],
+      exports = ["@xmlpull_xmlpull//jar"],
+  )
+
+
+  native.java_library(
+      name = "net_sf_kxml_kxml2",
+      visibility = ["//visibility:public"],
+      exports = ["@net_sf_kxml_kxml2//jar"],
   )
 
 
@@ -4186,9 +4694,40 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "org_jboss_spec_javax_transaction_jboss_transaction_api_1_1_spec",
+      visibility = ["//visibility:public"],
+      exports = ["@org_jboss_spec_javax_transaction_jboss_transaction_api_1_1_spec//jar"],
+  )
+
+
+  native.java_library(
       name = "javax_transaction_jta",
       visibility = ["//visibility:public"],
       exports = ["@javax_transaction_jta//jar"],
+  )
+
+
+  native.java_library(
+      name = "xpp3_xpp3_min",
+      visibility = ["//visibility:public"],
+      exports = ["@xpp3_xpp3_min//jar"],
+  )
+
+
+  native.java_library(
+      name = "org_hibernate_hibernate_envers",
+      visibility = ["//visibility:public"],
+      exports = ["@org_hibernate_hibernate_envers//jar"],
+      runtime_deps = [
+          ":dom4j_dom4j",
+          ":org_hibernate_common_hibernate_commons_annotations",
+          ":org_hibernate_hibernate_core",
+          ":org_hibernate_hibernate_entitymanager",
+          ":org_hibernate_javax_persistence_hibernate_jpa_2_0_api",
+          ":org_javassist_javassist",
+          ":org_jboss_logging_jboss_logging",
+          ":org_jboss_spec_javax_transaction_jboss_transaction_api_1_1_spec",
+      ],
   )
 
 
@@ -4290,6 +4829,16 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "org_hibernate_common_hibernate_commons_annotations",
+      visibility = ["//visibility:public"],
+      exports = ["@org_hibernate_common_hibernate_commons_annotations//jar"],
+      runtime_deps = [
+          ":org_jboss_logging_jboss_logging",
+      ],
+  )
+
+
+  native.java_library(
       name = "org_hamcrest_hamcrest_library",
       visibility = ["//visibility:public"],
       exports = ["@org_hamcrest_hamcrest_library//jar"],
@@ -4327,6 +4876,13 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "com_megginson_sax_xml_writer",
+      visibility = ["//visibility:public"],
+      exports = ["@com_megginson_sax_xml_writer//jar"],
+  )
+
+
+  native.java_library(
       name = "org_slf4j_slf4j_api",
       visibility = ["//visibility:public"],
       exports = ["@org_slf4j_slf4j_api//jar"],
@@ -4335,6 +4891,104 @@ def generated_java_libraries():
           ":log4j_log4j",
           ":org_slf4j_slf4j_api",
           ":org_slf4j_slf4j_jdk14",
+      ],
+  )
+
+
+  native.java_library(
+      name = "com_thoughtworks_xstream_xstream_jmh",
+      visibility = ["//visibility:public"],
+      exports = ["@com_thoughtworks_xstream_xstream_jmh//jar"],
+      runtime_deps = [
+          ":antlr_antlr",
+          ":cglib_cglib_nodep",
+          ":com_megginson_sax_xml_writer",
+          ":com_thoughtworks_xstream_xstream",
+          ":com_thoughtworks_xstream_xstream_benchmark",
+          ":com_thoughtworks_xstream_xstream_hibernate",
+          ":com_thoughtworks_xstream_xstream_jmh",
+          ":commons_cli_commons_cli",
+          ":commons_io_commons_io",
+          ":commons_lang_commons_lang",
+          ":dom4j_dom4j",
+          ":javassist_javassist",
+          ":joda_time_joda_time",
+          ":net_sf_jopt_simple_jopt_simple",
+          ":net_sf_kxml_kxml2",
+          ":net_sf_kxml_kxml2_min",
+          ":org_apache_commons_commons_math3",
+          ":org_codehaus_jettison_jettison",
+          ":org_codehaus_woodstox_wstx_asl",
+          ":org_hibernate_common_hibernate_commons_annotations",
+          ":org_hibernate_hibernate_core",
+          ":org_hibernate_hibernate_entitymanager",
+          ":org_hibernate_hibernate_envers",
+          ":org_hibernate_javax_persistence_hibernate_jpa_2_0_api",
+          ":org_hsqldb_hsqldb",
+          ":org_javassist_javassist",
+          ":org_jboss_logging_jboss_logging",
+          ":org_jboss_spec_javax_transaction_jboss_transaction_api_1_1_spec",
+          ":org_jdom_jdom",
+          ":org_jdom_jdom2",
+          ":org_json_json",
+          ":org_openjdk_jmh_jmh_core",
+          ":oro_oro",
+          ":stax_stax",
+          ":stax_stax_api",
+          ":xerces_xercesImpl",
+          ":xml_apis_xml_apis",
+          ":xmlpull_xmlpull",
+          ":xom_xom",
+          ":xpp3_xpp3_min",
+      ],
+  )
+
+
+  native.java_library(
+      name = "com_thoughtworks_xstream_xstream",
+      visibility = ["//visibility:public"],
+      exports = ["@com_thoughtworks_xstream_xstream//jar"],
+      runtime_deps = [
+          ":antlr_antlr",
+          ":cglib_cglib_nodep",
+          ":com_megginson_sax_xml_writer",
+          ":com_thoughtworks_xstream_xstream",
+          ":com_thoughtworks_xstream_xstream_benchmark",
+          ":com_thoughtworks_xstream_xstream_hibernate",
+          ":com_thoughtworks_xstream_xstream_jmh",
+          ":commons_cli_commons_cli",
+          ":commons_io_commons_io",
+          ":commons_lang_commons_lang",
+          ":dom4j_dom4j",
+          ":javassist_javassist",
+          ":joda_time_joda_time",
+          ":net_sf_jopt_simple_jopt_simple",
+          ":net_sf_kxml_kxml2",
+          ":net_sf_kxml_kxml2_min",
+          ":org_apache_commons_commons_math3",
+          ":org_codehaus_jettison_jettison",
+          ":org_codehaus_woodstox_wstx_asl",
+          ":org_hibernate_common_hibernate_commons_annotations",
+          ":org_hibernate_hibernate_core",
+          ":org_hibernate_hibernate_entitymanager",
+          ":org_hibernate_hibernate_envers",
+          ":org_hibernate_javax_persistence_hibernate_jpa_2_0_api",
+          ":org_hsqldb_hsqldb",
+          ":org_javassist_javassist",
+          ":org_jboss_logging_jboss_logging",
+          ":org_jboss_spec_javax_transaction_jboss_transaction_api_1_1_spec",
+          ":org_jdom_jdom",
+          ":org_jdom_jdom2",
+          ":org_json_json",
+          ":org_openjdk_jmh_jmh_core",
+          ":oro_oro",
+          ":stax_stax",
+          ":stax_stax_api",
+          ":xerces_xercesImpl",
+          ":xml_apis_xml_apis",
+          ":xmlpull_xmlpull",
+          ":xom_xom",
+          ":xpp3_xpp3_min",
       ],
   )
 
@@ -4715,6 +5369,16 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "org_codehaus_woodstox_wstx_asl",
+      visibility = ["//visibility:public"],
+      exports = ["@org_codehaus_woodstox_wstx_asl//jar"],
+      runtime_deps = [
+          ":stax_stax_api",
+      ],
+  )
+
+
+  native.java_library(
       name = "org_ops4j_pax_runner_pax_runner_no_jcl",
       visibility = ["//visibility:public"],
       exports = ["@org_ops4j_pax_runner_pax_runner_no_jcl//jar"],
@@ -5048,20 +5712,6 @@ def generated_java_libraries():
 
 
   native.java_library(
-      name = "com_google_jimfs_jimfs",
-      visibility = ["//visibility:public"],
-      exports = ["@com_google_jimfs_jimfs//jar"],
-      runtime_deps = [
-          ":com_google_auto_auto_common",
-          ":com_google_auto_service_auto_service",
-          ":com_google_code_findbugs_jsr305",
-          ":com_google_guava_guava",
-          ":com_ibm_icu_icu4j",
-      ],
-  )
-
-
-  native.java_library(
       name = "net_sf_jpam_jpam",
       visibility = ["//visibility:public"],
       exports = ["@net_sf_jpam_jpam//jar"],
@@ -5376,6 +6026,13 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "org_jdom_jdom2",
+      visibility = ["//visibility:public"],
+      exports = ["@org_jdom_jdom2//jar"],
+  )
+
+
+  native.java_library(
       name = "org_hamcrest_hamcrest_core",
       visibility = ["//visibility:public"],
       exports = ["@org_hamcrest_hamcrest_core//jar"],
@@ -5441,6 +6098,13 @@ def generated_java_libraries():
           ":org_slf4j_slf4j_api",
           ":org_slf4j_slf4j_jdk14",
       ],
+  )
+
+
+  native.java_library(
+      name = "net_sf_kxml_kxml2_min",
+      visibility = ["//visibility:public"],
+      exports = ["@net_sf_kxml_kxml2_min//jar"],
   )
 
 
@@ -5687,6 +6351,13 @@ def generated_java_libraries():
           ":pmd_pmd",
           ":tomcat_tomcat_apr",
       ],
+  )
+
+
+  native.java_library(
+      name = "dom4j_dom4j",
+      visibility = ["//visibility:public"],
+      exports = ["@dom4j_dom4j//jar"],
   )
 
 
@@ -6248,13 +6919,6 @@ def generated_java_libraries():
 
 
   native.java_library(
-      name = "com_ibm_icu_icu4j",
-      visibility = ["//visibility:public"],
-      exports = ["@com_ibm_icu_icu4j//jar"],
-  )
-
-
-  native.java_library(
       name = "com_jcraft_jsch",
       visibility = ["//visibility:public"],
       exports = ["@com_jcraft_jsch//jar"],
@@ -6280,6 +6944,13 @@ def generated_java_libraries():
       name = "javacc_javacc",
       visibility = ["//visibility:public"],
       exports = ["@javacc_javacc//jar"],
+  )
+
+
+  native.java_library(
+      name = "org_json_json",
+      visibility = ["//visibility:public"],
+      exports = ["@org_json_json//jar"],
   )
 
 
@@ -6403,6 +7074,62 @@ def generated_java_libraries():
       name = "org_eclipse_jetty_orbit_javax_activation",
       visibility = ["//visibility:public"],
       exports = ["@org_eclipse_jetty_orbit_javax_activation//jar"],
+  )
+
+
+  native.java_library(
+      name = "org_jdom_jdom",
+      visibility = ["//visibility:public"],
+      exports = ["@org_jdom_jdom//jar"],
+  )
+
+
+  native.java_library(
+      name = "com_thoughtworks_xstream_xstream_hibernate",
+      visibility = ["//visibility:public"],
+      exports = ["@com_thoughtworks_xstream_xstream_hibernate//jar"],
+      runtime_deps = [
+          ":antlr_antlr",
+          ":cglib_cglib_nodep",
+          ":com_megginson_sax_xml_writer",
+          ":com_thoughtworks_xstream_xstream",
+          ":com_thoughtworks_xstream_xstream_benchmark",
+          ":com_thoughtworks_xstream_xstream_hibernate",
+          ":com_thoughtworks_xstream_xstream_jmh",
+          ":commons_cli_commons_cli",
+          ":commons_io_commons_io",
+          ":commons_lang_commons_lang",
+          ":dom4j_dom4j",
+          ":javassist_javassist",
+          ":joda_time_joda_time",
+          ":net_sf_jopt_simple_jopt_simple",
+          ":net_sf_kxml_kxml2",
+          ":net_sf_kxml_kxml2_min",
+          ":org_apache_commons_commons_math3",
+          ":org_codehaus_jettison_jettison",
+          ":org_codehaus_woodstox_wstx_asl",
+          ":org_hibernate_common_hibernate_commons_annotations",
+          ":org_hibernate_hibernate_core",
+          ":org_hibernate_hibernate_entitymanager",
+          ":org_hibernate_hibernate_envers",
+          ":org_hibernate_javax_persistence_hibernate_jpa_2_0_api",
+          ":org_hsqldb_hsqldb",
+          ":org_javassist_javassist",
+          ":org_jboss_logging_jboss_logging",
+          ":org_jboss_spec_javax_transaction_jboss_transaction_api_1_1_spec",
+          ":org_jdom_jdom",
+          ":org_jdom_jdom2",
+          ":org_json_json",
+          ":org_openjdk_jmh_jmh_core",
+          ":oro_oro",
+          ":stax_stax",
+          ":stax_stax_api",
+          ":xerces_xercesImpl",
+          ":xml_apis_xml_apis",
+          ":xmlpull_xmlpull",
+          ":xom_xom",
+          ":xpp3_xpp3_min",
+      ],
   )
 
 
@@ -6721,6 +7448,20 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "org_jboss_logging_jboss_logging",
+      visibility = ["//visibility:public"],
+      exports = ["@org_jboss_logging_jboss_logging//jar"],
+  )
+
+
+  native.java_library(
+      name = "org_hsqldb_hsqldb",
+      visibility = ["//visibility:public"],
+      exports = ["@org_hsqldb_hsqldb//jar"],
+  )
+
+
+  native.java_library(
       name = "org_codehaus_plexus_plexus_component_metadata",
       visibility = ["//visibility:public"],
       exports = ["@org_codehaus_plexus_plexus_component_metadata//jar"],
@@ -6952,95 +7693,11 @@ def generated_java_libraries():
       visibility = ["//visibility:public"],
       exports = ["@org_apache_maven_maven_artifact//jar"],
       runtime_deps = [
-          ":ant_ant",
-          ":ant_ant_junit",
-          ":ant_ant_launcher",
-          ":antlr_antlr",
-          ":aopalliance_aopalliance",
-          ":asm_asm",
-          ":asm_asm_analysis",
-          ":asm_asm_attrs",
-          ":asm_asm_tree",
-          ":asm_asm_util",
-          ":avalon_framework_avalon_framework_api",
-          ":axion_axion",
-          ":biz_aQute_bndlib",
-          ":bouncycastle_bcprov_jdk15",
-          ":bsf_bsf",
-          ":cglib_cglib",
-          ":cglib_cglib_full",
-          ":cglib_cglib_nodep",
-          ":ch_ethz_ganymed_ganymed_ssh2",
-          ":ch_qos_cal10n_cal10n_api",
-          ":classworlds_classworlds",
-          ":com_google_code_findbugs_jsr305",
-          ":com_google_collections_google_collections",
-          ":com_google_errorprone_error_prone_annotations",
           ":com_google_guava_guava",
-          ":com_google_guava_guava_testlib",
           ":com_google_inject_guice",
-          ":com_google_j2objc_j2objc_annotations",
-          ":com_jcraft_jsch",
-          ":com_jcraft_jzlib",
-          ":com_thoughtworks_qdox_qdox",
-          ":commons_beanutils_commons_beanutils",
           ":commons_cli_commons_cli",
-          ":commons_codec_commons_codec",
-          ":commons_collections_commons_collections",
-          ":commons_discovery_commons_discovery",
-          ":commons_httpclient_commons_httpclient",
-          ":commons_io_commons_io",
           ":commons_jxpath_commons_jxpath",
-          ":commons_lang_commons_lang",
-          ":commons_logging_commons_logging",
-          ":commons_logging_commons_logging_api",
-          ":commons_primitives_commons_primitives",
-          ":geronimo_spec_geronimo_spec_jta",
-          ":groovy_groovy",
-          ":javacc_javacc",
-          ":javassist_javassist",
-          ":javax_activation_activation",
-          ":javax_annotation_jsr250_api",
-          ":javax_enterprise_cdi_api",
-          ":javax_faces_jsf_api",
-          ":javax_inject_javax_inject",
-          ":javax_inject_javax_inject_tck",
-          ":javax_jms_jms",
-          ":javax_jws_jsr181_api",
-          ":javax_mail_mail",
-          ":javax_persistence_persistence_api",
-          ":javax_servlet_javax_servlet_api",
-          ":javax_servlet_jsp_jsp_api",
-          ":javax_servlet_jstl",
-          ":javax_servlet_servlet_api",
-          ":javax_transaction_jta",
-          ":javax_validation_validation_api",
-          ":javax_xml_bind_jaxb_api",
-          ":javax_xml_soap_saaj_api",
-          ":javax_xml_stream_stax_api",
-          ":javax_xml_ws_jaxws_api",
-          ":jaxen_jaxen",
-          ":jboss_javassist",
-          ":jdom_jdom",
-          ":jetty_org_mortbay_jetty",
-          ":jmock_jmock",
-          ":jmock_jmock_cglib",
-          ":junit_junit",
-          ":log4j_log4j",
-          ":mockobjects_mockobjects_core",
-          ":mx4j_mx4j",
-          ":nekohtml_nekohtml",
-          ":net_java_dev_jna_jna",
-          ":net_java_dev_jna_jna_platform",
-          ":net_sf_ehcache_ehcache_core",
-          ":net_sf_jpam_jpam",
-          ":net_spy_spymemcached",
-          ":ognl_ognl",
-          ":openejb_openejb_loader",
-          ":org_apache_commons_commons_jexl",
           ":org_apache_commons_commons_lang3",
-          ":org_apache_httpcomponents_httpclient",
-          ":org_apache_httpcomponents_httpcore",
           ":org_apache_maven_maven_artifact",
           ":org_apache_maven_maven_builder_support",
           ":org_apache_maven_maven_compat",
@@ -7049,8 +7706,6 @@ def generated_java_libraries():
           ":org_apache_maven_maven_model",
           ":org_apache_maven_maven_model_builder",
           ":org_apache_maven_maven_plugin_api",
-          ":org_apache_maven_maven_plugin_tools_api",
-          ":org_apache_maven_maven_project",
           ":org_apache_maven_maven_repository_metadata",
           ":org_apache_maven_maven_resolver_provider",
           ":org_apache_maven_maven_settings",
@@ -7065,118 +7720,17 @@ def generated_java_libraries():
           ":org_apache_maven_shared_maven_shared_utils",
           ":org_apache_maven_wagon_wagon_file",
           ":org_apache_maven_wagon_wagon_http",
-          ":org_apache_maven_wagon_wagon_http_shared",
           ":org_apache_maven_wagon_wagon_provider_api",
-          ":org_apache_maven_wagon_wagon_provider_test",
-          ":org_apache_maven_wagon_wagon_ssh_common",
-          ":org_apache_maven_wagon_wagon_ssh_common_test",
-          ":org_apache_mina_mina_core",
-          ":org_apache_mina_mina_filter_compression",
-          ":org_apache_mina_mina_integration_beans",
-          ":org_apache_mina_mina_integration_jmx",
-          ":org_apache_mina_mina_integration_ognl",
-          ":org_apache_mina_mina_statemachine",
-          ":org_apache_mina_mina_transport_apr",
-          ":org_apache_sshd_sshd_core",
-          ":org_apache_xbean_xbean_asm_shaded",
-          ":org_apache_xbean_xbean_blueprint",
-          ":org_apache_xbean_xbean_bundleutils",
-          ":org_apache_xbean_xbean_classloader",
-          ":org_apache_xbean_xbean_classpath",
-          ":org_apache_xbean_xbean_finder",
-          ":org_apache_xbean_xbean_finder_shaded",
-          ":org_apache_xbean_xbean_naming",
-          ":org_apache_xbean_xbean_reflect",
-          ":org_apache_xbean_xbean_spring",
-          ":org_apache_xbean_xbean_telnet",
           ":org_codehaus_plexus_plexus_classworlds",
-          ":org_codehaus_plexus_plexus_cli",
           ":org_codehaus_plexus_plexus_component_annotations",
-          ":org_codehaus_plexus_plexus_component_metadata",
-          ":org_codehaus_plexus_plexus_container_default",
-          ":org_codehaus_plexus_plexus_interactivity_api",
           ":org_codehaus_plexus_plexus_interpolation",
           ":org_codehaus_plexus_plexus_utils",
-          ":org_easymock_easymock",
-          ":org_eclipse_jetty_aggregate_jetty_all",
-          ":org_eclipse_jetty_orbit_javax_activation",
-          ":org_eclipse_jetty_orbit_javax_annotation",
-          ":org_eclipse_jetty_orbit_javax_mail_glassfish",
-          ":org_eclipse_jetty_orbit_javax_security_auth_message",
-          ":org_eclipse_jetty_orbit_javax_servlet",
-          ":org_eclipse_jetty_orbit_javax_transaction",
-          ":org_eclipse_jetty_orbit_org_objectweb_asm",
-          ":org_eclipse_jetty_toolchain_jetty_test_helper",
-          ":org_eclipse_sisu_org_eclipse_sisu_inject",
           ":org_eclipse_sisu_org_eclipse_sisu_plexus",
           ":org_fusesource_jansi_jansi",
-          ":org_hamcrest_hamcrest_core",
-          ":org_hamcrest_hamcrest_library",
-          ":org_jboss_weld_weld_api",
-          ":org_jboss_weld_weld_spi",
-          ":org_jsoup_jsoup",
           ":org_mockito_mockito_core",
-          ":org_mortbay_jetty_jetty",
-          ":org_mortbay_jetty_jetty_client",
-          ":org_mortbay_jetty_jetty_sslengine",
-          ":org_mortbay_jetty_jetty_util",
-          ":org_mortbay_jetty_servlet_api_2_5",
-          ":org_objenesis_objenesis",
-          ":org_ops4j_base_ops4j_base_io",
-          ":org_ops4j_base_ops4j_base_lang",
-          ":org_ops4j_base_ops4j_base_monitors",
-          ":org_ops4j_base_ops4j_base_net",
-          ":org_ops4j_base_ops4j_base_util_property",
-          ":org_ops4j_pax_exam_pax_exam",
-          ":org_ops4j_pax_exam_pax_exam_container_default",
-          ":org_ops4j_pax_exam_pax_exam_container_rbc",
-          ":org_ops4j_pax_exam_pax_exam_container_rbc_client",
-          ":org_ops4j_pax_exam_pax_exam_junit",
-          ":org_ops4j_pax_exam_pax_exam_junit_extender",
-          ":org_ops4j_pax_exam_pax_exam_runtime",
-          ":org_ops4j_pax_exam_pax_exam_spi",
-          ":org_ops4j_pax_logging_pax_logging_api",
-          ":org_ops4j_pax_logging_pax_logging_service",
-          ":org_ops4j_pax_runner_pax_runner_no_jcl",
-          ":org_ops4j_pax_swissbox_pax_swissbox_core",
-          ":org_ops4j_pax_swissbox_pax_swissbox_extender",
-          ":org_ops4j_pax_swissbox_pax_swissbox_lifecycle",
-          ":org_ops4j_pax_swissbox_pax_swissbox_optional_jcl",
-          ":org_ow2_asm_asm",
-          ":org_ow2_asm_asm_all",
-          ":org_ow2_asm_asm_analysis",
-          ":org_ow2_asm_asm_commons",
-          ":org_ow2_asm_asm_tree",
-          ":org_ow2_asm_asm_util",
-          ":org_ow2_asm_asm_xml",
-          ":org_slf4j_jcl104_over_slf4j",
-          ":org_slf4j_jcl_over_slf4j",
-          ":org_slf4j_log4j_over_slf4j",
           ":org_slf4j_slf4j_api",
-          ":org_slf4j_slf4j_jcl",
-          ":org_slf4j_slf4j_jdk14",
-          ":org_slf4j_slf4j_log4j12",
-          ":org_slf4j_slf4j_simple",
           ":org_sonatype_plexus_plexus_cipher",
           ":org_sonatype_plexus_plexus_sec_dispatcher",
-          ":org_sonatype_sisu_sisu_guice",
-          ":org_springframework_spring",
-          ":org_springframework_spring_beans",
-          ":org_springframework_spring_context",
-          ":org_springframework_spring_core",
-          ":org_springframework_spring_web",
-          ":org_testng_testng",
-          ":pmd_pmd",
-          ":qdox_qdox",
-          ":radeox_radeox",
-          ":radeox_radeox_oro",
-          ":regexp_regexp",
-          ":tomcat_tomcat_apr",
-          ":tonic_jarjar",
-          ":xerces_xerces",
-          ":xml_apis_xml_apis",
-          ":xpp3_xpp3",
-          ":xstream_xstream",
       ],
   )
 
@@ -7208,6 +7762,13 @@ def generated_java_libraries():
           ":org_jboss_weld_weld_spi",
           ":org_testng_testng",
       ],
+  )
+
+
+  native.java_library(
+      name = "net_sf_jopt_simple_jopt_simple",
+      visibility = ["//visibility:public"],
+      exports = ["@net_sf_jopt_simple_jopt_simple//jar"],
   )
 
 
@@ -7274,6 +7835,22 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "org_powermock_powermock_core",
+      visibility = ["//visibility:public"],
+      exports = ["@org_powermock_powermock_core//jar"],
+      runtime_deps = [
+          ":cglib_cglib_nodep",
+          ":com_thoughtworks_xstream_xstream",
+          ":org_hamcrest_hamcrest_core",
+          ":org_javassist_javassist",
+          ":org_objenesis_objenesis",
+          ":org_powermock_powermock_reflect",
+          ":org_testng_testng",
+      ],
+  )
+
+
+  native.java_library(
       name = "radeox_radeox_oro",
       visibility = ["//visibility:public"],
       exports = ["@radeox_radeox_oro//jar"],
@@ -7291,9 +7868,27 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "stax_stax_api",
+      visibility = ["//visibility:public"],
+      exports = ["@stax_stax_api//jar"],
+  )
+
+
+  native.java_library(
       name = "cglib_cglib_full",
       visibility = ["//visibility:public"],
       exports = ["@cglib_cglib_full//jar"],
+  )
+
+
+  native.java_library(
+      name = "org_openjdk_jmh_jmh_core",
+      visibility = ["//visibility:public"],
+      exports = ["@org_openjdk_jmh_jmh_core//jar"],
+      runtime_deps = [
+          ":net_sf_jopt_simple_jopt_simple",
+          ":org_apache_commons_commons_math3",
+      ],
   )
 
 
@@ -7422,6 +8017,22 @@ def generated_java_libraries():
       name = "biz_aQute_bndlib",
       visibility = ["//visibility:public"],
       exports = ["@biz_aQute_bndlib//jar"],
+  )
+
+
+  native.java_library(
+      name = "org_hibernate_hibernate_core",
+      visibility = ["//visibility:public"],
+      exports = ["@org_hibernate_hibernate_core//jar"],
+      runtime_deps = [
+          ":antlr_antlr",
+          ":dom4j_dom4j",
+          ":org_hibernate_common_hibernate_commons_annotations",
+          ":org_hibernate_javax_persistence_hibernate_jpa_2_0_api",
+          ":org_javassist_javassist",
+          ":org_jboss_logging_jboss_logging",
+          ":org_jboss_spec_javax_transaction_jboss_transaction_api_1_1_spec",
+      ],
   )
 
 
@@ -7859,6 +8470,31 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "org_hibernate_javax_persistence_hibernate_jpa_2_0_api",
+      visibility = ["//visibility:public"],
+      exports = ["@org_hibernate_javax_persistence_hibernate_jpa_2_0_api//jar"],
+  )
+
+
+  native.java_library(
+      name = "org_powermock_powermock_module_junit4_common",
+      visibility = ["//visibility:public"],
+      exports = ["@org_powermock_powermock_module_junit4_common//jar"],
+      runtime_deps = [
+          ":cglib_cglib_nodep",
+          ":com_thoughtworks_xstream_xstream",
+          ":junit_junit",
+          ":org_hamcrest_hamcrest_core",
+          ":org_javassist_javassist",
+          ":org_objenesis_objenesis",
+          ":org_powermock_powermock_core",
+          ":org_powermock_powermock_reflect",
+          ":org_testng_testng",
+      ],
+  )
+
+
+  native.java_library(
       name = "org_slf4j_jcl_over_slf4j",
       visibility = ["//visibility:public"],
       exports = ["@org_slf4j_jcl_over_slf4j//jar"],
@@ -7922,6 +8558,13 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "xom_xom",
+      visibility = ["//visibility:public"],
+      exports = ["@xom_xom//jar"],
+  )
+
+
+  native.java_library(
       name = "javax_servlet_jstl",
       visibility = ["//visibility:public"],
       exports = ["@javax_servlet_jstl//jar"],
@@ -7952,17 +8595,6 @@ def generated_java_libraries():
       exports = ["@ognl_ognl//jar"],
       runtime_deps = [
           ":javassist_javassist",
-      ],
-  )
-
-
-  native.java_library(
-      name = "com_google_auto_service_auto_service",
-      visibility = ["//visibility:public"],
-      exports = ["@com_google_auto_service_auto_service//jar"],
-      runtime_deps = [
-          ":com_google_auto_auto_common",
-          ":com_google_guava_guava",
       ],
   )
 
@@ -8648,6 +9280,21 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "org_powermock_powermock_reflect",
+      visibility = ["//visibility:public"],
+      exports = ["@org_powermock_powermock_reflect//jar"],
+      runtime_deps = [
+          ":cglib_cglib_nodep",
+          ":com_thoughtworks_xstream_xstream",
+          ":org_hamcrest_hamcrest_core",
+          ":org_javassist_javassist",
+          ":org_objenesis_objenesis",
+          ":org_testng_testng",
+      ],
+  )
+
+
+  native.java_library(
       name = "org_slf4j_log4j_over_slf4j",
       visibility = ["//visibility:public"],
       exports = ["@org_slf4j_log4j_over_slf4j//jar"],
@@ -8980,21 +9627,21 @@ def generated_java_libraries():
 
 
   native.java_library(
-      name = "com_google_auto_auto_common",
-      visibility = ["//visibility:public"],
-      exports = ["@com_google_auto_auto_common//jar"],
-      runtime_deps = [
-          ":com_google_guava_guava",
-      ],
-  )
-
-
-  native.java_library(
       name = "cglib_cglib",
       visibility = ["//visibility:public"],
       exports = ["@cglib_cglib//jar"],
       runtime_deps = [
           ":org_ow2_asm_asm",
+      ],
+  )
+
+
+  native.java_library(
+      name = "org_codehaus_jettison_jettison",
+      visibility = ["//visibility:public"],
+      exports = ["@org_codehaus_jettison_jettison//jar"],
+      runtime_deps = [
+          ":stax_stax_api",
       ],
   )
 
@@ -9241,6 +9888,13 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "org_apache_commons_commons_math3",
+      visibility = ["//visibility:public"],
+      exports = ["@org_apache_commons_commons_math3//jar"],
+  )
+
+
+  native.java_library(
       name = "org_apache_xbean_xbean_classloader",
       visibility = ["//visibility:public"],
       exports = ["@org_apache_xbean_xbean_classloader//jar"],
@@ -9375,6 +10029,22 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "org_hibernate_hibernate_entitymanager",
+      visibility = ["//visibility:public"],
+      exports = ["@org_hibernate_hibernate_entitymanager//jar"],
+      runtime_deps = [
+          ":dom4j_dom4j",
+          ":org_hibernate_common_hibernate_commons_annotations",
+          ":org_hibernate_hibernate_core",
+          ":org_hibernate_javax_persistence_hibernate_jpa_2_0_api",
+          ":org_javassist_javassist",
+          ":org_jboss_logging_jboss_logging",
+          ":org_jboss_spec_javax_transaction_jboss_transaction_api_1_1_spec",
+      ],
+  )
+
+
+  native.java_library(
       name = "org_ow2_asm_asm_commons",
       visibility = ["//visibility:public"],
       exports = ["@org_ow2_asm_asm_commons//jar"],
@@ -9393,6 +10063,13 @@ def generated_java_libraries():
       name = "javax_persistence_persistence_api",
       visibility = ["//visibility:public"],
       exports = ["@javax_persistence_persistence_api//jar"],
+  )
+
+
+  native.java_library(
+      name = "org_javassist_javassist",
+      visibility = ["//visibility:public"],
+      exports = ["@org_javassist_javassist//jar"],
   )
 
 
@@ -9473,6 +10150,13 @@ def generated_java_libraries():
           ":pmd_pmd",
           ":tomcat_tomcat_apr",
       ],
+  )
+
+
+  native.java_library(
+      name = "oro_oro",
+      visibility = ["//visibility:public"],
+      exports = ["@oro_oro//jar"],
   )
 
 
@@ -9558,6 +10242,13 @@ def generated_java_libraries():
       name = "asm_asm_attrs",
       visibility = ["//visibility:public"],
       exports = ["@asm_asm_attrs//jar"],
+  )
+
+
+  native.java_library(
+      name = "joda_time_joda_time",
+      visibility = ["//visibility:public"],
+      exports = ["@joda_time_joda_time//jar"],
   )
 
 
@@ -9840,6 +10531,13 @@ def generated_java_libraries():
 
 
   native.java_library(
+      name = "xerces_xercesImpl",
+      visibility = ["//visibility:public"],
+      exports = ["@xerces_xercesImpl//jar"],
+  )
+
+
+  native.java_library(
       name = "org_slf4j_jcl104_over_slf4j",
       visibility = ["//visibility:public"],
       exports = ["@org_slf4j_jcl104_over_slf4j//jar"],
@@ -9967,6 +10665,16 @@ def generated_java_libraries():
       name = "net_spy_spymemcached",
       visibility = ["//visibility:public"],
       exports = ["@net_spy_spymemcached//jar"],
+  )
+
+
+  native.java_library(
+      name = "stax_stax",
+      visibility = ["//visibility:public"],
+      exports = ["@stax_stax//jar"],
+      runtime_deps = [
+          ":stax_stax_api",
+      ],
   )
 
 
