@@ -71,7 +71,7 @@ public class BzlWriterTest {
     assert(generatedFile.exists() && !generatedFile.isDirectory());
   }
 
-  /** Ensures that  */
+  /** Ensures that if we throw an IOException, we recover gracefully. */
   @Test
   public void unableToAutomaticallyCreateDirectories() throws Exception {
     FileSystem fs = Jimfs.newFileSystem(Configuration.unix());
