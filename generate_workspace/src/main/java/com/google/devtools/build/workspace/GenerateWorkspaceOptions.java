@@ -19,14 +19,14 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.converters.IParameterSplitter;
-
 import com.google.devtools.build.workspace.maven.Resolver;
 import com.google.devtools.build.workspace.maven.Resolver.InvalidArtifactCoordinateException;
 import com.google.devtools.build.workspace.maven.Rule;
+import org.eclipse.aether.artifact.Artifact;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.eclipse.aether.artifact.Artifact;
 
 /**
  * Command-line options for generate_workspace tool.
