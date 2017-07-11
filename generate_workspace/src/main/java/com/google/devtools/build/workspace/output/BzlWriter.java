@@ -14,10 +14,14 @@
 
 package com.google.devtools.build.workspace.output;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.devtools.build.workspace.maven.Rule;
+
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.invoke.MethodHandles;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
@@ -41,9 +45,15 @@ public class BzlWriter extends AbstractWriter {
 
   @Override
   public void write(Collection<Rule> rules) {
+    try {
+      createParentDirectory(generatedFile);
+    } catch (IOException | NullPointerException e) {
+      logger.severe("Could not create directories for " + generatedFile + ": " + e.getMessage());
+      return;
+    }
     try (PrintStream outputStream = new PrintStream(generatedFile.toFile())) {
       writeBzl(outputStream, rules);
-    } catch (IOException e) {
+    } catch (FileNotFoundException e) {
       logger.severe("Could not write " + generatedFile + ": " + e.getMessage());
       return;
     }
@@ -69,5 +79,15 @@ public class BzlWriter extends AbstractWriter {
     for (Rule rule : rules) {
       outputStream.println(formatJavaLibrary(rule, "native.java_library", "  "));
     }
+  }
+
+  /** Creates parent directories if they don't exist */
+  @VisibleForTesting
+  void createParentDirectory(Path generatedFile) throws IOException {
+    Path parentDirectory = generatedFile.toAbsolutePath().getParent();
+    if (Files.exists(parentDirectory)) {
+      return;
+    }
+    Files.createDirectories(parentDirectory);
   }
 }
