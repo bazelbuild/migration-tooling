@@ -31,3 +31,6 @@ generated_java_libraries()
 
 Then you can access any of the Java library targets in `generate_workspace.bzl`,
 which export each jar's dependencies as well as the jar itself.
+
+## Code
+This code was inspired by the [aether examples](https://github.com/eclipse/aether-demo/blob/322fa556494335faaf3ad3b7dbe8f89aaaf6222d/aether-demo-snippets/src/main/java/org/eclipse/aether/examples/GetDependencyTree.java) for walking maven dependencies.
