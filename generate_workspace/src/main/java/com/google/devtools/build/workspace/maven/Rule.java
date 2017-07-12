@@ -16,18 +16,18 @@ package com.google.devtools.build.workspace.maven;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
-
-import java.lang.invoke.MethodHandles;
-import java.util.logging.Logger;
-import javax.annotation.Nullable;
 import org.eclipse.aether.artifact.Artifact;
 
+import javax.annotation.Nullable;
+import java.lang.invoke.MethodHandles;
 import java.util.Objects;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * A struct representing the fields of maven_jar to be written to the WORKSPACE file.
  */
+//TODO(petros): Kill this after refactoring resolvers.
 public final class Rule implements Comparable<Rule> {
   private final static Logger logger = Logger.getLogger(
       MethodHandles.lookup().lookupClass().getName());

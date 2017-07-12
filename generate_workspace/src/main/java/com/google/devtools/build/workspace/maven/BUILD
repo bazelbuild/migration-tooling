@@ -14,6 +14,7 @@ java_library(
         "@org_apache_maven_maven_artifact//jar",
         "@org_codehaus_plexus_plexus_component_annotations//jar",
         "@org_apache_maven_maven_aether_provider//jar",
+        "@org_eclipse_aether_aether_util//jar",
         "@org_apache_httpcomponents_httpclient//jar",
         "@org_apache_httpcomponents_httpcore//jar",
         "@commons_logging_commons_logging//jar",
