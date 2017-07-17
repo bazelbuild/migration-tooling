@@ -67,6 +67,29 @@ public class GraphSerializerTest {
     assertRuleSetContainsExactly(rules, ruleA, ruleA1, ruleB, ruleC);
   }
 
+  @Test
+  public void testSharedChild() {
+    DependencyNode sentinel = dependencyNode("dummy:dummy:0");
+    DependencyNode nodeA = dependencyNode("a:a:1");
+    DependencyNode nodeB = dependencyNode("b:b:1");
+    DependencyNode child = dependencyNode("child:child:1");
+
+    sentinel.setChildren(ImmutableList.of(nodeA, nodeB));
+    nodeA.setChildren(ImmutableList.of(child));
+    nodeB.setChildren(ImmutableList.of(child));
+
+    Set<MavenJarRule> rules = GraphSerializer.generateBuildRules(sentinel);
+
+    MavenJarRule ruleA = new MavenJarRule(nodeA);
+    MavenJarRule ruleB = new MavenJarRule(nodeB);
+    MavenJarRule childRule = new MavenJarRule(child);
+    addDependency(ruleA, childRule);
+    addDependency(ruleB, childRule);
+
+    assertRuleSetContainsExactly(rules, ruleA, ruleB, childRule);
+
+  }
+
   /**
    * Augments the definition of equality between two rules to include
    * identical sets of parents and children.

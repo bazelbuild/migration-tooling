@@ -77,6 +77,40 @@ public class AetherGraphTraverserTest {
     assertThatGraphsEqual(actual, expected);
   }
 
+  /**
+   * Tests behavior when there is a duplicate dependency node within the graph, meaning
+   * two nodes with the same maven coordinate. The generated graph should not contain
+   * multiple instances of that node.
+   */
+  @Test
+  public void testDuplicateChildren() {
+    DependencyNode rootNodeA = dependencyNode("a:a:1");
+    DependencyNode rootNodeB = dependencyNode("b:b:1");
+    DependencyNode childNode = dependencyNode("c:c:1");
+    DependencyNode childNodeDuplicate = dependencyNode("c:c:1");
+
+    rootNodeA.setChildren(ImmutableList.of(childNode));
+    rootNodeB.setChildren(ImmutableList.of(childNode));
+    rootNodeA.setChildren(ImmutableList.of(childNodeDuplicate));
+    rootNodeB.setChildren(ImmutableList.of(childNodeDuplicate));
+
+    MavenJarRule rootRuleA = new MavenJarRule(rootNodeA);
+    MavenJarRule childRule = new MavenJarRule(childNode);
+    MavenJarRule rootRuleB = new MavenJarRule(rootNodeB);
+
+    MutableGraph<MavenJarRule> expected = newGraph();
+    addEdge(expected, rootRuleA, childRule);
+    addEdge(expected, rootRuleB, childRule);
+
+    // Construct the graph
+    MutableGraph<MavenJarRule> actual = newGraph();
+    AetherGraphTraverser visitor = new AetherGraphTraverser(actual);
+    rootNodeA.accept(visitor);
+    rootNodeB.accept(visitor);
+
+    assertThatGraphsEqual(actual, expected);
+  }
+
   private void assertThatGraphsEqual(Graph<MavenJarRule> actual, Graph<MavenJarRule> expected) {
     assertThat(actual.nodes()).containsExactlyElementsIn(expected.nodes());
     assertThat(actual.edges()).containsExactlyElementsIn(expected.edges());

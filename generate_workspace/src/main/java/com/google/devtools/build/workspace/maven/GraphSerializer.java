@@ -46,6 +46,7 @@ class AetherGraphTraverser implements DependencyVisitor {
     }
     boolean isFirstVisit = visited.add(dependencyNode);
     if (!isFirstVisit) {
+      //TODO(petros): verify that a node is not traversed multiple times.
       return false;
     }
     MavenJarRule rule = getRule(dependencyNode);
