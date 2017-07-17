@@ -29,7 +29,7 @@ public class GraphSerializer {
  * node being a Rule object.
  */
 class AetherGraphTraverser implements DependencyVisitor {
-  private final Set<DependencyNode> visited;
+  private final Set<MavenJarRule> visited;
   private final MutableGraph<MavenJarRule> ruleGraph;
   private final Map<DependencyNode, MavenJarRule> nodeRuleMap;
 
@@ -44,12 +44,11 @@ class AetherGraphTraverser implements DependencyVisitor {
     if (dependencyNode == null || dependencyNode.getDependency().isOptional()) {
       return false;
     }
-    boolean isFirstVisit = visited.add(dependencyNode);
+    MavenJarRule rule = getRule(dependencyNode);
+    boolean isFirstVisit = visited.add(rule);
     if (!isFirstVisit) {
-      //TODO(petros): verify that a node is not traversed multiple times.
       return false;
     }
-    MavenJarRule rule = getRule(dependencyNode);
     for (DependencyNode child : dependencyNode.getChildren()) {
       MavenJarRule childRule = getRule(child);
       ruleGraph.putEdge(rule, childRule);
