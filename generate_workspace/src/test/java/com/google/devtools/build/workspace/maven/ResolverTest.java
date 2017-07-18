@@ -126,7 +126,7 @@ public class ResolverTest {
 
   @Test
   public void dependencyManagementWins() throws Exception {
-    Dependency v1 = getDependency("a:b:1.0");
+    Dependency v1 = getDependency("a:b:[1.0]");
     Dependency v2 = getDependency("a:b:2.0");
 
     Model mockModel = mock(Model.class);
@@ -142,6 +142,26 @@ public class ResolverTest {
     assertThat(rules).hasSize(1);
     Rule actual = rules.iterator().next();
     assertThat(actual.version()).isEqualTo("1.0");
+  }
+
+  @Test
+  public void depManagementDoesntAddDeps() throws Exception {
+    Dependency dm = getDependency("a:b:1.0");
+    Dependency dep = getDependency("c:d:2.0");
+
+    Model mockModel = mock(Model.class);
+    DependencyManagement dependencyManagement = new DependencyManagement();
+    dependencyManagement.addDependency(dm);
+    when(mockModel.getDependencyManagement()).thenReturn(dependencyManagement);
+    when(mockModel.getDependencies()).thenReturn(ImmutableList.of(dep));
+
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), ALIASES);
+    resolver.traverseDeps(
+        mockModel, Sets.newHashSet(), new Rule(new DefaultArtifact("par:ent:1.2.3")));
+    Collection<Rule> rules = resolver.getRules();
+    assertThat(rules).hasSize(1);
+    Rule actual = rules.iterator().next();
+    assertThat(actual.name()).isEqualTo("c_d");
   }
 
   @Test

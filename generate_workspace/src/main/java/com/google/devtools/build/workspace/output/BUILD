@@ -4,6 +4,6 @@ java_library(
     visibility = ["//generate_workspace/src:__subpackages__"],
     deps = [
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven",
-        "@com_google_guava_guava//jar",
+        "//third_party:com_google_guava_guava",
     ],
 )
