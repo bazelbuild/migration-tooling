@@ -339,6 +339,9 @@ public class Resolver {
     return true;
   }
 
+  /**
+   * TODO: this should be removed once this uses Maven's own version resolution.
+   */
   private void updateVersion(String artifactName, Rule dependency) {
     VersionRange versionRange;
     if (!restriction.containsKey(artifactName)) {
