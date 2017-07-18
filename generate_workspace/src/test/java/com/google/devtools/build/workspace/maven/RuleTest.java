@@ -14,12 +14,11 @@
 
 package com.google.devtools.build.workspace.maven;
 
-import static com.google.common.truth.Truth.assertThat;
-
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * Tests for {@link Rule}.
@@ -29,7 +28,7 @@ public class RuleTest {
 
   @Test
   public void testUrl() throws Exception {
-    Rule rule = new Rule(Resolver.getArtifact("foo:bar:1.2.3"));
+    Rule rule = new Rule(ArtifactBuilder.fromCoords("foo:bar:1.2.3"));
     assertThat(rule.getUrl())
         .isEqualTo("https://repo1.maven.org/maven2/foo/bar/1.2.3/bar-1.2.3.pom");
     rule.setRepository("http://myrepo.com/foo/bar/1.2.3/bar-1.2.3.pom");

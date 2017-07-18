@@ -14,15 +14,9 @@
 
 package com.google.devtools.build.workspace.maven;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import java.util.List;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
@@ -32,6 +26,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.Collection;
+import java.util.List;
+
+import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link Resolver}.
@@ -104,12 +103,12 @@ public class ResolverTest {
         .isEqualTo("1.2.3");
   }
 
-  @Test(expected = Resolver.InvalidArtifactCoordinateException.class)
+  @Test(expected = ArtifactBuilder.InvalidArtifactCoordinateException.class)
   public void versionRangeAllExclusive() throws Exception {
     Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "(1.2.3,1.2.5)");
   }
 
-  @Test(expected = Resolver.InvalidArtifactCoordinateException.class)
+  @Test(expected = ArtifactBuilder.InvalidArtifactCoordinateException.class)
   public void unparsableVersion() throws Exception {
     Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3");
   }
@@ -160,7 +159,7 @@ public class ResolverTest {
 
   @Test
   public void aliasWins() throws Exception {
-    Rule aliasedRule = new Rule(Resolver.getArtifact("a:b:0"), "c");
+    Rule aliasedRule = new Rule(ArtifactBuilder.fromCoords("a:b:0"), "c");
     Model mockModel = mock(Model.class);
     when(mockModel.getDependencies()).thenReturn(ImmutableList.of(getDependency("a:b:1.0")));
 
