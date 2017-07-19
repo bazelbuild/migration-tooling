@@ -14,7 +14,6 @@
 
 package com.google.devtools.build.workspace.maven;
 
-import static com.google.devtools.build.workspace.maven.AetherUtils.mavenCentralRepository;
 import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Joiner;
@@ -107,7 +106,7 @@ public class MavenJarRule implements Comparable<MavenJarRule> {
     if (repositories == null || repositories.isEmpty() || repositories.size() > 1) {
       return false;
     }
-    return repositories.get(0).equals(mavenCentralRepository());
+    return repositories.get(0).equals(Aether.Utilities.mavenCentralRepository());
   }
 
   public String getRepository() {

@@ -1,5 +1,9 @@
 package com.google.devtools.build.workspace.maven;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.resolution.VersionRangeRequest;
@@ -9,10 +13,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
-
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
 
 /**
  * Tests for {@link VersionResolver}.
@@ -31,15 +31,18 @@ public class VersionResolverTest {
     try {
       Mockito.when(system.resolveVersionRange(anySession(), anyRangeRequest()))
           .thenThrow(new VersionRangeResolutionException(any()));
+      Aether aether = Aether.builder().systemSession(anySession(), system).build();
+      VersionResolver resolver = new VersionResolver(aether);
 
-      VersionResolver resolver = VersionResolver.builder().systemSession(anySession(), system).build();
       resolver.resolveVersion("something", "something", "1.0");
       fail();
     } catch (VersionRangeResolutionException e) {
       // This should be caught by the VersionResolver
       fail();
     } catch (ArtifactBuilder.InvalidArtifactCoordinateException e) {
-      assertThat(e.getMessage()).isEqualTo("Unable to find a version for something:something:1.0");
+      String expected =
+          "Unable to find a version for something:something:1.0 due to Failed to resolve version range";
+      assertThat(e.getMessage()).isEqualTo(expected);
     }
   }
 
@@ -52,18 +55,20 @@ public class VersionResolverTest {
     RepositorySystem system = Mockito.mock(RepositorySystem.class);
 
     try {
-
       // Using `anyRangeResult()` will ensure that rangeResult.highestVersion() == null.
       Mockito.when(system.resolveVersionRange(anySession(), anyRangeRequest())).thenReturn(anyRangeResult());
+      Aether aether = Aether.builder().systemSession(anySession(), system).build();
+      VersionResolver resolver = new VersionResolver(aether);
 
-      VersionResolver resolver = VersionResolver.builder().systemSession(anySession(), system).build();
       resolver.resolveVersion("something", "something", "1.0");
       fail();
     } catch (VersionRangeResolutionException e) {
       // This should be caught by the VersionResolver
       fail();
     } catch (ArtifactBuilder.InvalidArtifactCoordinateException e) {
-      assertThat(e.getMessage()).isEqualTo("Unable to find a version for something:something:1.0");
+      String expected =
+          "Unable to find a version for something:something:1.0 due to Invalid Range Result";
+      assertThat(e.getMessage()).containsMatch(expected);
     }
   }
 
@@ -76,12 +81,17 @@ public class VersionResolverTest {
   public void softPinnedVersions() {
     try {
       String version =
-          VersionResolver.defaultResolver().resolveVersion("something", "something", "3.4");
+          defaultResolver().resolveVersion("something", "something", "3.4");
       assertThat(version).isEqualTo("3.4");
 
     } catch (ArtifactBuilder.InvalidArtifactCoordinateException e) {
       fail();
     }
+  }
+
+  private static VersionResolver defaultResolver() {
+    Aether aether = Aether.defaultOption();
+    return new VersionResolver(aether);
   }
 
   private VersionRangeResult anyRangeResult() {

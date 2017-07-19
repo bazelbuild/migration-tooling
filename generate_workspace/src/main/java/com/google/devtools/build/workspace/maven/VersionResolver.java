@@ -14,16 +14,9 @@
 
 package com.google.devtools.build.workspace.maven;
 
-
 import static com.google.devtools.build.workspace.maven.ArtifactBuilder.InvalidArtifactCoordinateException;
 
-import com.google.common.collect.Lists;
-import java.util.List;
-import org.eclipse.aether.RepositorySystem;
-import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.repository.RemoteRepository;
-import org.eclipse.aether.resolution.VersionRangeRequest;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResult;
 
@@ -35,31 +28,24 @@ import org.eclipse.aether.resolution.VersionRangeResult;
  */
 class VersionResolver {
 
-  private final List<RemoteRepository> remoteRepositories;
-  private final RepositorySystem repositorySystem;
-  private final RepositorySystemSession repositorySystemSession;
+  private final Aether aether;
 
-  private VersionResolver(RepositorySystem repositorySystem,
-                          RepositorySystemSession systemSession,
-                          List<RemoteRepository> remoteRepositories) {
-    this.repositorySystem = repositorySystem;
-    this.remoteRepositories = remoteRepositories;
-    this.repositorySystemSession = systemSession;
+  VersionResolver(Aether aether) {
+    this.aether = aether;
   }
 
   /**
-   * Given a maven coordinate and its version specifications, selects the highest version if it is a version range
-   * or returns the pinned version if is a hard or soft pin.
+   * Given a maven coordinate and its version specifications, selects the highest version
+   * if it is a version range or returns the pinned version if is a hard or soft pin.
    */
   String resolveVersion(String groupId, String artifactId, String versionSpec)
       throws InvalidArtifactCoordinateException {
 
     Artifact artifact = ArtifactBuilder.fromCoords(groupId, artifactId, versionSpec);
-    VersionRangeRequest rangeRequest = new VersionRangeRequest(artifact, remoteRepositories, null);
 
     VersionRangeResult rangeResult;
     try {
-      rangeResult = repositorySystem.resolveVersionRange(repositorySystemSession, rangeRequest);
+      rangeResult = aether.requestVersionRange(artifact);
     } catch (VersionRangeResolutionException e) {
       String errorMessage =
           messageForInvalidArtifact(groupId, artifactId, versionSpec, e.getMessage());
@@ -82,47 +68,12 @@ class VersionResolver {
   private static String messageForInvalidArtifact(
       String groupId, String artifactId, String versionSpec, String errorMessage) {
     return String.format("Unable to find a version for %s:%s:%s due to %s",
-                          groupId, artifactId, versionSpec, errorMessage);
+        groupId, artifactId, versionSpec, errorMessage);
   }
 
-  static VersionResolver defaultResolver() {
-    return new VersionResolver.Builder().build();
+  /** Hack */
+  public static VersionResolver defaultResolver() {
+    return new VersionResolver(Aether.defaultOption());
   }
-
-  static VersionResolver.Builder builder() {
-    return new VersionResolver.Builder();
-  }
-
-  /** Builder class for convenience and flexibility. */
-  static class Builder {
-    private List<RemoteRepository> remoteRepositories;
-    private RepositorySystem repositorySystem;
-    private RepositorySystemSession repositorySystemSession;
-
-    Builder() {
-      remoteRepositories = Lists.newArrayList(AetherUtils.mavenCentralRepository());
-      repositorySystem = AetherUtils.newRepositorySystem();
-      repositorySystemSession = AetherUtils.newRepositorySession(repositorySystem);
-    }
-
-    Builder remoteRepos(List<RemoteRepository> remoteRepositories) {
-      this.remoteRepositories = remoteRepositories;
-      return this;
-    }
-
-    /**
-     * Provide Repository System Sessions and RepositorySystems together since
-     * Repository sessions are associated to a particular to a Repository System.
-     */
-    Builder systemSession(RepositorySystemSession session, RepositorySystem system) {
-      this.repositorySystemSession = session;
-      this.repositorySystem = system;
-      return this;
-    }
-
-    VersionResolver build() {
-      return new VersionResolver(repositorySystem, repositorySystemSession, remoteRepositories);
-    }
-  }
-
 }
+

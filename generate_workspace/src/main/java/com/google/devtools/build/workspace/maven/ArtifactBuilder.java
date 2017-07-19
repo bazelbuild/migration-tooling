@@ -44,7 +44,8 @@ public class ArtifactBuilder {
    *
    * It implicitly uses maven central to determine the version.
    */
-  //TODO(petros): Refactor so version can be resolved from non-maven central repositories.
+  //TODO(petros): Hacked construction of VersionResolver, so I don't have to pass Aether into this class.
+  // This is only called from the old Resolver, and should eventually be removed/refactored out.
   public static Artifact fromMavenDependency(Dependency dep) throws InvalidArtifactCoordinateException {
     String version =
         VersionResolver.defaultResolver().resolveVersion(dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
