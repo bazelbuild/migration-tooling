@@ -71,7 +71,10 @@ class VersionResolver {
         groupId, artifactId, versionSpec, errorMessage);
   }
 
-  /** Hack */
+  /**
+   * Hack. This creates a VersionResolver with the default Aether settings.
+   * TODO(petros): remove this once you remove the Resolver.
+   */
   public static VersionResolver defaultResolver() {
     return new VersionResolver(Aether.defaultOption());
   }

@@ -44,7 +44,7 @@ import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.eclipse.aether.util.graph.manager.ClassicDependencyManager;
 
 /**
- * Facade around aether.
+ * Facade around aether. This class is used to make various requests to the aether subsystem.
  */
 public class Aether {
 
@@ -56,12 +56,14 @@ public class Aether {
 
   List<RemoteRepository> remoteRepositories;
 
-  private Aether(RepositorySystem repositorySystem, RepositorySystemSession session, List<RemoteRepository> remoteRepositories) {
+  private Aether(RepositorySystem repositorySystem,
+      RepositorySystemSession session, List<RemoteRepository> remoteRepositories) {
     this.repositorySystem = repositorySystem;
     this.repositorySystemSession = session;
     this.remoteRepositories = remoteRepositories;
   }
 
+  /** Given an artifacts requests a version range for it. */
   VersionRangeResult requestVersionRange(Artifact artifact) throws VersionRangeResolutionException {
     VersionRangeRequest rangeRequest = new VersionRangeRequest(artifact, remoteRepositories, null);
     return repositorySystem.resolveVersionRange(repositorySystemSession, rangeRequest);
@@ -80,7 +82,7 @@ public class Aether {
    * Creates a DependencyRequest, i.e. a request to resolve transitive dependencies, from
    * a collect request.
    */
-  //TODO(petros): add means to add exclusions.
+  //TODO(petros): add some means to add exclusions.
   DependencyRequest createDependencyRequest(CollectRequest collectRequest, DependencyFilter filter) {
     return new DependencyRequest(collectRequest, filter);
   }
