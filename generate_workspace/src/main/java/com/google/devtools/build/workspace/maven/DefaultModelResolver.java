@@ -121,7 +121,7 @@ public class DefaultModelResolver implements ModelResolver {
       String url, String groupId, String artifactId, String version)
       throws UnresolvableModelException {
     try {
-      version = Resolver.resolveVersion(groupId, artifactId, version);
+      version = VersionResolver.defaultResolver().resolveVersion(groupId, artifactId, version);
     } catch (ArtifactBuilder.InvalidArtifactCoordinateException e) {
       throw new UnresolvableModelException(
           "Unable to resolve version", groupId, artifactId, version, e);

@@ -16,7 +16,6 @@ package com.google.devtools.build.workspace.output;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.devtools.build.workspace.maven.Rule;

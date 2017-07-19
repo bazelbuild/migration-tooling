@@ -15,6 +15,7 @@
 package com.google.devtools.build.workspace.maven;
 
 import static com.google.devtools.build.workspace.maven.ArtifactBuilder.InvalidArtifactCoordinateException;
+import static com.google.devtools.build.workspace.maven.ArtifactBuilder.fromMavenDependency;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
@@ -58,14 +59,6 @@ public class Resolver {
   private static final Logger logger = Logger.getLogger(
       MethodHandles.lookup().lookupClass().getName());
   private static final String TOP_LEVEL_ARTIFACT = "pom.xml";
-
-
-  private static Artifact getArtifact(Dependency dependency)
-      throws InvalidArtifactCoordinateException {
-    return ArtifactBuilder.fromCoords(dependency.getGroupId() + ":" + dependency.getArtifactId() + ":"
-        + resolveVersion(
-            dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion()));
-  }
 
   private static String unversionedCoordinate(Dependency dependency) {
     return dependency.getGroupId() + ":" + dependency.getArtifactId();
@@ -217,7 +210,7 @@ public class Resolver {
       return;
     }
     try {
-      Rule artifactRule = new Rule(getArtifact(dependency));
+      Rule artifactRule = new Rule(fromMavenDependency(dependency));
       HashSet<String> localDepExclusions = Sets.newHashSet(exclusions);
       dependency.getExclusions().forEach(
           exclusion -> localDepExclusions.add(unversionedCoordinate(exclusion)));
