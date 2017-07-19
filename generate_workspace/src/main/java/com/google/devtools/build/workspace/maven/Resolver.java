@@ -15,7 +15,6 @@
 package com.google.devtools.build.workspace.maven;
 
 import static com.google.devtools.build.workspace.maven.ArtifactBuilder.InvalidArtifactCoordinateException;
-import static com.google.devtools.build.workspace.maven.ArtifactBuilder.fromMavenDependency;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
@@ -210,7 +209,7 @@ public class Resolver {
       return;
     }
     try {
-      Rule artifactRule = new Rule(fromMavenDependency(dependency));
+      Rule artifactRule = new Rule(ArtifactBuilder.fromMavenDependency(dependency));
       HashSet<String> localDepExclusions = Sets.newHashSet(exclusions);
       dependency.getExclusions().forEach(
           exclusion -> localDepExclusions.add(unversionedCoordinate(exclusion)));

@@ -1,7 +1,24 @@
+// Copyright 2017 The Bazel Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.google.devtools.build.workspace.maven;
 
 
+import static com.google.devtools.build.workspace.maven.ArtifactBuilder.InvalidArtifactCoordinateException;
+
 import com.google.common.collect.Lists;
+import java.util.List;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
@@ -9,10 +26,6 @@ import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.VersionRangeRequest;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResult;
-
-import java.util.List;
-
-import static com.google.devtools.build.workspace.maven.ArtifactBuilder.InvalidArtifactCoordinateException;
 
 /**
  * Given a Maven coordinate with a version specification resolves the version of the coordinate in a
@@ -48,11 +61,15 @@ class VersionResolver {
     try {
       rangeResult = repositorySystem.resolveVersionRange(repositorySystemSession, rangeRequest);
     } catch (VersionRangeResolutionException e) {
-      throw new InvalidArtifactCoordinateException(messageForInvalidArtifact(groupId, artifactId, versionSpec));
+      String errorMessage =
+          messageForInvalidArtifact(groupId, artifactId, versionSpec, e.getMessage());
+      throw new InvalidArtifactCoordinateException(errorMessage);
     }
 
     if (isInvalidRangeResult(rangeResult)) {
-      throw new InvalidArtifactCoordinateException(messageForInvalidArtifact(groupId, artifactId, versionSpec));
+      String errorMessage =
+          messageForInvalidArtifact(groupId, artifactId, versionSpec, "Invalid Range Result");
+      throw new InvalidArtifactCoordinateException(errorMessage);
     }
     return rangeResult.getHighestVersion().toString();
   }
@@ -62,8 +79,10 @@ class VersionResolver {
   }
 
   /** default error message */
-  private static String messageForInvalidArtifact(String groupId, String artifactId, String versionSpec) {
-    return "Unable to find a version for " + groupId + ":" + artifactId + ":" + versionSpec;
+  private static String messageForInvalidArtifact(
+      String groupId, String artifactId, String versionSpec, String errorMessage) {
+    return String.format("Unable to find a version for %s:%s:%s due to %s",
+                          groupId, artifactId, versionSpec, errorMessage);
   }
 
   static VersionResolver defaultResolver() {
