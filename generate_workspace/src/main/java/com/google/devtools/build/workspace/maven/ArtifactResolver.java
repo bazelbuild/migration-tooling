@@ -1,7 +1,16 @@
 package com.google.devtools.build.workspace.maven;
 
 
+import static com.google.devtools.build.workspace.maven.AetherUtils.mavenCentralRepository;
+import static com.google.devtools.build.workspace.maven.AetherUtils.newRepositorySession;
+import static com.google.devtools.build.workspace.maven.AetherUtils.newRepositorySystem;
+import static java.util.stream.Collectors.toList;
+
 import com.google.common.collect.ImmutableList;
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.function.Function;
+import java.util.logging.Logger;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.DefaultArtifact;
@@ -15,14 +24,6 @@ import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.DependencyResult;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.filter.DependencyFilterUtils;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-import java.util.function.Function;
-import java.util.logging.Logger;
-
-import static com.google.devtools.build.workspace.maven.AetherUtils.*;
-import static java.util.stream.Collectors.toList;
 
 /**
  * Resolves transitive dependencies of maven artifacts using aether.

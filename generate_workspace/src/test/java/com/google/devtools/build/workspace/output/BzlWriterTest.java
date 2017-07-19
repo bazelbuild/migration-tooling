@@ -14,16 +14,14 @@
 
 package com.google.devtools.build.workspace.output;
 
+import static com.google.common.truth.Truth.assertThat;
+import static java.util.stream.Collectors.toList;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 import com.google.devtools.build.workspace.maven.Rule;
-import org.eclipse.aether.artifact.DefaultArtifact;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -31,11 +29,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.google.common.truth.Truth.assertThat;
-import static java.util.stream.Collectors.toList;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
 
 /**
  * Test the .bzl output writer.

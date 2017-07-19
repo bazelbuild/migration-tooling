@@ -1,17 +1,16 @@
 package com.google.devtools.build.workspace.maven;
 
+import static com.google.devtools.build.workspace.maven.AetherUtils.mavenCentralRepository;
+import static java.util.stream.Collectors.toList;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.graph.DependencyNode;
-import org.eclipse.aether.repository.RemoteRepository;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
-import static com.google.devtools.build.workspace.maven.AetherUtils.mavenCentralRepository;
-import static java.util.stream.Collectors.toList;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.repository.RemoteRepository;
 
 /**
  * A struct representing the fields of maven_jar to be written to the WORKSPACE file.
