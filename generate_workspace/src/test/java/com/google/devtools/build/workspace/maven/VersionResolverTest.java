@@ -4,7 +4,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 
-import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.resolution.VersionRangeRequest;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
@@ -27,13 +26,12 @@ public class VersionResolverTest {
    */
   @Test
   public void failsOnResolutionException() {
-    RepositorySystem system = Mockito.mock(RepositorySystem.class);
+    Aether aether = Mockito.mock(Aether.class);
     try {
-      Mockito.when(system.resolveVersionRange(anySession(), anyRangeRequest()))
+      Mockito.when(aether.requestVersionRange(any()))
           .thenThrow(new VersionRangeResolutionException(any()));
-      Aether aether = Aether.builder().systemSession(anySession(), system).build();
-      VersionResolver resolver = new VersionResolver(aether);
 
+      VersionResolver resolver = new VersionResolver(aether);
       resolver.resolveVersion("something", "something", "1.0");
       fail();
     } catch (VersionRangeResolutionException e) {
@@ -52,14 +50,14 @@ public class VersionResolverTest {
    */
   @Test
   public void failsOnInvalidVersionRange() {
-    RepositorySystem system = Mockito.mock(RepositorySystem.class);
+    Aether aether = Mockito.mock(Aether.class);
 
     try {
       // Using `anyRangeResult()` will ensure that rangeResult.highestVersion() == null.
-      Mockito.when(system.resolveVersionRange(anySession(), anyRangeRequest())).thenReturn(anyRangeResult());
-      Aether aether = Aether.builder().systemSession(anySession(), system).build();
-      VersionResolver resolver = new VersionResolver(aether);
+      Mockito.when(aether.requestVersionRange(any()))
+          .thenReturn(anyRangeResult());
 
+      VersionResolver resolver = new VersionResolver(aether);
       resolver.resolveVersion("something", "something", "1.0");
       fail();
     } catch (VersionRangeResolutionException e) {
