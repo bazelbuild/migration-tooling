@@ -1,13 +1,13 @@
 package com.google.devtools.build.workspace.maven;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
 
-import org.eclipse.aether.RepositorySystemSession;
-import org.eclipse.aether.resolution.VersionRangeRequest;
+import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
-import org.eclipse.aether.resolution.VersionRangeResult;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -16,7 +16,6 @@ import org.mockito.Mockito;
 /**
  * Tests for {@link VersionResolver}.
  */
-//TODO(petros): Test this actually selects highest version. VersionRangeResult is final class so Mockito cannot mock it.
 @RunWith(JUnit4.class)
 public class VersionResolverTest {
 
@@ -55,7 +54,7 @@ public class VersionResolverTest {
     try {
       // Using `anyRangeResult()` will ensure that rangeResult.highestVersion() == null.
       Mockito.when(aether.requestVersionRange(any()))
-          .thenReturn(anyRangeResult());
+          .thenReturn(anyList());
 
       VersionResolver resolver = new VersionResolver(aether);
       resolver.resolveVersion("something", "something", "1.0");
@@ -74,33 +73,44 @@ public class VersionResolverTest {
    * Asserts that given a soft pinned version specification, it selects that version,
    * and does not get the highest version. "3.4" is an example of a soft pinned version specification.
    */
-  //TODO(petros): implicitly using Maven central for resolving version. This is sketchy.
   @Test
   public void softPinnedVersions() {
+    Aether aether = Mockito.mock(Aether.class);
     try {
-      String version =
-          defaultResolver().resolveVersion("something", "something", "3.4");
-      assertThat(version).isEqualTo("3.4");
+      Artifact artifact = ArtifactBuilder.fromCoords("something:something:1.0");
 
-    } catch (ArtifactBuilder.InvalidArtifactCoordinateException e) {
+      Mockito.when(aether.requestVersionRange(artifact)).thenReturn(newArrayList("1.0"));
+      VersionResolver resolver = new VersionResolver(aether);
+      String version =
+          resolver.resolveVersion("something", "something", "1.0");
+      assertThat(version).isEqualTo("1.0");
+
+    } catch (
+        ArtifactBuilder.InvalidArtifactCoordinateException | VersionRangeResolutionException e) {
       fail();
     }
   }
 
-  private static VersionResolver defaultResolver() {
-    Aether aether = Aether.defaultOption();
-    return new VersionResolver(aether);
+  /**
+   * Asserts that the VersionResolver selects the highest version from the list of versions
+   * provided by aether.
+   */
+  @Test
+  public void selectsHighestVersion() {
+    Aether aether = Mockito.mock(Aether.class);
+    Artifact artifact;
+    try {
+      artifact = ArtifactBuilder.fromCoords("com.hello:something:[,)");
+      Mockito.when(
+          aether.requestVersionRange(artifact)).thenReturn(newArrayList("1.0", "1.2", "1.3"));
+      VersionResolver resolver = new VersionResolver(aether);
+      String version = resolver.resolveVersion("com.hello", "something", "[,)");
+      assertThat(version).isEqualTo("1.3");
+
+    } catch (
+        ArtifactBuilder.InvalidArtifactCoordinateException | VersionRangeResolutionException e) {
+      fail();
+    }
   }
 
-  private VersionRangeResult anyRangeResult() {
-    return any(VersionRangeResult.class);
-  }
-
-  private RepositorySystemSession anySession() {
-    return any(RepositorySystemSession.class);
-  }
-
-  private VersionRangeRequest anyRangeRequest() {
-    return any(VersionRangeRequest.class);
-  }
 }

@@ -16,9 +16,9 @@ package com.google.devtools.build.workspace.maven;
 
 import static com.google.devtools.build.workspace.maven.ArtifactBuilder.InvalidArtifactCoordinateException;
 
+import java.util.List;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
-import org.eclipse.aether.resolution.VersionRangeResult;
 
 /**
  * Given a Maven coordinate with a version specification resolves the version of the coordinate in a
@@ -42,26 +42,31 @@ class VersionResolver {
       throws InvalidArtifactCoordinateException {
 
     Artifact artifact = ArtifactBuilder.fromCoords(groupId, artifactId, versionSpec);
+    List<String> versions;
 
-    VersionRangeResult rangeResult;
     try {
-      rangeResult = aether.requestVersionRange(artifact);
+      versions = aether.requestVersionRange(artifact);
     } catch (VersionRangeResolutionException e) {
       String errorMessage =
           messageForInvalidArtifact(groupId, artifactId, versionSpec, e.getMessage());
       throw new InvalidArtifactCoordinateException(errorMessage);
     }
 
-    if (isInvalidRangeResult(rangeResult)) {
+    if (isInvalidRangeResult(versions)) {
       String errorMessage =
           messageForInvalidArtifact(groupId, artifactId, versionSpec, "Invalid Range Result");
       throw new InvalidArtifactCoordinateException(errorMessage);
     }
-    return rangeResult.getHighestVersion().toString();
+    return getHighestVersion(versions);
   }
 
-  private boolean isInvalidRangeResult(VersionRangeResult result) {
-    return result == null || result.getHighestVersion() == null;
+  private boolean isInvalidRangeResult(List<String> result) {
+    return result == null || result.isEmpty();
+  }
+
+  /** Assumes versions are ordered in ascending order. this is specified by aether */
+  private String getHighestVersion(List<String> versions) {
+    return versions.get(versions.size() - 1);
   }
 
   /** default error message */

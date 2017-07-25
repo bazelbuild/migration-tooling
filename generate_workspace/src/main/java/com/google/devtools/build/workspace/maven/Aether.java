@@ -15,6 +15,8 @@
 package com.google.devtools.build.workspace.maven;
 
 
+import static java.util.stream.Collectors.toList;
+
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
@@ -42,6 +44,7 @@ import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.eclipse.aether.util.graph.manager.ClassicDependencyManager;
+import org.eclipse.aether.version.Version;
 
 /**
  * Facade around aether. This class is used to make various requests to the aether subsystem.
@@ -64,9 +67,10 @@ public class Aether {
   }
 
   /** Given an artifacts requests a version range for it. */
-  VersionRangeResult requestVersionRange(Artifact artifact) throws VersionRangeResolutionException {
+  List<String> requestVersionRange(Artifact artifact) throws VersionRangeResolutionException {
     VersionRangeRequest rangeRequest = new VersionRangeRequest(artifact, remoteRepositories, null);
-    return repositorySystem.resolveVersionRange(repositorySystemSession, rangeRequest);
+    VersionRangeResult result = repositorySystem.resolveVersionRange(repositorySystemSession, rangeRequest);
+    return result.getVersions().stream().map(Version::toString).collect(toList());
   }
 
   /**
