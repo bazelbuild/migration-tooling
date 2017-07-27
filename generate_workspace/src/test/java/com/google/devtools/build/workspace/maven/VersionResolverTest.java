@@ -2,10 +2,10 @@ package com.google.devtools.build.workspace.maven;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 
+import com.google.devtools.build.workspace.maven.ArtifactBuilder.InvalidArtifactCoordinateException;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.junit.Test;
@@ -23,50 +23,33 @@ public class VersionResolverTest {
    * Ensures that an exception is thrown if there is a version range resolution exception.
    * This occurs when aether is unable to resolve the version.
    */
-  @Test
-  public void failsOnResolutionException() {
+  @Test(expected = ArtifactBuilder.InvalidArtifactCoordinateException.class)
+  public void failsOnResolutionException()
+      throws InvalidArtifactCoordinateException, VersionRangeResolutionException {
     Aether aether = Mockito.mock(Aether.class);
-    try {
-      Mockito.when(aether.requestVersionRange(any()))
-          .thenThrow(new VersionRangeResolutionException(any()));
 
-      VersionResolver resolver = new VersionResolver(aether);
-      resolver.resolveVersion("something", "something", "1.0");
-      fail();
-    } catch (VersionRangeResolutionException e) {
-      // This should be caught by the VersionResolver
-      fail();
-    } catch (ArtifactBuilder.InvalidArtifactCoordinateException e) {
-      String expected =
-          "Unable to find a version for something:something:1.0 due to Failed to resolve version range";
-      assertThat(e.getMessage()).isEqualTo(expected);
-    }
+    Mockito.when(aether.requestVersionRange(any()))
+        .thenThrow(new VersionRangeResolutionException(any()));
+
+    VersionResolver resolver = new VersionResolver(aether);
+    resolver.resolveVersion("something", "something", "1.0");
   }
 
   /**
    * Ensures that an exception is thrown if there is an invalid version range. An invalid version range
    * is one which is either (1) equal to null or (2) returns null when asked for highest version.
    */
-  @Test
-  public void failsOnInvalidVersionRange() {
+  @Test(expected = ArtifactBuilder.InvalidArtifactCoordinateException.class)
+  public void failsOnInvalidVersionRange()
+      throws VersionRangeResolutionException, InvalidArtifactCoordinateException {
     Aether aether = Mockito.mock(Aether.class);
 
-    try {
-      // Using `anyRangeResult()` will ensure that rangeResult.highestVersion() == null.
-      Mockito.when(aether.requestVersionRange(any()))
-          .thenReturn(anyList());
+    // Using `anyRangeResult()` will ensure that rangeResult.highestVersion() == null.
+    Mockito.when(aether.requestVersionRange(any()))
+        .thenReturn(anyList());
 
-      VersionResolver resolver = new VersionResolver(aether);
-      resolver.resolveVersion("something", "something", "1.0");
-      fail();
-    } catch (VersionRangeResolutionException e) {
-      // This should be caught by the VersionResolver
-      fail();
-    } catch (ArtifactBuilder.InvalidArtifactCoordinateException e) {
-      String expected =
-          "Unable to find a version for something:something:1.0 due to Invalid Range Result";
-      assertThat(e.getMessage()).containsMatch(expected);
-    }
+    VersionResolver resolver = new VersionResolver(aether);
+    resolver.resolveVersion("something", "something", "1.0");
   }
 
   /**
@@ -74,21 +57,16 @@ public class VersionResolverTest {
    * and does not get the highest version. "3.4" is an example of a soft pinned version specification.
    */
   @Test
-  public void softPinnedVersions() {
+  public void softPinnedVersions()
+      throws InvalidArtifactCoordinateException, VersionRangeResolutionException {
     Aether aether = Mockito.mock(Aether.class);
-    try {
-      Artifact artifact = ArtifactBuilder.fromCoords("something:something:1.0");
+    Artifact artifact = ArtifactBuilder.fromCoords("something:something:1.0");
 
-      Mockito.when(aether.requestVersionRange(artifact)).thenReturn(newArrayList("1.0"));
-      VersionResolver resolver = new VersionResolver(aether);
-      String version =
+    Mockito.when(aether.requestVersionRange(artifact)).thenReturn(newArrayList("1.0"));
+    VersionResolver resolver = new VersionResolver(aether);
+    String version =
           resolver.resolveVersion("something", "something", "1.0");
-      assertThat(version).isEqualTo("1.0");
-
-    } catch (
-        ArtifactBuilder.InvalidArtifactCoordinateException | VersionRangeResolutionException e) {
-      fail();
-    }
+    assertThat(version).isEqualTo("1.0");
   }
 
   /**
@@ -96,21 +74,17 @@ public class VersionResolverTest {
    * provided by aether.
    */
   @Test
-  public void selectsHighestVersion() {
+  public void selectsHighestVersion()
+      throws InvalidArtifactCoordinateException, VersionRangeResolutionException {
     Aether aether = Mockito.mock(Aether.class);
     Artifact artifact;
-    try {
-      artifact = ArtifactBuilder.fromCoords("com.hello:something:[,)");
-      Mockito.when(
-          aether.requestVersionRange(artifact)).thenReturn(newArrayList("1.0", "1.2", "1.3"));
-      VersionResolver resolver = new VersionResolver(aether);
-      String version = resolver.resolveVersion("com.hello", "something", "[,)");
-      assertThat(version).isEqualTo("1.3");
 
-    } catch (
-        ArtifactBuilder.InvalidArtifactCoordinateException | VersionRangeResolutionException e) {
-      fail();
-    }
+    artifact = ArtifactBuilder.fromCoords("com.hello:something:[,)");
+    Mockito.when(
+        aether.requestVersionRange(artifact)).thenReturn(newArrayList("1.0", "1.2", "1.3"));
+    VersionResolver resolver = new VersionResolver(aether);
+    String version = resolver.resolveVersion("com.hello", "something", "[,)");
+    assertThat(version).isEqualTo("1.3");
   }
 
 }
