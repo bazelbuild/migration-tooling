@@ -78,17 +78,17 @@ public class Resolver {
   private final VersionResolver versionResolver;
 
   @VisibleForTesting
-  public Resolver(Aether aether, DefaultModelResolver resolver, List<Rule> aliases) {
-    this.versionResolver = new VersionResolver(aether);
-
+  public Resolver(
+      DefaultModelResolver modelResolver, VersionResolver versionResolver, List<Rule> aliases) {
+    this.versionResolver = versionResolver;
     this.deps = Maps.newHashMap();
     this.restriction = Maps.newHashMap();
-    this.modelResolver = resolver;
+    this.modelResolver = modelResolver;
     aliases.forEach(alias -> addArtifact(alias, TOP_LEVEL_ARTIFACT));
   }
 
   public Resolver(DefaultModelResolver resolver, List<Rule> aliases) {
-    this(Aether.defaultOption(), resolver, aliases);
+    this(resolver, VersionResolver.defaultResolver(), aliases);
   }
 
   /**

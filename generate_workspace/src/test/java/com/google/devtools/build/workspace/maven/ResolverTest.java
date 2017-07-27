@@ -107,8 +107,9 @@ public class ResolverTest {
     Aether aether = mock(Aether.class);
     when(aether.requestVersionRange(fromCoords("a:b:[1.0]"))).thenReturn(newArrayList("1.0"));
     when(aether.requestVersionRange(fromCoords("a:b:2.0"))).thenReturn(newArrayList("2.0"));
+    VersionResolver versionResolver = new VersionResolver(aether);
 
-    Resolver resolver = new Resolver(aether, mock(DefaultModelResolver.class), ALIASES);
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
     resolver.traverseDeps(
         mockDepManagementModel("a:b:[1.0]", "a:b:2.0"),
         Sets.newHashSet(),
@@ -139,8 +140,9 @@ public class ResolverTest {
         fromCoords("a:b:[1.0,4.0]"))).thenReturn(newArrayList("1.0", "1.2", "2.0", "3.0", "4.0"));
     when(aether.requestVersionRange(
         fromCoords("a:b:[1.2,3.0]"))).thenReturn(newArrayList("1.2", "2.0", "3.0"));
+    VersionResolver versionResolver = new VersionResolver(aether);
 
-    Resolver resolver = new Resolver(aether, mock(DefaultModelResolver.class), ALIASES);
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
     resolver.traverseDeps(
         mockDepManagementModel("a:b:[1.0,4.0]", "a:b:[1.2,3.0]"),
         Sets.newHashSet(),
