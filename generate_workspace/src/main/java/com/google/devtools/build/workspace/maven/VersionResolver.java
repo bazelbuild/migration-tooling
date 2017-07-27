@@ -26,6 +26,7 @@ import org.eclipse.aether.resolution.VersionRangeResolutionException;
  * forms of version ranges. When given a version range, Maven selects the highest available version.
  * For both soft and hard pins, e.g. "4.2" or "[4.2]", Maven defaults to the pinned version.
  */
+//TODO(petros): Aether does not verify whether a soft pinned version exists. You need to verify this.
 class VersionResolver {
 
   private final Aether aether;
@@ -77,11 +78,9 @@ class VersionResolver {
   }
 
   /**
-   * Hack. This creates a VersionResolver with the default Aether settings.
-   * TODO(petros): remove this once you remove the Resolver.
+   * Creates a VersionResolver with the default Aether settings.
    */
   public static VersionResolver defaultResolver() {
     return new VersionResolver(Aether.defaultOption());
   }
 }
-
