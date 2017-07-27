@@ -122,24 +122,68 @@ public class ResolverTest {
     return dependency;
   }
 
-  @Test
-  public void dependencyManagementWins() throws Exception {
-    Dependency v1 = getDependency("a:b:1.0");
-    Dependency v2 = getDependency("a:b:2.0");
+  private Model mockDepManagementModel(String dependencyManagementDep, String normalDep) {
+    Dependency dmDep = getDependency(dependencyManagementDep);
+    Dependency dep = getDependency(normalDep);
 
     Model mockModel = mock(Model.class);
     DependencyManagement dependencyManagement = new DependencyManagement();
-    dependencyManagement.addDependency(v1);
+    dependencyManagement.addDependency(dmDep);
     when(mockModel.getDependencyManagement()).thenReturn(dependencyManagement);
-    when(mockModel.getDependencies()).thenReturn(ImmutableList.of(v2));
+    when(mockModel.getDependencies()).thenReturn(ImmutableList.of(dep));
+    return mockModel;
+  }
 
+  @Test
+  public void dependencyManagementWins() throws Exception {
     Resolver resolver = new Resolver(mock(DefaultModelResolver.class), ALIASES);
     resolver.traverseDeps(
-        mockModel, Sets.newHashSet(), new Rule(new DefaultArtifact("par:ent:1.2.3")));
+        mockDepManagementModel("a:b:[1.0]", "a:b:2.0"),
+        Sets.newHashSet(),
+        new Rule(new DefaultArtifact("par:ent:1.2.3")));
     Collection<Rule> rules = resolver.getRules();
     assertThat(rules).hasSize(1);
     Rule actual = rules.iterator().next();
     assertThat(actual.version()).isEqualTo("1.0");
+  }
+
+  @Test
+  public void nonConflictingDepManagement() throws Exception {
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), ALIASES);
+    resolver.traverseDeps(
+        mockDepManagementModel("a:b:[1.0, 4.0]", "a:b:2.0"),
+        Sets.newHashSet(),
+        new Rule(new DefaultArtifact("par:ent:1.2.3")));
+    Collection<Rule> rules = resolver.getRules();
+    assertThat(rules).hasSize(1);
+    Rule actual = rules.iterator().next();
+    assertThat(actual.version()).isEqualTo("2.0");
+  }
+
+  @Test
+  public void nonConflictingDepManagementRange() throws Exception {
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), ALIASES);
+    resolver.traverseDeps(
+        mockDepManagementModel("a:b:[1.0, 4.0]", "a:b:[1.2, 3.0]"),
+        Sets.newHashSet(),
+        new Rule(new DefaultArtifact("par:ent:1.2.3")));
+    Collection<Rule> rules = resolver.getRules();
+    assertThat(rules).hasSize(1);
+    Rule actual = rules.iterator().next();
+    assertThat(actual.version()).isEqualTo("3.0");
+  }
+
+  @Test
+  public void depManagementDoesntAddDeps() throws Exception {
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), ALIASES);
+    resolver.traverseDeps(
+        mockDepManagementModel("a:b:1.0", "c:d:2.0"),
+        Sets.newHashSet(),
+        new Rule(new DefaultArtifact("par:ent:1.2.3")));
+    Collection<Rule> rules = resolver.getRules();
+    assertThat(rules).hasSize(1);
+    Rule actual = rules.iterator().next();
+    assertThat(actual.name()).isEqualTo("c_d");
   }
 
   @Test

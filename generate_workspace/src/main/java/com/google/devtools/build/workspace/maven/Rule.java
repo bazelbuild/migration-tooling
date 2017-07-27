@@ -39,6 +39,7 @@ public final class Rule implements Comparable<Rule> {
   private final Set<String> parents;
   private final Set<String> exclusions;
   private final Set<Rule> dependencies;
+  private String version;
   private String repository;
   private String sha1;
 
@@ -48,6 +49,7 @@ public final class Rule implements Comparable<Rule> {
 
   public Rule(Artifact artifact, String alias) {
     this.artifact = artifact;
+    this.version = artifact.getVersion();
     this.parents = Sets.newHashSet();
     this.dependencies = Sets.newTreeSet();
     this.exclusions = Sets.newHashSet();
@@ -76,7 +78,11 @@ public final class Rule implements Comparable<Rule> {
   }
 
   public String version() {
-    return artifact.getVersion();
+    return version;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
   }
 
   /**

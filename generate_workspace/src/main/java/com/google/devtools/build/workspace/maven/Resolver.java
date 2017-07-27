@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.Restriction;
 import org.apache.maven.artifact.versioning.VersionRange;
@@ -112,9 +113,11 @@ public class Resolver {
 
   // Mapping of maven_jar name to Rule.
   private final Map<String, Rule> deps;
+  private final Map<String, String> restriction;
 
   public Resolver(DefaultModelResolver resolver, List<Rule> aliases) {
     this.deps = Maps.newHashMap();
+    this.restriction = Maps.newHashMap();
     this.modelResolver = resolver;
     aliases.forEach(alias -> addArtifact(alias, TOP_LEVEL_ARTIFACT));
   }
@@ -185,7 +188,9 @@ public class Resolver {
       // Dependencies described in the DependencyManagement section of the pom override all others,
       // so resolve them first.
       for (Dependency dependency : model.getDependencyManagement().getDependencies()) {
-        addDependency(dependency, model, exclusions, parent);
+        restriction.put(
+            Rule.name(dependency.getGroupId(), dependency.getArtifactId()),
+            dependency.getVersion());
       }
     }
     for (Dependency dependency : model.getDependencies()) {
@@ -302,9 +307,38 @@ public class Resolver {
       return false;
     }
 
+    updateVersion(artifactName, dependency);
     deps.put(artifactName, dependency);
     dependency.addParent(parent);
     return true;
+  }
+
+  /**
+   * TODO: this should be removed once this uses Maven's own version resolution.
+   */
+  private void updateVersion(String artifactName, Rule dependency) {
+    VersionRange versionRange;
+    if (!restriction.containsKey(artifactName)) {
+      return;
+    }
+    String versionRestriction = restriction.get(artifactName);
+    try {
+      versionRange = VersionRange.createFromVersionSpec(versionRestriction);
+    } catch (InvalidVersionSpecificationException e) {
+      logger.warning(
+          "Error parsing version " + versionRestriction + ": " + e.getLocalizedMessage());
+      // So that this isn't logged over and over.
+      restriction.remove(artifactName);
+      return;
+    }
+    if (!versionRange.containsVersion(new DefaultArtifactVersion(dependency.version()))) {
+      try {
+        dependency.setVersion(
+            resolveVersion(dependency.groupId(), dependency.artifactId(), versionRestriction));
+      } catch (InvalidArtifactCoordinateException e) {
+        logger.warning("Error setting version: " + e.getLocalizedMessage());
+      }
+    }
   }
 
   static String getSha1Url(String url, String extension) {

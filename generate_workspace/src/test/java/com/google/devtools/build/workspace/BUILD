@@ -4,8 +4,8 @@ java_test(
     deps = [
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace",
         "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven",
+        "//third_party:com_google_truth_truth",
+        "//third_party:junit_junit",
         "//third_party/jcommander",
-        "@com_google_truth_truth//jar",
-        "@junit_junit//jar",
     ],
 )
