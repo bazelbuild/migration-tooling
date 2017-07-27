@@ -115,11 +115,20 @@ public class Resolver {
   private final Map<String, Rule> deps;
   private final Map<String, String> restriction;
 
-  public Resolver(DefaultModelResolver resolver, List<Rule> aliases) {
+  private final VersionResolver versionResolver;
+
+  @VisibleForTesting
+  public Resolver(Aether aether, DefaultModelResolver resolver, List<Rule> aliases) {
+    this.versionResolver = new VersionResolver(aether);
+
     this.deps = Maps.newHashMap();
     this.restriction = Maps.newHashMap();
     this.modelResolver = resolver;
     aliases.forEach(alias -> addArtifact(alias, TOP_LEVEL_ARTIFACT));
+  }
+
+  public Resolver(DefaultModelResolver resolver, List<Rule> aliases) {
+    this(Aether.defaultOption(), resolver, aliases);
   }
 
   /**
@@ -214,7 +223,7 @@ public class Resolver {
       return;
     }
     try {
-      Rule artifactRule = new Rule(ArtifactBuilder.fromMavenDependency(dependency));
+      Rule artifactRule = new Rule(ArtifactBuilder.fromMavenDependency(dependency, versionResolver));
       HashSet<String> localDepExclusions = Sets.newHashSet(exclusions);
       dependency.getExclusions().forEach(
           exclusion -> localDepExclusions.add(unversionedCoordinate(exclusion)));
@@ -334,7 +343,7 @@ public class Resolver {
     if (!versionRange.containsVersion(new DefaultArtifactVersion(dependency.version()))) {
       try {
         dependency.setVersion(
-            resolveVersion(dependency.groupId(), dependency.artifactId(), versionRestriction));
+            versionResolver.resolveVersion(dependency.groupId(), dependency.artifactId(), versionRestriction));
       } catch (InvalidArtifactCoordinateException e) {
         logger.warning("Error setting version: " + e.getLocalizedMessage());
       }

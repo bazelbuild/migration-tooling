@@ -14,7 +14,9 @@
 
 package com.google.devtools.build.workspace.maven;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.devtools.build.workspace.maven.ArtifactBuilder.fromCoords;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -136,7 +138,11 @@ public class ResolverTest {
 
   @Test
   public void dependencyManagementWins() throws Exception {
-    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), ALIASES);
+    Aether aether = mock(Aether.class);
+    when(aether.requestVersionRange(fromCoords("a:b:[1.0]"))).thenReturn(newArrayList("1.0"));
+    when(aether.requestVersionRange(fromCoords("a:b:2.0"))).thenReturn(newArrayList("2.0"));
+
+    Resolver resolver = new Resolver(aether, mock(DefaultModelResolver.class), ALIASES);
     resolver.traverseDeps(
         mockDepManagementModel("a:b:[1.0]", "a:b:2.0"),
         Sets.newHashSet(),
@@ -162,9 +168,15 @@ public class ResolverTest {
 
   @Test
   public void nonConflictingDepManagementRange() throws Exception {
-    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), ALIASES);
+    Aether aether = mock(Aether.class);
+    when(aether.requestVersionRange(
+        fromCoords("a:b:[1.0,4.0]"))).thenReturn(newArrayList("1.0", "1.2", "2.0", "3.0", "4.0"));
+    when(aether.requestVersionRange(
+        fromCoords("a:b:[1.2,3.0]"))).thenReturn(newArrayList("1.2", "2.0", "3.0"));
+
+    Resolver resolver = new Resolver(aether, mock(DefaultModelResolver.class), ALIASES);
     resolver.traverseDeps(
-        mockDepManagementModel("a:b:[1.0, 4.0]", "a:b:[1.2, 3.0]"),
+        mockDepManagementModel("a:b:[1.0,4.0]", "a:b:[1.2,3.0]"),
         Sets.newHashSet(),
         new Rule(new DefaultArtifact("par:ent:1.2.3")));
     Collection<Rule> rules = resolver.getRules();
@@ -202,7 +214,7 @@ public class ResolverTest {
 
   @Test
   public void aliasWins() throws Exception {
-    Rule aliasedRule = new Rule(ArtifactBuilder.fromCoords("a:b:0"), "c");
+    Rule aliasedRule = new Rule(fromCoords("a:b:0"), "c");
     Model mockModel = mock(Model.class);
     when(mockModel.getDependencies()).thenReturn(ImmutableList.of(getDependency("a:b:1.0")));
 
@@ -218,5 +230,4 @@ public class ResolverTest {
     Rule actualRule = rules.iterator().next();
     assertThat(actualRule).isSameAs(aliasedRule);
   }
-
 }

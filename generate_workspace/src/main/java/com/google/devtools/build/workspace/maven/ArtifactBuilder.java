@@ -41,26 +41,13 @@ public class ArtifactBuilder {
   /**
    * Builds a Maven artifact from a dependency. Note, this is a org.apache.maven.model.Dependency
    * and not the Dependency defined by aether.
-   *
-   * It implicitly uses maven central to determine the version.
    */
-
-  public static Artifact fromMavenDependency(Dependency dep) throws InvalidArtifactCoordinateException {
-    String version = getVersionFromSpec(dep);
+  public static Artifact fromMavenDependency(Dependency dep, VersionResolver versionResolver)
+      throws InvalidArtifactCoordinateException {
+    String version =
+        versionResolver.resolveVersion(dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
     String mavenCoordinate = String.format("%s:%s:%s", dep.getGroupId(), dep.getArtifactId(), version);
     return fromCoords(mavenCoordinate);
-  }
-
-  /**
-   * Gets the version of a dependency from its version specification.
-   * TODO(petros): The construction of the VersionResolver is hacky.
-   * I am simply using the default Aether settings so I don't have to integrate Aether into the
-   * Resolver. This is because I will soon remove the Resolver.
-   */
-  private static String getVersionFromSpec(Dependency dep)
-      throws InvalidArtifactCoordinateException {
-    VersionResolver resolver = VersionResolver.defaultResolver();
-    return resolver.resolveVersion(dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
   }
 
   /** Exception thrown if an artifact coordinate cannot be parsed */
