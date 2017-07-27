@@ -80,40 +80,6 @@ public class ResolverTest {
         .isEqualTo("83cd2cd674a217ade95a4bb83a8a14f351f48bd0");
   }
 
-  @Test
-  public void basicVersion() throws Exception {
-    assertThat(Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "1.2.3"))
-        .isEqualTo("1.2.3");
-  }
-
-  @Test
-  public void exactVersion() throws Exception {
-    assertThat(Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3]"))
-        .isEqualTo("1.2.3");
-  }
-
-  @Test
-  public void versionRange() throws Exception {
-    assertThat(Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3,1.2.5]"))
-        .isEqualTo("1.2.5");
-  }
-
-  @Test
-  public void versionRangeExclusive() throws Exception {
-    assertThat(Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3,1.2.5)"))
-        .isEqualTo("1.2.3");
-  }
-
-  @Test(expected = ArtifactBuilder.InvalidArtifactCoordinateException.class)
-  public void versionRangeAllExclusive() throws Exception {
-    Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "(1.2.3,1.2.5)");
-  }
-
-  @Test(expected = ArtifactBuilder.InvalidArtifactCoordinateException.class)
-  public void unparsableVersion() throws Exception {
-    Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3");
-  }
-
   private Dependency getDependency(String coordinates) {
     String[] coordinateArray = coordinates.split(":");
     Preconditions.checkState(coordinateArray.length == 3);
