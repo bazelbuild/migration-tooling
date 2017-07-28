@@ -2,6 +2,7 @@ package com.google.devtools.build.workspace.maven;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.devtools.build.workspace.maven.VersionResolver.isVersionRange;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 
@@ -101,6 +102,20 @@ public class VersionResolverTest {
     VersionResolver resolver = new VersionResolver(aether);
     String version = resolver.resolveVersion("com.hello", "something", "[,)");
     assertThat(version).isEqualTo("1.3");
+  }
+
+  @Test
+  public void identifiesVersionRange() {
+    assertThat(isVersionRange("[3]")).isTrue();
+    assertThat(isVersionRange("[3,4]")).isTrue();
+    assertThat(isVersionRange("[3,4)")).isTrue();
+    assertThat(isVersionRange("(3,4)")).isTrue();
+    assertThat(isVersionRange("(3,4]")).isTrue();
+    assertThat(isVersionRange("(,)")).isTrue();
+    assertThat(isVersionRange("[3,)")).isTrue();
+    assertThat(isVersionRange("(3,)")).isTrue();
+
+    assertThat(isVersionRange("3.0")).isFalse();
   }
 
 }

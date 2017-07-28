@@ -16,6 +16,7 @@ package com.google.devtools.build.workspace.maven;
 
 import static com.google.devtools.build.workspace.maven.ArtifactBuilder.InvalidArtifactCoordinateException;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
@@ -24,7 +25,10 @@ import org.eclipse.aether.resolution.VersionRangeResolutionException;
  * Given a Maven coordinate with a version specification resolves the version of the coordinate in a
  * similar fashion as Maven. Version specifications can include hard and soft pins as well as various
  * forms of version ranges. When given a version range, Maven selects the highest available version.
- * For both soft and hard pins, e.g. "4.2" or "[4.2]", Maven defaults to the pinned version.
+ * For a soft pin, it selects the pinned version or the nearest valid version.
+ *
+ * Documentation on Maven's versioning scheme can be found here:
+ * http://maven.apache.org/enforcer/enforcer-rules/versionRanges.html
  */
 class VersionResolver {
 
@@ -71,10 +75,9 @@ class VersionResolver {
   }
 
   /**
-   * Given a list of potential valid versions, selects the appropriate version based on the
-   * following heuristic. If it is a version range, it selects the highest version. If it is
-   * a soft pinned version, it selects the earliest valid version. The list provided is ascending
-   * from oldest to latest version.
+   * Given a list of potential valid versions (in ascending order), selects the appropriate version
+   * based on the following heuristic: (1) If it is a version range, it selects the highest version.
+   * (2) If it is a soft pinned version, it selects the earliest valid version.
    */
   private String selectVersion(String versionSpec, List<String> versions) {
     int index = (isVersionRange(versionSpec)) ? versions.size() - 1 : 0;
@@ -93,9 +96,12 @@ class VersionResolver {
   }
 
   /**
-   * Checks whether a version is a version specification. 
+   * Crudely checks whether a version specification is a version range.
+   * Leaves checks for semantic correctness to maven.
+   * By definition, any range must start with an open bracket or parenthesis.
    */
-  private static boolean isVersionRange(String versionSpec) {
+  @VisibleForTesting
+  static boolean isVersionRange(String versionSpec) {
     return versionSpec.charAt(0) == '(' || versionSpec.charAt(0) == '[';
   }
 
