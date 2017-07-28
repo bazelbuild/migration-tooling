@@ -14,18 +14,28 @@
 
 package com.google.devtools.build.workspace.maven;
 
+import static com.google.devtools.build.workspace.maven.ArtifactBuilder.InvalidArtifactCoordinateException;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.CharStreams;
-
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
-import org.apache.maven.artifact.versioning.Restriction;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Exclusion;
@@ -39,18 +49,6 @@ import org.apache.maven.model.io.DefaultModelReader;
 import org.apache.maven.model.locator.DefaultModelLocator;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.artifact.DefaultArtifact;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Resolves Maven dependencies.
@@ -61,76 +59,12 @@ public class Resolver {
       MethodHandles.lookup().lookupClass().getName());
   private static final String TOP_LEVEL_ARTIFACT = "pom.xml";
 
-  /**
-   * Exception thrown if an artifact coordinate could not be parsed.
-   */
-  public static class InvalidArtifactCoordinateException extends Exception {
-    InvalidArtifactCoordinateException(String message) {
-      super(message);
-    }
-  }
-  
-  public static Artifact getArtifact(String atrifactCoords)
-      throws InvalidArtifactCoordinateException {
-    try {
-      return new DefaultArtifact(atrifactCoords);
-    } catch (IllegalArgumentException e) {
-      throw new InvalidArtifactCoordinateException(e.getMessage());
-    }
-  }
-
-  private static Artifact getArtifact(Dependency dependency)
-      throws InvalidArtifactCoordinateException {
-    return getArtifact(dependency.getGroupId() + ":" + dependency.getArtifactId() + ":"
-        + resolveVersion(
-            dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion()));
-  }
-
   private static String unversionedCoordinate(Dependency dependency) {
     return dependency.getGroupId() + ":" + dependency.getArtifactId();
   }
 
   private static String unversionedCoordinate(Exclusion exclusion) {
     return exclusion.getGroupId() + ":" + exclusion.getArtifactId();
-  }
-
-  /**
-   * Takes a version specification (as defined in
-   * http://maven.apache.org/enforcer/enforcer-rules/versionRanges.html) and finds a valid version
-   * that is likely to exist.  Basically: 1.2.3 is 1.2.3+, [1.2.3] is exactly 1.2.3, and then
-   * there is comma-separated range notation.
-   */
-  static String resolveVersion(String groupId, String artifactId, String unparsedVersion)
-      throws InvalidArtifactCoordinateException {
-    VersionRange versionRange;
-    try {
-      versionRange = VersionRange.createFromVersionSpec(unparsedVersion);
-    } catch (InvalidVersionSpecificationException e) {
-      throw new InvalidArtifactCoordinateException("Invalid version: " + e.getLocalizedMessage()
-          + " for " + groupId + ":" + artifactId + ":" + unparsedVersion);
-    }
-    if (versionRange.getRecommendedVersion() != null) {
-      return versionRange.getRecommendedVersion().toString();
-    }
-
-    // There is a range or set of possible versions.
-    for (Restriction restriction : versionRange.getRestrictions()) {
-      // Look for an exact match.
-      if (restriction.getLowerBound().equals(restriction.getUpperBound())) {
-        return restriction.getLowerBound().toString();
-      }
-      // If this is a more complex version restriction, look for an inclusive bound.
-      if (restriction.isUpperBoundInclusive()) {
-        return restriction.getUpperBound().toString();
-      } else if (restriction.isLowerBoundInclusive()) {
-        return restriction.getLowerBound().toString();
-      }
-      // All bounds were exclusive.
-    }
-
-    // TODO(kchodorow): figure out a version in another way.
-    throw new InvalidArtifactCoordinateException("Unable to find a version for " + groupId + ":"
-        + artifactId + ":" + unparsedVersion);
   }
   
   private static final String COMPILE_SCOPE = "compile";
@@ -141,11 +75,20 @@ public class Resolver {
   private final Map<String, Rule> deps;
   private final Map<String, String> restriction;
 
-  public Resolver(DefaultModelResolver resolver, List<Rule> aliases) {
+  private final VersionResolver versionResolver;
+
+  @VisibleForTesting
+  public Resolver(
+      DefaultModelResolver modelResolver, VersionResolver versionResolver, List<Rule> aliases) {
+    this.versionResolver = versionResolver;
     this.deps = Maps.newHashMap();
     this.restriction = Maps.newHashMap();
-    this.modelResolver = resolver;
+    this.modelResolver = modelResolver;
     aliases.forEach(alias -> addArtifact(alias, TOP_LEVEL_ARTIFACT));
+  }
+
+  public Resolver(DefaultModelResolver resolver, List<Rule> aliases) {
+    this(resolver, VersionResolver.defaultResolver(), aliases);
   }
 
   /**
@@ -183,7 +126,7 @@ public class Resolver {
     Artifact artifact;
     ModelSource modelSource;
     try {
-      artifact = getArtifact(artifactCoord);
+      artifact = ArtifactBuilder.fromCoords(artifactCoord);
       modelSource = modelResolver.resolveModel(artifact);
     } catch (UnresolvableModelException | InvalidArtifactCoordinateException e) {
       logger.warning(e.getMessage());
@@ -240,7 +183,7 @@ public class Resolver {
       return;
     }
     try {
-      Rule artifactRule = new Rule(getArtifact(dependency));
+      Rule artifactRule = new Rule(ArtifactBuilder.fromMavenDependency(dependency, versionResolver));
       HashSet<String> localDepExclusions = Sets.newHashSet(exclusions);
       dependency.getExclusions().forEach(
           exclusion -> localDepExclusions.add(unversionedCoordinate(exclusion)));
@@ -360,7 +303,7 @@ public class Resolver {
     if (!versionRange.containsVersion(new DefaultArtifactVersion(dependency.version()))) {
       try {
         dependency.setVersion(
-            resolveVersion(dependency.groupId(), dependency.artifactId(), versionRestriction));
+            versionResolver.resolveVersion(dependency.groupId(), dependency.artifactId(), versionRestriction));
       } catch (InvalidArtifactCoordinateException e) {
         logger.warning("Error setting version: " + e.getLocalizedMessage());
       }

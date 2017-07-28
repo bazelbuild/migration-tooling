@@ -69,9 +69,12 @@ public class DefaultModelResolver implements ModelResolver {
   private final Set<Repository> repositories;
   private final Map<String, ModelSource> ruleNameToModelSource;
   private final DefaultModelBuilder modelBuilder;
+  private final Aether aether;
+  private final VersionResolver versionResolver;
 
   public DefaultModelResolver() {
     this(
+        Aether.defaultOption(),
         Sets.newHashSet(MAVEN_CENTRAL),
         Maps.newHashMap(),
         new DefaultModelBuilderFactory().newInstance()
@@ -79,15 +82,18 @@ public class DefaultModelResolver implements ModelResolver {
             .setPluginConfigurationExpander(new DefaultPluginConfigurationExpander())
             .setPluginManagementInjector(new DefaultPluginManagementInjector())
             .setDependencyManagementImporter(new DefaultDependencyManagementImporter())
-            .setDependencyManagementInjector(new DefaultDependencyManagementInjector()));
+            .setDependencyManagementInjector(new DefaultDependencyManagementInjector())
+    );
   }
 
   private DefaultModelResolver(
-      Set<Repository> repositories, Map<String, ModelSource> ruleNameToModelSource,
+      Aether aether, Set<Repository> repositories, Map<String, ModelSource> ruleNameToModelSource,
       DefaultModelBuilder modelBuilder) {
     this.repositories = repositories;
     this.ruleNameToModelSource = ruleNameToModelSource;
     this.modelBuilder = modelBuilder;
+    this.aether = aether;
+    this.versionResolver = new VersionResolver(aether);
   }
 
   public ModelSource resolveModel(Artifact artifact) throws UnresolvableModelException {
@@ -121,8 +127,8 @@ public class DefaultModelResolver implements ModelResolver {
       String url, String groupId, String artifactId, String version)
       throws UnresolvableModelException {
     try {
-      version = Resolver.resolveVersion(groupId, artifactId, version);
-    } catch (Resolver.InvalidArtifactCoordinateException e) {
+      version = versionResolver.resolveVersion(groupId, artifactId, version);
+    } catch (ArtifactBuilder.InvalidArtifactCoordinateException e) {
       throw new UnresolvableModelException(
           "Unable to resolve version", groupId, artifactId, version, e);
     }
@@ -186,7 +192,7 @@ public class DefaultModelResolver implements ModelResolver {
 
   @Override
   public ModelResolver newCopy() {
-    return new DefaultModelResolver(repositories, ruleNameToModelSource, modelBuilder);
+    return new DefaultModelResolver(aether, repositories, ruleNameToModelSource, modelBuilder);
   }
 
   /**

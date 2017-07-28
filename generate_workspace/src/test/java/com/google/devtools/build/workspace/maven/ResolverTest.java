@@ -14,14 +14,16 @@
 
 package com.google.devtools.build.workspace.maven;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Matchers.any;
+import static com.google.devtools.build.workspace.maven.ArtifactBuilder.fromCoords;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import java.util.Collection;
 import java.util.List;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
@@ -30,8 +32,6 @@ import org.eclipse.aether.artifact.DefaultArtifact;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import java.util.Collection;
 
 /**
  * Tests for {@link Resolver}.
@@ -80,40 +80,6 @@ public class ResolverTest {
         .isEqualTo("83cd2cd674a217ade95a4bb83a8a14f351f48bd0");
   }
 
-  @Test
-  public void basicVersion() throws Exception {
-    assertThat(Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "1.2.3"))
-        .isEqualTo("1.2.3");
-  }
-
-  @Test
-  public void exactVersion() throws Exception {
-    assertThat(Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3]"))
-        .isEqualTo("1.2.3");
-  }
-
-  @Test
-  public void versionRange() throws Exception {
-    assertThat(Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3,1.2.5]"))
-        .isEqualTo("1.2.5");
-  }
-
-  @Test
-  public void versionRangeExclusive() throws Exception {
-    assertThat(Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3,1.2.5)"))
-        .isEqualTo("1.2.3");
-  }
-
-  @Test(expected = Resolver.InvalidArtifactCoordinateException.class)
-  public void versionRangeAllExclusive() throws Exception {
-    Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "(1.2.3,1.2.5)");
-  }
-
-  @Test(expected = Resolver.InvalidArtifactCoordinateException.class)
-  public void unparsableVersion() throws Exception {
-    Resolver.resolveVersion(ARTIFACT_ID, GROUP_ID, "[1.2.3");
-  }
-
   private Dependency getDependency(String coordinates) {
     String[] coordinateArray = coordinates.split(":");
     Preconditions.checkState(coordinateArray.length == 3);
@@ -138,7 +104,12 @@ public class ResolverTest {
 
   @Test
   public void dependencyManagementWins() throws Exception {
-    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), ALIASES);
+    Aether aether = mock(Aether.class);
+    when(aether.requestVersionRange(fromCoords("a:b:[1.0]"))).thenReturn(newArrayList("1.0"));
+    when(aether.requestVersionRange(fromCoords("a:b:[2.0,)"))).thenReturn(newArrayList("2.0"));
+    VersionResolver versionResolver = new VersionResolver(aether);
+
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
     resolver.traverseDeps(
         mockDepManagementModel("a:b:[1.0]", "a:b:2.0"),
         Sets.newHashSet(),
@@ -151,7 +122,14 @@ public class ResolverTest {
 
   @Test
   public void nonConflictingDepManagement() throws Exception {
-    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), ALIASES);
+    Aether aether = mock(Aether.class);
+    when(aether.requestVersionRange(
+        fromCoords("a:b:[1.0,4.0]"))).thenReturn(newArrayList("1.0", "2.0", "3.0", "4.0"));
+    when(aether.requestVersionRange(
+        fromCoords("a:b:[2.0,)"))).thenReturn(newArrayList("2.0", "3.0"));
+    VersionResolver versionResolver = new VersionResolver(aether);
+
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
     resolver.traverseDeps(
         mockDepManagementModel("a:b:[1.0, 4.0]", "a:b:2.0"),
         Sets.newHashSet(),
@@ -164,9 +142,16 @@ public class ResolverTest {
 
   @Test
   public void nonConflictingDepManagementRange() throws Exception {
-    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), ALIASES);
+    Aether aether = mock(Aether.class);
+    when(aether.requestVersionRange(
+        fromCoords("a:b:[1.0,4.0]"))).thenReturn(newArrayList("1.0", "1.2", "2.0", "3.0", "4.0"));
+    when(aether.requestVersionRange(
+        fromCoords("a:b:[1.2,3.0]"))).thenReturn(newArrayList("1.2", "2.0", "3.0"));
+    VersionResolver versionResolver = new VersionResolver(aether);
+
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
     resolver.traverseDeps(
-        mockDepManagementModel("a:b:[1.0, 4.0]", "a:b:[1.2, 3.0]"),
+        mockDepManagementModel("a:b:[1.0,4.0]", "a:b:[1.2,3.0]"),
         Sets.newHashSet(),
         new Rule(new DefaultArtifact("par:ent:1.2.3")));
     Collection<Rule> rules = resolver.getRules();
@@ -177,7 +162,14 @@ public class ResolverTest {
 
   @Test
   public void depManagementDoesntAddDeps() throws Exception {
-    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), ALIASES);
+    Aether aether = mock(Aether.class);
+    when(aether.requestVersionRange(
+        fromCoords("c:d:[2.0,)"))).thenReturn(newArrayList("2.0"));
+    when(aether.requestVersionRange(
+        fromCoords("a:b:[1.0,)"))).thenReturn(newArrayList("1.0", "2.0"));
+    VersionResolver versionResolver = new VersionResolver(aether);
+
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
     resolver.traverseDeps(
         mockDepManagementModel("a:b:1.0", "c:d:2.0"),
         Sets.newHashSet(),
@@ -204,12 +196,17 @@ public class ResolverTest {
 
   @Test
   public void aliasWins() throws Exception {
-    Rule aliasedRule = new Rule(Resolver.getArtifact("a:b:0"), "c");
+    Aether aether = mock(Aether.class);
+    when(aether.requestVersionRange(
+        fromCoords("a:b:[1.0,)"))).thenReturn(newArrayList("1.0"));
+    VersionResolver versionResolver = new VersionResolver(aether);
+
+    Rule aliasedRule = new Rule(fromCoords("a:b:0"), "c");
     Model mockModel = mock(Model.class);
     when(mockModel.getDependencies()).thenReturn(ImmutableList.of(getDependency("a:b:1.0")));
 
     Resolver resolver = new Resolver(
-        mock(DefaultModelResolver.class), ImmutableList.of(aliasedRule));
+        mock(DefaultModelResolver.class), versionResolver, ImmutableList.of(aliasedRule));
     resolver.traverseDeps(
         mockModel,
         Sets.newHashSet(),
@@ -220,5 +217,4 @@ public class ResolverTest {
     Rule actualRule = rules.iterator().next();
     assertThat(actualRule).isSameAs(aliasedRule);
   }
-
 }

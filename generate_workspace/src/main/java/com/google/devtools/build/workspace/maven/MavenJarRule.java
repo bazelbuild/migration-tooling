@@ -1,17 +1,29 @@
+// Copyright 2017 The Bazel Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.google.devtools.build.workspace.maven;
+
+import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.graph.DependencyNode;
-import org.eclipse.aether.repository.RemoteRepository;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
-import static com.google.devtools.build.workspace.maven.AetherUtils.mavenCentralRepository;
-import static java.util.stream.Collectors.toList;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.repository.RemoteRepository;
 
 /**
  * A struct representing the fields of maven_jar to be written to the WORKSPACE file.
@@ -94,7 +106,7 @@ public class MavenJarRule implements Comparable<MavenJarRule> {
     if (repositories == null || repositories.isEmpty() || repositories.size() > 1) {
       return false;
     }
-    return repositories.get(0).equals(mavenCentralRepository());
+    return repositories.get(0).equals(Aether.Utilities.mavenCentralRepository());
   }
 
   public String getRepository() {

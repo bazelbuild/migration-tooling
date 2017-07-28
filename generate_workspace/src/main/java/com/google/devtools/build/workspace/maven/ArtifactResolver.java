@@ -1,47 +1,48 @@
+// Copyright 2017 The Bazel Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.google.devtools.build.workspace.maven;
 
 
-import com.google.common.collect.ImmutableList;
-import org.eclipse.aether.RepositorySystem;
-import org.eclipse.aether.RepositorySystemSession;
-import org.eclipse.aether.artifact.DefaultArtifact;
-import org.eclipse.aether.collection.CollectRequest;
-import org.eclipse.aether.graph.Dependency;
-import org.eclipse.aether.graph.DependencyFilter;
-import org.eclipse.aether.graph.DependencyNode;
-import org.eclipse.aether.repository.RemoteRepository;
-import org.eclipse.aether.resolution.DependencyRequest;
-import org.eclipse.aether.resolution.DependencyResolutionException;
-import org.eclipse.aether.resolution.DependencyResult;
-import org.eclipse.aether.util.artifact.JavaScopes;
-import org.eclipse.aether.util.filter.DependencyFilterUtils;
+import static java.util.stream.Collectors.toList;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
-
-import static com.google.devtools.build.workspace.maven.AetherUtils.*;
-import static java.util.stream.Collectors.toList;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.resolution.DependencyResult;
+import org.eclipse.aether.util.artifact.JavaScopes;
 
 /**
  * Resolves transitive dependencies of maven artifacts using aether.
  */
 public class ArtifactResolver {
-  private final RepositorySystem system;
-  private final RepositorySystemSession systemSession;
-  private final List<RemoteRepository> remoteRepositories;
+  private final Aether aether;
   private final List<Dependency> managedDependencies;
-
   private final static Logger logger = Logger.getLogger(
       MethodHandles.lookup().lookupClass().getName());
 
   //TODO(petros): add support for managed dependencies, exclusions, and aliases.
-  public ArtifactResolver() {
-    this.system = newRepositorySystem();
-    this.systemSession = newRepositorySession(this.system);
-    this.remoteRepositories = ImmutableList.of(mavenCentralRepository());
-    this.managedDependencies = ImmutableList.of();
+  public ArtifactResolver(Aether aether, List<Dependency> managedDependencies) {
+    this.aether = aether;
+    this.managedDependencies = managedDependencies;
   }
 
   /**
@@ -50,13 +51,16 @@ public class ArtifactResolver {
    * on the artifacts users declared explicit on.
    */
   public DependencyNode resolveArtifacts(List<String> artifactCoords) {
-    DependencyRequest dependencyRequest = createDependencyRequest(artifactCoords);
-    DependencyResult dependencyResult;
+    List<Dependency> directDependencies = createDirectDependencyList(artifactCoords);
+    CollectRequest collectRequest =
+        aether.createCollectRequest(directDependencies, managedDependencies);
 
+    DependencyRequest dependencyRequest = aether.createDependencyRequest(collectRequest);
+    DependencyResult dependencyResult;
     try {
-      dependencyResult = system.resolveDependencies(systemSession, dependencyRequest);
+      dependencyResult = aether.requestDependencyResolution(dependencyRequest);
     } catch (DependencyResolutionException e) {
-      //FIXME(petros): This is very fragile. If even one artifact does not resolve, then no artifacts resolve.
+      //FIXME(petros): This is very fragile. If one artifact doesn't resolve, no artifacts resolve.
       logger.warning("Unable to resolve transitive dependencies: " + e.getMessage());
       return null;
     }
@@ -64,21 +68,10 @@ public class ArtifactResolver {
     return dependencyResult.getRoot();
   }
 
-  /**
-   * Given a list of artifact coordinates, creates an Aether DependencyRequest,
-   * i.e. a request all transitive dependencies. This request in particular,
-   * ignores any dependencies which are not scoped as Compile
-   */
-  private DependencyRequest createDependencyRequest(List<String> artifactCoords) {
-
+  /* Given a list of artifacts, constructs a lists of Aether Dependencies */
+  private List<Dependency> createDirectDependencyList(List<String> artifactCoords) {
     Function<String, Dependency> coordinateToDependencyNode =
         a -> new Dependency(new DefaultArtifact(a), JavaScopes.COMPILE);
-
-    List<Dependency> roots = artifactCoords.stream().map(coordinateToDependencyNode).collect(toList());
-
-    CollectRequest collectRequest = new CollectRequest(roots, managedDependencies, remoteRepositories);
-
-    DependencyFilter compileFilter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE);
-    return new DependencyRequest(collectRequest, compileFilter);
+    return artifactCoords.stream().map(coordinateToDependencyNode).collect(toList());
   }
 }
