@@ -106,7 +106,7 @@ public class ResolverTest {
   public void dependencyManagementWins() throws Exception {
     Aether aether = mock(Aether.class);
     when(aether.requestVersionRange(fromCoords("a:b:[1.0]"))).thenReturn(newArrayList("1.0"));
-    when(aether.requestVersionRange(fromCoords("a:b:2.0"))).thenReturn(newArrayList("2.0"));
+    when(aether.requestVersionRange(fromCoords("a:b:[2.0,)"))).thenReturn(newArrayList("2.0"));
     VersionResolver versionResolver = new VersionResolver(aether);
 
     Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
@@ -122,7 +122,14 @@ public class ResolverTest {
 
   @Test
   public void nonConflictingDepManagement() throws Exception {
-    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), ALIASES);
+    Aether aether = mock(Aether.class);
+    when(aether.requestVersionRange(
+        fromCoords("a:b:[1.0,4.0]"))).thenReturn(newArrayList("1.0", "2.0", "3.0", "4.0"));
+    when(aether.requestVersionRange(
+        fromCoords("a:b:[2.0,)"))).thenReturn(newArrayList("2.0", "3.0"));
+    VersionResolver versionResolver = new VersionResolver(aether);
+
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
     resolver.traverseDeps(
         mockDepManagementModel("a:b:[1.0, 4.0]", "a:b:2.0"),
         Sets.newHashSet(),
@@ -155,7 +162,14 @@ public class ResolverTest {
 
   @Test
   public void depManagementDoesntAddDeps() throws Exception {
-    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), ALIASES);
+    Aether aether = mock(Aether.class);
+    when(aether.requestVersionRange(
+        fromCoords("c:d:[2.0,)"))).thenReturn(newArrayList("2.0"));
+    when(aether.requestVersionRange(
+        fromCoords("a:b:[1.0,)"))).thenReturn(newArrayList("1.0", "2.0"));
+    VersionResolver versionResolver = new VersionResolver(aether);
+
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
     resolver.traverseDeps(
         mockDepManagementModel("a:b:1.0", "c:d:2.0"),
         Sets.newHashSet(),
@@ -182,12 +196,17 @@ public class ResolverTest {
 
   @Test
   public void aliasWins() throws Exception {
+    Aether aether = mock(Aether.class);
+    when(aether.requestVersionRange(
+        fromCoords("a:b:[1.0,)"))).thenReturn(newArrayList("1.0"));
+    VersionResolver versionResolver = new VersionResolver(aether);
+
     Rule aliasedRule = new Rule(fromCoords("a:b:0"), "c");
     Model mockModel = mock(Model.class);
     when(mockModel.getDependencies()).thenReturn(ImmutableList.of(getDependency("a:b:1.0")));
 
     Resolver resolver = new Resolver(
-        mock(DefaultModelResolver.class), ImmutableList.of(aliasedRule));
+        mock(DefaultModelResolver.class), versionResolver, ImmutableList.of(aliasedRule));
     resolver.traverseDeps(
         mockModel,
         Sets.newHashSet(),

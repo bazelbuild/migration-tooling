@@ -57,16 +57,32 @@ public class VersionResolverTest {
    * and does not get the highest version. "3.4" is an example of a soft pinned version specification.
    */
   @Test
-  public void softPinnedVersions()
+  public void softPinnedVersion_versionExists()
       throws InvalidArtifactCoordinateException, VersionRangeResolutionException {
     Aether aether = Mockito.mock(Aether.class);
-    Artifact artifact = ArtifactBuilder.fromCoords("something:something:1.0");
+    Artifact artifact = ArtifactBuilder.fromCoords("something:something:[1.0,)");
+    Mockito.when(aether.requestVersionRange(artifact)).thenReturn(newArrayList("1.0", "1.2"));
 
-    Mockito.when(aether.requestVersionRange(artifact)).thenReturn(newArrayList("1.0"));
     VersionResolver resolver = new VersionResolver(aether);
     String version =
           resolver.resolveVersion("something", "something", "1.0");
     assertThat(version).isEqualTo("1.0");
+  }
+
+  /**
+   * Asserts that if a soft pinned version specification DNE, it selects the nearest version.
+   */
+  @Test
+  public void softPinnedVersion_versionDoesNotExist()
+      throws InvalidArtifactCoordinateException, VersionRangeResolutionException {
+    Aether aether = Mockito.mock(Aether.class);
+    Artifact artifact = ArtifactBuilder.fromCoords("something:something:[1.0,)");
+    Mockito.when(aether.requestVersionRange(artifact)).thenReturn(newArrayList("1.2", "2.0", "3.0"));
+
+    VersionResolver resolver = new VersionResolver(aether);
+    String version =
+        resolver.resolveVersion("something", "something", "1.0");
+    assertThat(version).isEqualTo("1.2");
   }
 
   /**

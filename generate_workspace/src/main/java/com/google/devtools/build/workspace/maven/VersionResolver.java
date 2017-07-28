@@ -26,7 +26,6 @@ import org.eclipse.aether.resolution.VersionRangeResolutionException;
  * forms of version ranges. When given a version range, Maven selects the highest available version.
  * For both soft and hard pins, e.g. "4.2" or "[4.2]", Maven defaults to the pinned version.
  */
-//TODO(petros): Aether does not verify whether a soft pinned version exists. You need to verify this.
 class VersionResolver {
 
   private final Aether aether;
@@ -38,15 +37,14 @@ class VersionResolver {
   /**
    * Given a maven coordinate and its version specifications, selects the highest version
    * if it is a version range or returns the pinned version if is a hard or soft pin.
+   * For soft pins, if that version does not exist it selects the nearest version.
    */
   String resolveVersion(String groupId, String artifactId, String versionSpec)
       throws InvalidArtifactCoordinateException {
 
-    Artifact artifact = ArtifactBuilder.fromCoords(groupId, artifactId, versionSpec);
     List<String> versions;
-
     try {
-      versions = aether.requestVersionRange(artifact);
+      versions = requestVersionList(groupId, artifactId, versionSpec);
     } catch (VersionRangeResolutionException e) {
       String errorMessage =
           messageForInvalidArtifact(groupId, artifactId, versionSpec, e.getMessage());
@@ -58,16 +56,33 @@ class VersionResolver {
           messageForInvalidArtifact(groupId, artifactId, versionSpec, "Invalid Range Result");
       throw new InvalidArtifactCoordinateException(errorMessage);
     }
-    return getHighestVersion(versions);
+    return selectVersion(versionSpec, versions);
+  }
+
+  /**
+   * Given a set of maven coordinates, obtains a list of valid versions in ascending order.
+   * Note, for soft pinned versions, it interprets it as the following version range: "[version,)"
+   */
+  private List<String> requestVersionList(String groupId, String artifactId, String versionSpec)
+      throws VersionRangeResolutionException, InvalidArtifactCoordinateException {
+    String transformedSpec = makeVersionRange(versionSpec);
+    Artifact artifact = ArtifactBuilder.fromCoords(groupId, artifactId, transformedSpec);
+    return aether.requestVersionRange(artifact);
+  }
+
+  /**
+   * Given a list of potential valid versions, selects the appropriate version based on the
+   * following heuristic. If it is a version range, it selects the highest version. If it is
+   * a soft pinned version, it selects the earliest valid version. The list provided is ascending
+   * from oldest to latest version.
+   */
+  private String selectVersion(String versionSpec, List<String> versions) {
+    int index = (isVersionRange(versionSpec)) ? versions.size() - 1 : 0;
+    return versions.get(index);
   }
 
   private boolean isInvalidRangeResult(List<String> result) {
     return result == null || result.isEmpty();
-  }
-
-  /** Assumes versions are ordered in ascending order. this is specified by aether */
-  private String getHighestVersion(List<String> versions) {
-    return versions.get(versions.size() - 1);
   }
 
   /** default error message */
@@ -75,6 +90,25 @@ class VersionResolver {
       String groupId, String artifactId, String versionSpec, String errorMessage) {
     return String.format("Unable to find a version for %s:%s:%s due to %s",
         groupId, artifactId, versionSpec, errorMessage);
+  }
+
+  /**
+   * Checks whether a version is a version specification. 
+   */
+  private static boolean isVersionRange(String versionSpec) {
+    return versionSpec.charAt(0) == '(' || versionSpec.charAt(0) == '[';
+  }
+
+  /**
+   * Transforms all version specifications into a version range. For soft pinned versions like
+   * "3.0", it transforms it into "[3.0,)"
+   */
+  private static String makeVersionRange(String versionSpec) {
+    if (isVersionRange(versionSpec)) {
+      return versionSpec;
+    }
+    // is a soft pinned version.
+    return String.format("[%s,)", versionSpec);
   }
 
   /**
