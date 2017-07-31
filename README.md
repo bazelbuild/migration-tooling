@@ -66,5 +66,13 @@ The `transitive_maven_jar` rule will resolve the transitive dependencies for the
 specified artifacts and then it will generate a `generate_workspace.bzl` which
 you must load in your `WORKSPACE` file.
 
+After the files are generated, add the following lines into your WORKSPACE file to load the `maven_jar` rules
+
+```
+load("@dependencies//:generate_workspace.bzl", "generated_java_libraries")
+generated_java_libraries()
+generated_maven_jars()
+```
+
 ## Code
 This code was inspired by the [aether examples](https://github.com/eclipse/aether-demo/blob/322fa556494335faaf3ad3b7dbe8f89aaaf6222d/aether-demo-snippets/src/main/java/org/eclipse/aether/examples/GetDependencyTree.java) for walking maven dependencies.

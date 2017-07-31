@@ -1,0 +1,154 @@
+diff --git a/generate_workspace/src/main/java/com/google/devtools/build/workspace/output/AbstractWriter.java b/generate_workspace/src/main/java/com/google/devtools/build/workspace/output/AbstractWriter.java
+index c8df86a..041290b 100644
+--- a/generate_workspace/src/main/java/com/google/devtools/build/workspace/output/AbstractWriter.java
++++ b/generate_workspace/src/main/java/com/google/devtools/build/workspace/output/AbstractWriter.java
+@@ -23,6 +23,11 @@ import java.util.Set;
+  * Basic implementation for output writers.
+  */
+ public abstract class AbstractWriter {
++
++  public static final String MINOR_INDENT = "  ";
++  public static final String MAJOR_INDENT = "    ";
++
++
+   public abstract void write(Collection<Rule> rules);
+   /**
+    * Writes the list of sources as a comment to outputStream.
+@@ -45,15 +50,15 @@ public abstract class AbstractWriter {
+       builder.append(indent).append("# ").append(parent).append("\n");
+     }
+     builder.append(indent).append(ruleName).append("(\n");
+-    builder.append(indent).append("    name = \"").append(rule.name()).append("\",\n");
+-    builder.append(indent).append("    artifact = \"").append(rule.toMavenArtifactString())
++    builder.append(indent).append(MAJOR_INDENT).append("name = \"").append(rule.name()).append("\",\n");
++    builder.append(indent).append(MAJOR_INDENT).append("artifact = \"").append(rule.toMavenArtifactString())
+         .append("\",\n");
+     if (rule.hasCustomRepository()) {
+-      builder.append(indent).append("    repository = \"").append(rule.getRepository())
++      builder.append(indent).append(MAJOR_INDENT).append("repository = \"").append(rule.getRepository())
+           .append("\",\n");
+     }
+     if (rule.getSha1() != null) {
+-      builder.append(indent).append("    sha1 = \"").append(rule.getSha1()).append("\",\n");
++      builder.append(indent).append(MAJOR_INDENT).append("sha1 = \"").append(rule.getSha1()).append("\",\n");
+     }
+     builder.append(indent).append(")\n\n");
+     return builder.toString();
+@@ -65,16 +70,16 @@ public abstract class AbstractWriter {
+   protected String formatJavaLibrary(Rule rule, String ruleName, String indent) {
+     StringBuilder builder = new StringBuilder();
+     builder.append(indent).append(ruleName).append("(\n");
+-    builder.append(indent).append("    name = \"").append(rule.name()).append("\",\n");
+-    builder.append(indent).append("    visibility = [\"//visibility:public\"],\n");
+-    builder.append(indent).append("    exports = [\"@").append(rule.name()).append("//jar\"],\n");
++    builder.append(indent).append(MAJOR_INDENT).append("name = \"").append(rule.name()).append("\",\n");
++    builder.append(indent).append(MAJOR_INDENT).append("visibility = [\"//visibility:public\"],\n");
++    builder.append(indent).append(MAJOR_INDENT).append("exports = [\"@").append(rule.name()).append("//jar\"],\n");
+     Set<Rule> dependencies = rule.getDependencies();
+     if (!dependencies.isEmpty()) {
+-      builder.append(indent).append("    runtime_deps = [\n");
++      builder.append(indent).append(MAJOR_INDENT).append("runtime_deps = [\n");
+       for (Rule r : rule.getDependencies()) {
+-        builder.append(indent).append("        \":").append(r.name()).append("\",\n");
++        builder.append(indent).append(MAJOR_INDENT).append(MAJOR_INDENT).append("\":").append(r.name()).append("\",\n");
+       }
+-      builder.append(indent).append("    ],\n");
++      builder.append(indent).append(MAJOR_INDENT).append("],\n");
+     }
+     builder.append(indent).append(")\n\n");
+     return builder.toString();
+diff --git a/generate_workspace/src/test/java/com/google/devtools/build/workspace/output/BzlWriterTest.java b/generate_workspace/src/test/java/com/google/devtools/build/workspace/output/BzlWriterTest.java
+index cba08d5..f18e97d 100644
+--- a/generate_workspace/src/test/java/com/google/devtools/build/workspace/output/BzlWriterTest.java
++++ b/generate_workspace/src/test/java/com/google/devtools/build/workspace/output/BzlWriterTest.java
+@@ -15,6 +15,8 @@
+ package com.google.devtools.build.workspace.output;
+ 
+ import static com.google.common.truth.Truth.assertThat;
++import static com.google.devtools.build.workspace.output.AbstractWriter.MAJOR_INDENT;
++import static com.google.devtools.build.workspace.output.AbstractWriter.MINOR_INDENT;
+ import static java.util.stream.Collectors.toList;
+ import static org.mockito.Matchers.any;
+ import static org.mockito.Mockito.doThrow;
+@@ -87,15 +89,17 @@ public class BzlWriterTest {
+     String fileContents = Files.toString(
+         new File(System.getenv("TEST_TMPDIR") + "/generate_workspace.bzl"),
+         Charset.defaultCharset());
+-    assertThat(fileContents).contains("def generated_maven_jars():\n  native.maven_jar(\n"
+-        + "      name = \"x_y\",\n"
+-        + "      artifact = \"x:y:1.2.3\",\n"
+-        + "  )\n");
+-    assertThat(fileContents).contains("def generated_java_libraries():\n  native.java_library(\n"
+-        + "      name = \"x_y\",\n"
+-        + "      visibility = [\"//visibility:public\"],\n"
+-        + "      exports = [\"@x_y//jar\"],\n"
+-        + "  )\n");
++    assertThat(fileContents).contains("def generated_maven_jars():\n"
++        + MINOR_INDENT + "native.maven_jar(\n"
++        + MINOR_INDENT + MAJOR_INDENT +  "name = \"x_y\",\n"
++        + MINOR_INDENT + MAJOR_INDENT + "artifact = \"x:y:1.2.3\",\n"
++        + MINOR_INDENT + ")\n");
++    assertThat(fileContents).contains("def generated_java_libraries():\n"
++        + MINOR_INDENT + "native.java_library(\n"
++        + MINOR_INDENT + MAJOR_INDENT + "name = \"x_y\",\n"
++        + MINOR_INDENT + MAJOR_INDENT + "visibility = [\"//visibility:public\"],\n"
++        + MINOR_INDENT + MAJOR_INDENT + "exports = [\"@x_y//jar\"],\n"
++        + MINOR_INDENT + ")\n");
+   }
+ 
+   @Test
+diff --git a/generate_workspace/src/test/java/com/google/devtools/build/workspace/output/WorkspaceWriterTest.java b/generate_workspace/src/test/java/com/google/devtools/build/workspace/output/WorkspaceWriterTest.java
+index af8bf4e..a0d6e81 100644
+--- a/generate_workspace/src/test/java/com/google/devtools/build/workspace/output/WorkspaceWriterTest.java
++++ b/generate_workspace/src/test/java/com/google/devtools/build/workspace/output/WorkspaceWriterTest.java
+@@ -15,6 +15,7 @@
+ package com.google.devtools.build.workspace.output;
+ 
+ import static com.google.common.truth.Truth.assertThat;
++import static com.google.devtools.build.workspace.output.AbstractWriter.MAJOR_INDENT;
+ 
+ import com.google.common.collect.ImmutableSet;
+ import com.google.common.collect.Sets;
+@@ -70,8 +71,8 @@ public class WorkspaceWriterTest {
+         new Rule(new DefaultArtifact("x:y:1.2.3")));
+     String content = getWorkspaceFileContent(rules);
+     assertThat(content).contains("maven_jar(\n"
+-        + "    name = \"x_y\",\n"
+-        + "    artifact = \"x:y:1.2.3\",\n"
++        + MAJOR_INDENT + "name = \"x_y\",\n"
++        + MAJOR_INDENT + "artifact = \"x:y:1.2.3\",\n"
+         + ")"
+     );
+   }
+@@ -84,8 +85,8 @@ public class WorkspaceWriterTest {
+     String content = getWorkspaceFileContent(rules);
+     assertThat(content).contains("# some parent\n"
+             + "maven_jar(\n"
+-            + "    name = \"x_y\",\n"
+-            + "    artifact = \"x:y:1.2.3\",\n"
++            + MAJOR_INDENT + "name = \"x_y\",\n"
++            + MAJOR_INDENT + "artifact = \"x:y:1.2.3\",\n"
+             + ")"
+     );
+   }
+@@ -100,13 +101,13 @@ public class WorkspaceWriterTest {
+     Set<Rule> rules = ImmutableSet.of(rule, dep1, dep2);
+     String content = getBuildFileContent(rules);
+     assertThat(content).contains("java_library(\n"
+-            + "    name = \"x_y\",\n"
+-            + "    visibility = [\"//visibility:public\"],\n"
+-            + "    exports = [\"@x_y//jar\"],\n"
+-            + "    runtime_deps = [\n"
+-            + "        \":dep_dep1\",\n"
+-            + "        \":dep_dep2\",\n"
+-            + "    ],\n"
++            + MAJOR_INDENT + "name = \"x_y\",\n"
++            + MAJOR_INDENT + "visibility = [\"//visibility:public\"],\n"
++            + MAJOR_INDENT + "exports = [\"@x_y//jar\"],\n"
++            + MAJOR_INDENT + "runtime_deps = [\n"
++            + MAJOR_INDENT + MAJOR_INDENT + "\":dep_dep1\",\n"
++            + MAJOR_INDENT + MAJOR_INDENT + "\":dep_dep2\",\n"
++            + MAJOR_INDENT + "],\n"
+             + ")"
+     );
+   }
