@@ -69,8 +69,7 @@ you must load in your `WORKSPACE` file.
 After the files are generated, add the following lines into your WORKSPACE file to load the `maven_jar` rules
 
 ```
-load("@dependencies//:generate_workspace.bzl", "generated_java_libraries")
-generated_java_libraries()
+load("@dependencies//:generate_workspace.bzl", "generated_maven_jars")
 generated_maven_jars()
 ```
 
