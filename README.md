@@ -34,8 +34,10 @@ which export each jar's dependencies as well as the jar itself.
 
 ## `transitive_maven_jar` 
 
-After the initial migration, one can use the `transitive_maven_jar` repository rule
-to manage one's external maven dependencies.
+The `transitive_maven_jar` repository rule exposes the specified Maven jars, as well
+as their transitive dependencies under one target. This alleviates the need to run
+`generate_workspace` whenever dependencies change. However, it comes at the cost of
+re-fetching dependencies.
 
 First, add the following to your `WORKSPACE` file: 
 
@@ -43,7 +45,6 @@ First, add the following to your `WORKSPACE` file:
 http_archive(
 	name = "trans_maven_jars",
 	url = "https://github.com/petroseskinder/migration_tooling/releases/download/test/generate_workspace_deploy.jar",
-	type = "jar",
 )
 
 load("@trans_maven_jar//transitive_maven_jar:transitive_maven_jar.bzl", "transitive_maven_jar")

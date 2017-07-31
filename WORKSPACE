@@ -21,5 +21,4 @@ transitive_maven_jar(
 		"org.apache.httpcomponents:httpcore:4.4.6",
 		"org.apache.httpcomponents:httpclient:4.5.3",
 	]
-		
 )

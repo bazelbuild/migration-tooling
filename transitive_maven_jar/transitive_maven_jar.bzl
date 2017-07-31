@@ -21,12 +21,15 @@ def _validate_coordinates(rctx):
 	return True
 
 def _create_arguments(rctx):
-	#TODO(petros): pass output directory as an attribute.
-	arguments = ['-a ' + artifact for artifact in rctx.attr.artifacts]
+	#TODO(petros): add a symlink to the generated file.
+	arguments = ['--artifact ' + artifact for artifact in rctx.attr.artifacts]
+	if rctx.attr.output_directory != "":
+		path = rctx.path(rctx.attr.output_directory)
+		arguments.append(' --output_dir ' + path.basename)
 	return ' '.join(arguments)
 
 def _execute(rctx, command_string):
-	return rctx.execute(["bash", "-c", command_string], timeout=rctx.attr.timeout)
+	return rctx.execute(["bash", "-c", command_string], timeout = rctx.attr.timeout)
 
 def _transitive_maven_jar_impl(rctx):
 	_check_dependencies(rctx)
@@ -46,10 +49,11 @@ transitive_maven_jar = repository_rule(
 		implementation = _transitive_maven_jar_impl,
 		attrs = {
 			"artifacts" : attr.string_list(default = [], mandatory = True),
-			"timeout" : attr.int(default = MAX_TIMEOUT)
+			"timeout" : attr.int(default = MAX_TIMEOUT),
+			"output_directory" : attr.string(default = "")
 			#TODO(petros): add support for private repositories.
 		},
-		local = False,		
+		local = False,
 )
 
 

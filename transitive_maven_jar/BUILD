@@ -1,4 +1,1 @@
-package(
-	visibility = ["//visibility/public"],
-)
 
