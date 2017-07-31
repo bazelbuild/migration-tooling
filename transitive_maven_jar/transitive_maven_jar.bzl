@@ -39,7 +39,7 @@ def _transitive_maven_jar_impl(rctx):
     # execute the command
     result = _execute(rctx, "java -jar %s %s" % (jar_path, arguments))
     print(result.stdout) # TODO(petros): print to console directly
-    rctx.file('%s/BUILD' % rctx.path('test'), '', False)
+    rctx.file('%s/BUILD' % rctx.path(''), '', False)
 
 transitive_maven_jar = repository_rule(
         implementation = _transitive_maven_jar_impl,

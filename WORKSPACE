@@ -1,6 +1,3 @@
-load('//:generate_workspace.bzl', 'generated_maven_jars')
-generated_maven_jars()
-
 load('//transitive_maven_jar:transitive_maven_jar.bzl', 'transitive_maven_jar')
 
 transitive_maven_jar(
@@ -22,3 +19,6 @@ transitive_maven_jar(
 		"org.apache.httpcomponents:httpclient:4.5.3",
 	]
 )
+
+load("@dependencies//:generate_workspace.bzl", "generated_maven_jars")
+generated_maven_jars()
