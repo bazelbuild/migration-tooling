@@ -44,6 +44,7 @@ First, add the following to your `WORKSPACE` file:
 ```python
 http_archive(
 	name = "trans_maven_jars",
+	# TODO(petros) replace with the zip for the project
 	url = "https://github.com/petroseskinder/migration_tooling/releases/download/test/generate_workspace_deploy.jar",
 )
 
