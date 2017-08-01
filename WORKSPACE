@@ -22,3 +22,4 @@ transitive_maven_jar(
 
 load("@dependencies//:generate_workspace.bzl", "generated_maven_jars")
 generated_maven_jars()
+
