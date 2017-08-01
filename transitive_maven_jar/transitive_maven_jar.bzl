@@ -1,13 +1,4 @@
-
-DEPS = ["mvn"]
 MAX_TIMEOUT = 0x7FFFFFFF
-
-BINARY_URL = "https://github.com/petroseskinder/migration-tooling/releases/download/test/generate_workspace_deploy.jar"
-
-def _check_dependencies(rctx):
-    for dep in DEPS:
-        if rctx.which(dep) == None:
-            fail("%s requires %s as a dependency. Please check your PATH." % (rctx.name, dep))
 
 def _validate_coordinate_length(coordinate):
     parts = coordinate.split(":")
@@ -28,7 +19,6 @@ def _execute(rctx, command_string):
     return rctx.execute(["bash", "-c", command_string], timeout = rctx.attr._timeout, quiet = False)
 
 def _transitive_maven_jar_impl(rctx):
-    _check_dependencies(rctx)
     _validate_coordinates(rctx)
     arguments = _create_arguments(rctx)
 
