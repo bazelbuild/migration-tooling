@@ -69,7 +69,11 @@ public class Aether {
   /** Given an artifacts requests a version range for it. */
   List<String> requestVersionRange(Artifact artifact) throws VersionRangeResolutionException {
     VersionRangeRequest rangeRequest = new VersionRangeRequest(artifact, remoteRepositories, null);
-    VersionRangeResult result = repositorySystem.resolveVersionRange(repositorySystemSession, rangeRequest);
+    VersionRangeResult result = repositorySystem.resolveVersionRange(
+        repositorySystemSession, rangeRequest);
+    if (!result.getExceptions().isEmpty()) {
+      throw new VersionRangeResolutionException(result);
+    }
     return result.getVersions().stream().map(Version::toString).collect(toList());
   }
 

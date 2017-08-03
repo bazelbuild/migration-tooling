@@ -18,6 +18,10 @@ import static com.google.devtools.build.workspace.maven.ArtifactBuilder.InvalidA
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
+import org.apache.maven.artifact.versioning.Restriction;
+import org.apache.maven.artifact.versioning.VersionRange;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 
@@ -45,7 +49,6 @@ class VersionResolver {
    */
   String resolveVersion(String groupId, String artifactId, String versionSpec)
       throws InvalidArtifactCoordinateException {
-
     List<String> versions;
     try {
       versions = requestVersionList(groupId, artifactId, versionSpec);
@@ -122,5 +125,40 @@ class VersionResolver {
    */
   public static VersionResolver defaultResolver() {
     return new VersionResolver(Aether.defaultOption());
+  }
+
+  /**
+   * Takes a version specification (as defined in
+   * http://maven.apache.org/enforcer/enforcer-rules/versionRanges.html) and finds a valid version
+   * that is likely to exist.  Basically: 1.2.3 is 1.2.3+, [1.2.3] is exactly 1.2.3, and then
+   * there is comma-separated range notation.
+   */
+  @Nullable
+  static String resolveVersionLocally(String unparsedVersion) {
+    VersionRange versionRange;
+    try {
+      versionRange = VersionRange.createFromVersionSpec(unparsedVersion);
+    } catch (InvalidVersionSpecificationException e) {
+      return null;
+    }
+    if (versionRange.getRecommendedVersion() != null) {
+      return versionRange.getRecommendedVersion().toString();
+    }
+
+    // There is a range or set of possible versions.
+    for (Restriction restriction : versionRange.getRestrictions()) {
+      // Look for an exact match.
+      if (restriction.getLowerBound().equals(restriction.getUpperBound())) {
+        return restriction.getLowerBound().toString();
+      }
+      // If this is a more complex version restriction, look for an inclusive bound.
+      if (restriction.isUpperBoundInclusive()) {
+        return restriction.getUpperBound().toString();
+      } else if (restriction.isLowerBoundInclusive()) {
+        return restriction.getLowerBound().toString();
+      }
+      // All bounds were exclusive.
+    }
+    return null;
   }
 }
