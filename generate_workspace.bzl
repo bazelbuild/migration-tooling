@@ -161,8 +161,8 @@ def generated_maven_jars():
   # org.powermock:powermock-core:jar:1.6.6
   native.maven_jar(
       name = "org_javassist_javassist",
-      artifact = "org.javassist:javassist:3.21.0-GA",
-      sha1 = "598244f595db5c5fb713731eddbb1c91a58d959b",
+      artifact = "org.javassist:javassist:3.22.0-CR2",
+      sha1 = "44eaf0990dea92f4bca4b9931b2239c0e8756ee7",
   )
 
 
