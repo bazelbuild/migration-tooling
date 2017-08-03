@@ -40,10 +40,9 @@ The `transitive_maven_jar` repository rule exposes the specified Maven jars, as 
 As a prerequisite for use, you must have bazel 0.5.2 or later installed. In addition, add the following to your `WORKSPACE` file: 
 
 ```python
-version = "TODO" # update this
 http_archive(
 	name = "trans_maven_jars",
-	url = "https://github.com/bazelbuild/migration_tooling/archive/%s.zip" % version,
+	url = "https://github.com/bazelbuild/migration_tooling/archive/master.zip",
 	type = "zip",
 	strip_prefix = "transitive_maven_jar-%s" % version
 )
