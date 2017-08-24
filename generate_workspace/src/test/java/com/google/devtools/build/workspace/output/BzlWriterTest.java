@@ -109,6 +109,7 @@ public class BzlWriterTest {
     assertThat(fileContents).contains("exports = [\"@z//jar\"],");
   }
   
+  @Test
   public void writeCommand() throws Exception {
     BzlWriter writer = new BzlWriter(new String[]{"x", "y", "z"}, System.getenv("TEST_TMPDIR"));
     writer.write(createRules());
