@@ -118,4 +118,27 @@ public class VersionResolverTest {
     assertThat(isVersionRange("3.0")).isFalse();
   }
 
+  @Test
+  public void localSoftPin() throws Exception {
+    String version = VersionResolver.resolveVersionLocally("1.0");
+    assertThat(version).isEqualTo("1.0");
+  }
+
+  @Test
+  public void localHardPin() throws Exception {
+    String version = VersionResolver.resolveVersionLocally("[1.0]");
+    assertThat(version).isEqualTo("1.0");
+  }
+
+  @Test
+  public void localRange() throws Exception {
+    String version = VersionResolver.resolveVersionLocally("[1.0,2.0]");
+    assertThat(version).isEqualTo("2.0");
+  }
+
+  @Test
+  public void localUnresolvable() throws Exception {
+    String version = VersionResolver.resolveVersionLocally("(1.0,2.0)");
+    assertThat(version).isNull();
+  }
 }

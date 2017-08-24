@@ -126,12 +126,28 @@ public class DefaultModelResolver implements ModelResolver {
   private UrlModelSource getModelSource(
       String url, String groupId, String artifactId, String version)
       throws UnresolvableModelException {
+    // First just try the specified version.
+    String parsedVersion = VersionResolver.resolveVersionLocally(version);
+
+    if (parsedVersion != null) {
+      UrlModelSource source = getUrlModelSource(url, groupId, artifactId, parsedVersion);
+      if (source != null) {
+        return source;
+      }
+    }
+
+    // Go to town looking for a valid version.
     try {
       version = versionResolver.resolveVersion(groupId, artifactId, version);
     } catch (ArtifactBuilder.InvalidArtifactCoordinateException e) {
       throw new UnresolvableModelException(
           "Unable to resolve version", groupId, artifactId, version, e);
     }
+    return getUrlModelSource(url, groupId, artifactId, version);
+  }
+
+  private UrlModelSource getUrlModelSource(String url, String groupId, String artifactId,
+      String version) throws UnresolvableModelException {
     try {
       if (!url.endsWith("/")) {
         url += "/";
