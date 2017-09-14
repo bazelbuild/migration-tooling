@@ -41,10 +41,10 @@ As a prerequisite for use, you must have bazel 0.5.2 or later installed. In addi
 
 ```python
 http_archive(
-	name = "trans_maven_jars",
-	url = "https://github.com/bazelbuild/migration_tooling/archive/master.zip",
+	name = "trans_maven_jar",
+	url = "https://github.com/bazelbuild/migration-tooling/archive/master.zip",
 	type = "zip",
-	strip_prefix = "migration_tooling-master",
+	strip_prefix = "migration-tooling-master",
 )
 
 load("@trans_maven_jar//transitive_maven_jar:transitive_maven_jar.bzl", "transitive_maven_jar")
