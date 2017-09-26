@@ -24,7 +24,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import java.util.Collection;
+import java.util.Set;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
@@ -81,12 +83,17 @@ public class ResolverTest {
   }
 
   private Dependency getDependency(String coordinates) {
+    return getDependency(coordinates, "compile");
+  }
+
+  private Dependency getDependency(String coordinates, String scope) {
     String[] coordinateArray = coordinates.split(":");
     Preconditions.checkState(coordinateArray.length == 3);
     Dependency dependency = new Dependency();
     dependency.setGroupId(coordinateArray[0]);
     dependency.setArtifactId(coordinateArray[1]);
     dependency.setVersion(coordinateArray[2]);
+    dependency.setScope(scope);
     return dependency;
   }
 
@@ -113,6 +120,7 @@ public class ResolverTest {
     resolver.traverseDeps(
         mockDepManagementModel("a:b:[1.0]", "a:b:2.0"),
         Sets.newHashSet(),
+        Sets.newHashSet(),
         new Rule(new DefaultArtifact("par:ent:1.2.3")));
     Collection<Rule> rules = resolver.getRules();
     assertThat(rules).hasSize(1);
@@ -132,6 +140,7 @@ public class ResolverTest {
     Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
     resolver.traverseDeps(
         mockDepManagementModel("a:b:[1.0, 4.0]", "a:b:2.0"),
+        Sets.newHashSet(),
         Sets.newHashSet(),
         new Rule(new DefaultArtifact("par:ent:1.2.3")));
     Collection<Rule> rules = resolver.getRules();
@@ -153,6 +162,7 @@ public class ResolverTest {
     resolver.traverseDeps(
         mockDepManagementModel("a:b:[1.0,4.0]", "a:b:[1.2,3.0]"),
         Sets.newHashSet(),
+        Sets.newHashSet(),
         new Rule(new DefaultArtifact("par:ent:1.2.3")));
     Collection<Rule> rules = resolver.getRules();
     assertThat(rules).hasSize(1);
@@ -173,11 +183,72 @@ public class ResolverTest {
     resolver.traverseDeps(
         mockDepManagementModel("a:b:1.0", "c:d:2.0"),
         Sets.newHashSet(),
+        Sets.newHashSet(),
         new Rule(new DefaultArtifact("par:ent:1.2.3")));
     Collection<Rule> rules = resolver.getRules();
     assertThat(rules).hasSize(1);
     Rule actual = rules.iterator().next();
     assertThat(actual.name()).isEqualTo("c_d");
+  }
+
+  @Test
+  public void scopesHonoredForRoot() throws Exception {
+    Model mockModel = mock(Model.class);
+    // Only "compile" should go through.
+    when(mockModel.getDependencies()).thenReturn(
+        ImmutableList.of(
+            getDependency("a:b:1.0", "compile"),
+            getDependency("c:d:1.0", "test")));
+
+    Aether aether = mock(Aether.class);
+    when(aether.requestVersionRange(
+        fromCoords("a:b:[1.0,)"))).thenReturn(newArrayList("1.0"));
+    when(aether.requestVersionRange(
+        fromCoords("c:d:[1.0,)"))).thenReturn(newArrayList("1.0"));
+    VersionResolver versionResolver = new VersionResolver(aether);
+
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
+
+    resolver.traverseDeps(
+        mockModel,
+        Sets.newHashSet("compile"),
+        Sets.newHashSet(),
+        null);
+    Collection<Rule> rules = resolver.getRules();
+    assertThat(rules).hasSize(1);
+    Rule actual = rules.iterator().next();
+    assertThat(actual.name()).isEqualTo("a_b");
+  }
+
+  @Test
+  public void scopesIgnoredForNonRoot() throws Exception {
+    Model mockModel = mock(Model.class);
+    // "compile" and "runtime" should go through.
+    when(mockModel.getDependencies()).thenReturn(
+        ImmutableList.of(
+            getDependency("a:b:1.0", "compile"),
+            getDependency("c:d:1.0", "runtime"),
+            getDependency("e:f:1.0", "test")));
+
+    Aether aether = mock(Aether.class);
+    when(aether.requestVersionRange(
+        fromCoords("a:b:[1.0,)"))).thenReturn(newArrayList("1.0"));
+    when(aether.requestVersionRange(
+        fromCoords("c:d:[1.0,)"))).thenReturn(newArrayList("1.0"));
+    when(aether.requestVersionRange(
+        fromCoords("e:f:[1.0,)"))).thenReturn(newArrayList("1.0"));
+    VersionResolver versionResolver = new VersionResolver(aether);
+
+    Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
+    resolver.traverseDeps(
+        mockModel,
+        Sets.newHashSet("compile"),
+        Sets.newHashSet(),
+        new Rule(new DefaultArtifact("par:ent:1.2.3")));
+    Collection<Rule> rules = resolver.getRules();
+    assertThat(rules).hasSize(2);
+    Set<String> names = rules.stream().map(rule -> rule.name()).collect(Collectors.toSet());
+    assertThat(names).isEqualTo(Sets.newHashSet("a_b", "c_d"));
   }
 
   @Test
@@ -188,6 +259,7 @@ public class ResolverTest {
     Resolver resolver = new Resolver(mock(DefaultModelResolver.class), ALIASES);
     resolver.traverseDeps(
         mockModel,
+        Sets.newHashSet(),
         Sets.newHashSet("a:b"),
         new Rule(new DefaultArtifact("par:ent:1.2.3")));
     Collection<Rule> rules = resolver.getRules();
@@ -209,6 +281,7 @@ public class ResolverTest {
         mock(DefaultModelResolver.class), versionResolver, ImmutableList.of(aliasedRule));
     resolver.traverseDeps(
         mockModel,
+        Sets.newHashSet(),
         Sets.newHashSet(),
         new Rule(new DefaultArtifact("par:ent:1.2.3")));
     Collection<Rule> rules = resolver.getRules();
