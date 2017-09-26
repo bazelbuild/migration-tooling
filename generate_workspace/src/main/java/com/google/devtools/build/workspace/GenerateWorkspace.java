@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -59,7 +60,7 @@ public class GenerateWorkspace {
     try {
       GenerateWorkspace workspaceFileGenerator = new GenerateWorkspace(
           args, options.outputDir, options.directToWorkspace, options.aliases);
-      workspaceFileGenerator.generateFromPom(options.mavenProjects);
+      workspaceFileGenerator.generateFromPom(options.mavenProjects, options.scopes);
       workspaceFileGenerator.generateFromArtifacts(options.artifacts);
       workspaceFileGenerator.writeResults();
     } catch (IOException e) {
@@ -77,9 +78,9 @@ public class GenerateWorkspace {
         : new BzlWriter(args, outputDirStr);
   }
 
-  private void generateFromPom(List<String> projects) {
+  private void generateFromPom(List<String> projects, Set<String> scopes) {
     for (String project : projects) {
-      String pomFile = resolver.resolvePomDependencies(getAbsolute(project));
+      String pomFile = resolver.resolvePomDependencies(getAbsolute(project), scopes);
       if (pomFile != null) {
         inputs.add(pomFile);
       }

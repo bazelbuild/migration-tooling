@@ -19,14 +19,17 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.converters.IParameterSplitter;
+import com.google.common.collect.Sets;
 import com.google.devtools.build.workspace.maven.ArtifactBuilder;
 import com.google.devtools.build.workspace.maven.ArtifactBuilder.InvalidArtifactCoordinateException;
 import com.google.devtools.build.workspace.maven.Rule;
 import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.util.artifact.JavaScopes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Command-line options for generate_workspace tool.
@@ -70,6 +73,13 @@ public class GenerateWorkspaceOptions {
       + " file that can be loaded from hand-written WORKSPACE and BUILD files."
   )
   public boolean directToWorkspace = false;
+
+  @Parameter(
+      names = {"--scope"},
+      description = "Maven scope(s) in to look up dependencies in. May be repeated to list scopes."
+  )
+  public Set<String> scopes =
+      Sets.newHashSet(JavaScopes.COMPILE, JavaScopes.PROVIDED, JavaScopes.TEST, JavaScopes.RUNTIME);
 
   @Parameter(
       names = {"--declare"},

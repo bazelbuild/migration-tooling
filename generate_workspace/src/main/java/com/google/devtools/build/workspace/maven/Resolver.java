@@ -49,6 +49,7 @@ import org.apache.maven.model.io.DefaultModelReader;
 import org.apache.maven.model.locator.DefaultModelLocator;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.util.artifact.JavaScopes;
 
 /**
  * Resolves Maven dependencies.
@@ -66,8 +67,6 @@ public class Resolver {
   private static String unversionedCoordinate(Exclusion exclusion) {
     return exclusion.getGroupId() + ":" + exclusion.getArtifactId();
   }
-  
-  private static final String COMPILE_SCOPE = "compile";
 
   private final DefaultModelResolver modelResolver;
 
@@ -102,8 +101,9 @@ public class Resolver {
    * Given a local path to a Maven project, this attempts to find the transitive dependencies of
    * the project.
    * @param projectPath The path to search for Maven projects.
+   * @param scopes The scopes to look up dependencies in.
    */
-  public String resolvePomDependencies(String projectPath) {
+  public String resolvePomDependencies(String projectPath, Set<String> scopes) {
     DefaultModelProcessor processor = new DefaultModelProcessor();
     processor.setModelLocator(new DefaultModelLocator());
     processor.setModelReader(new DefaultModelReader());
@@ -114,7 +114,7 @@ public class Resolver {
     // Next, fully resolve the models.
     Model model = modelResolver.getEffectiveModel(pomSource);
     if (model != null) {
-      traverseDeps(model, Sets.newHashSet(), null);
+      traverseDeps(model, scopes, Sets.newHashSet(), null);
     }
     return pom.getAbsolutePath();
   }
@@ -137,7 +137,7 @@ public class Resolver {
     deps.put(rule.name(), rule);  // add the artifact rule to the workspace
     Model model = modelResolver.getEffectiveModel(modelSource);
     if (model != null) {
-      traverseDeps(model, Sets.newHashSet(), rule);
+      traverseDeps(model, Sets.newHashSet(JavaScopes.COMPILE), Sets.newHashSet(), rule);
     }
   }
   
@@ -146,7 +146,7 @@ public class Resolver {
    * file.
    */
   @VisibleForTesting
-  void traverseDeps(Model model, Set<String> exclusions, Rule parent) {
+  void traverseDeps(Model model, Set<String> scopes, Set<String> exclusions, Rule parent) {
     logger.info("\tDownloading pom for " + model.getGroupId() + ":"
         + model.getArtifactId() + ":" + model.getVersion());
     for (Repository repo : model.getRepositories()) {
@@ -163,18 +163,34 @@ public class Resolver {
       }
     }
     for (Dependency dependency : model.getDependencies()) {
-      addDependency(dependency, model, exclusions, parent);
+      addDependency(dependency, model, scopes, exclusions, parent);
     }
   }
 
   private void addDependency(
       Dependency dependency,
       Model model,
+      Set<String> topLevelScopes,
       Set<String> exclusions,
       @Nullable Rule parent) {
+    String scope = dependency.getScope();
     // DependencyManagement dependencies don't have scope.
-    if (dependency.getScope() != null && !dependency.getScope().equals(COMPILE_SCOPE)) {
-      return;
+    if (scope != null) {
+      if (parent == null) {
+        // Top-level scopes get pulled in based on the user-provided scopes.
+        if (!topLevelScopes.contains(scope)) {
+          return;
+        }
+      } else {
+        // TODO: The below is coarse; a correct implementation would relabel the transitive
+        // dependencies based on the scope matrix here:
+        // https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html
+        // Only compile & runtime transitive are retained.
+        if (!(scope.equals(JavaScopes.COMPILE) || scope.equals(JavaScopes.RUNTIME))) {
+          // Only inherit transitive compile and runtime dependencies.
+          return;
+        }
+      }
     }
     if (dependency.isOptional()) {
       return;
@@ -197,7 +213,7 @@ public class Resolver {
           artifactRule.setSha1(downloadSha1(artifactRule));
           Model depModel = modelResolver.getEffectiveModel(depModelSource);
           if (depModel != null) {
-            traverseDeps(depModel, localDepExclusions, artifactRule);
+            traverseDeps(depModel, topLevelScopes, localDepExclusions, artifactRule);
           }
         } else {
           logger.warning("Could not get a model for " + dependency);
