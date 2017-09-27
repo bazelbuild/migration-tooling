@@ -182,12 +182,19 @@ public class DefaultModelResolver implements ModelResolver {
   // For compatibility with older versions of ModelResolver which don't have this method,
   // don't add @Override.
   public void addRepository(Repository repository) {
-    repositories.add(repository);
+    addRepository(repository, false);
   }
 
   @Override
   public void addRepository(Repository repository, boolean replace) {
-    addRepository(repository);
+    if (repositories.contains(repository)) {
+      if (replace) {
+        repositories.remove(repository);
+        repositories.add(repository);
+      }
+    } else {
+      repositories.add(repository);
+    }
   }
 
   @Override
