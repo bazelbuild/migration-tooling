@@ -145,7 +145,7 @@ public class Resolver {
     deps.put(rule.name(), rule);  // add the artifact rule to the workspace
     Model model = modelResolver.getEffectiveModel(modelSource);
     if (model != null) {
-      traverseDeps(model, Sets.newHashSet(JavaScopes.COMPILE), Sets.newHashSet(), rule);
+      traverseDeps(model, Sets.newHashSet(), Sets.newHashSet(), rule);
     }
   }
   
