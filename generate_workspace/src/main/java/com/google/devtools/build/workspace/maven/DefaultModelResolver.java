@@ -41,10 +41,6 @@ import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.model.building.ModelBuildingResult;
 import org.apache.maven.model.building.ModelSource;
 import org.apache.maven.model.building.UrlModelSource;
-import org.apache.maven.model.composition.DefaultDependencyManagementImporter;
-import org.apache.maven.model.management.DefaultDependencyManagementInjector;
-import org.apache.maven.model.management.DefaultPluginManagementInjector;
-import org.apache.maven.model.plugin.DefaultPluginConfigurationExpander;
 import org.apache.maven.model.profile.DefaultProfileSelector;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
@@ -79,10 +75,6 @@ public class DefaultModelResolver implements ModelResolver {
         Maps.newHashMap(),
         new DefaultModelBuilderFactory().newInstance()
             .setProfileSelector(new DefaultProfileSelector())
-            .setPluginConfigurationExpander(new DefaultPluginConfigurationExpander())
-            .setPluginManagementInjector(new DefaultPluginManagementInjector())
-            .setDependencyManagementImporter(new DefaultDependencyManagementImporter())
-            .setDependencyManagementInjector(new DefaultDependencyManagementInjector())
     );
   }
 
