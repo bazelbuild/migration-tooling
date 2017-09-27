@@ -26,6 +26,7 @@ import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.HashSet;
@@ -320,8 +321,11 @@ public class Resolver {
   private String downloadSha1(Rule rule) {
     String sha1Url = getSha1Url(rule.getUrl(), rule.getArtifact().getExtension());
     try {
-      HttpURLConnection connection = (HttpURLConnection) new URL(sha1Url).openConnection();
-      connection.setInstanceFollowRedirects(true);
+      URLConnection connection = new URL(sha1Url).openConnection();
+      if (connection instanceof HttpURLConnection) {
+        HttpURLConnection httpConnection = (HttpURLConnection) connection;
+        httpConnection.setInstanceFollowRedirects(true);
+      }
       connection.connect();
       return extractSha1(
           CharStreams.toString(
