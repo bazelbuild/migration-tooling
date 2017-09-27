@@ -182,10 +182,9 @@ public class Resolver {
           return;
         }
       } else {
-        // TODO: The below is coarse; a correct implementation would relabel the transitive
-        // dependencies based on the scope matrix here:
+        // TODO (bazel-devel): Relabel the scope of transitive dependencies so that they match how
+        // maven relabels them as described here:
         // https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html
-        // Only compile & runtime transitive are retained.
         if (!(scope.equals(JavaScopes.COMPILE) || scope.equals(JavaScopes.RUNTIME))) {
           // Only inherit transitive compile and runtime dependencies.
           return;
