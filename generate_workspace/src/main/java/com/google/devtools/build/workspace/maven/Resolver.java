@@ -60,6 +60,14 @@ public class Resolver {
       MethodHandles.lookup().lookupClass().getName());
   private static final String TOP_LEVEL_ARTIFACT = "pom.xml";
 
+  /**
+   * The set of scopes whose artifacts are pulled into the transitive dependency tree.
+   * See https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html for
+   * more details on how maven handles this.
+   */
+  private static final Set<String> INHERITED_SCOPES =
+      Sets.newHashSet(JavaScopes.COMPILE, JavaScopes.RUNTIME);
+
   private static String unversionedCoordinate(Dependency dependency) {
     return dependency.getGroupId() + ":" + dependency.getArtifactId();
   }
@@ -185,8 +193,7 @@ public class Resolver {
         // TODO (bazel-devel): Relabel the scope of transitive dependencies so that they match how
         // maven relabels them as described here:
         // https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html
-        if (!(scope.equals(JavaScopes.COMPILE) || scope.equals(JavaScopes.RUNTIME))) {
-          // Only inherit transitive compile and runtime dependencies.
+        if (!INHERITED_SCOPES.contains(scope)) {
           return;
         }
       }
