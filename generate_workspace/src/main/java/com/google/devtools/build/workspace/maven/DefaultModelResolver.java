@@ -17,7 +17,9 @@ package com.google.devtools.build.workspace.maven;
 import static com.google.devtools.build.workspace.maven.Rule.MAVEN_CENTRAL_URL;
 import static java.util.stream.Collectors.toList;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.io.IOException;
@@ -58,15 +60,19 @@ public class DefaultModelResolver implements ModelResolver {
 
   private final static Logger logger = Logger.getLogger(
       MethodHandles.lookup().lookupClass().getName());
-  private static final Repository MAVEN_CENTRAL = new Repository();
 
+  private static final Map<String, Repository> DEFAULT_REPOSITORIES;
   static {
-    MAVEN_CENTRAL.setId("central");
-    MAVEN_CENTRAL.setName("default");
-    MAVEN_CENTRAL.setUrl(MAVEN_CENTRAL_URL);
+    Repository mavenCentral = new Repository();
+    mavenCentral.setId("central");
+    mavenCentral.setName("default");
+    mavenCentral.setUrl(MAVEN_CENTRAL_URL);
+
+    DEFAULT_REPOSITORIES = ImmutableMap.of(mavenCentral.getId(), mavenCentral);
   }
 
-  private final Set<Repository> repositories;
+  @VisibleForTesting
+  final Map<String, Repository> repositoriesById;
   private final Map<String, ModelSource> ruleNameToModelSource;
   private final DefaultModelBuilder modelBuilder;
   private final Aether aether;
@@ -75,7 +81,7 @@ public class DefaultModelResolver implements ModelResolver {
   public DefaultModelResolver() {
     this(
         Aether.defaultOption(),
-        Sets.newHashSet(MAVEN_CENTRAL),
+        Maps.newHashMap(DEFAULT_REPOSITORIES),
         Maps.newHashMap(),
         new DefaultModelBuilderFactory().newInstance()
             .setProfileSelector(new DefaultProfileSelector())
@@ -87,9 +93,11 @@ public class DefaultModelResolver implements ModelResolver {
   }
 
   private DefaultModelResolver(
-      Aether aether, Set<Repository> repositories, Map<String, ModelSource> ruleNameToModelSource,
+      Aether aether,
+      Map<String, Repository> repositoriesById,
+      Map<String, ModelSource> ruleNameToModelSource,
       DefaultModelBuilder modelBuilder) {
-    this.repositories = repositories;
+    this.repositoriesById = repositoriesById;
     this.ruleNameToModelSource = ruleNameToModelSource;
     this.modelBuilder = modelBuilder;
     this.aether = aether;
@@ -107,7 +115,7 @@ public class DefaultModelResolver implements ModelResolver {
     if (ruleNameToModelSource.containsKey(ruleName)) {
       return ruleNameToModelSource.get(ruleName);
     }
-    for (Repository repository : repositories) {
+    for (Repository repository : repositoriesById.values()) {
       UrlModelSource modelSource = getModelSource(
           repository.getUrl(), groupId, artifactId, version);
       if (modelSource != null) {
@@ -116,7 +124,7 @@ public class DefaultModelResolver implements ModelResolver {
     }
 
     List<String> attemptedUrls =
-            repositories.stream().map(Repository::getUrl).collect(toList());
+            repositoriesById.values().stream().map(Repository::getUrl).collect(toList());
     throw new UnresolvableModelException("Could not find any repositories that knew how to "
         + "resolve " + groupId + ":" + artifactId + ":" + version + " (checked "
         + Joiner.on(", ").join(attemptedUrls) + ")", groupId, artifactId, version);
@@ -187,19 +195,14 @@ public class DefaultModelResolver implements ModelResolver {
 
   @Override
   public void addRepository(Repository repository, boolean replace) {
-    if (repositories.contains(repository)) {
-      if (replace) {
-        repositories.remove(repository);
-        repositories.add(repository);
-      }
-    } else {
-      repositories.add(repository);
+    if (replace || !repositoriesById.containsKey(repository.getId())) {
+      repositoriesById.put(repository.getId(), repository);
     }
   }
 
   @Override
   public ModelResolver newCopy() {
-    return new DefaultModelResolver(aether, repositories, ruleNameToModelSource, modelBuilder);
+    return new DefaultModelResolver(aether, repositoriesById, ruleNameToModelSource, modelBuilder);
   }
 
   /**

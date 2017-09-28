@@ -36,6 +36,17 @@ java_test(
 )
 
 java_test(
+    name = "DefaultModelResolverTest",
+    srcs = ["DefaultModelResolverTest.java"],
+    deps = [
+        "//generate_workspace/src/main/java/com/google/devtools/build/workspace/maven",
+        "//third_party:com_google_truth_truth",
+        "//third_party:junit_junit",
+        "//third_party:maven_model",
+    ],
+)
+
+java_test(
     name = "GraphSerializerTest",
     srcs = ["GraphSerializerTest.java"],
     deps = [
