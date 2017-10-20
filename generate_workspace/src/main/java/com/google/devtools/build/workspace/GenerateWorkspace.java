@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
+import com.google.common.collect.Sets;
 
 /**
  * Generates a WORKSPACE file for Bazel from other types of dependency trackers.
@@ -59,7 +60,12 @@ public class GenerateWorkspace {
 
     try {
       GenerateWorkspace workspaceFileGenerator = new GenerateWorkspace(
-          args, options.outputDir, options.directToWorkspace, options.aliases);
+          args,
+          options.outputDir,
+          options.directToWorkspace,
+          options.repositories,
+          options.aliases
+      );
       workspaceFileGenerator.generateFromPom(options.mavenProjects, options.scopes);
       workspaceFileGenerator.generateFromArtifacts(options.artifacts);
       workspaceFileGenerator.writeResults();
@@ -69,9 +75,19 @@ public class GenerateWorkspace {
     }
   }
 
-  private GenerateWorkspace(String[] args, String outputDirStr, boolean directToWorkspace, List<Rule> aliases)
+  private GenerateWorkspace(
+          String[] args,
+          String outputDirStr,
+          boolean directToWorkspace,
+          List<String> repositories,
+          List<Rule> aliases)
       throws IOException {
-    this.resolver = new Resolver(new DefaultModelResolver(), aliases);
+    Set<String> repositoriesSet = Sets.newTreeSet();
+    repositoriesSet.addAll(repositories);
+    this.resolver = new Resolver(
+            new DefaultModelResolver(repositoriesSet),
+            aliases
+    );
     this.inputs = Lists.newArrayList();
     this.resultWriter = directToWorkspace
         ? new WorkspaceWriter(args, outputDirStr)

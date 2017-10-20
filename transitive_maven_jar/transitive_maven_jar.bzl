@@ -13,6 +13,7 @@ def _validate_coordinates(rctx):
 
 def _create_arguments(rctx):
     arguments = ['--artifact ' + artifact for artifact in rctx.attr.artifacts]
+    arguments += ['--repositories ' + repository for repository in rctx.attr.repositories]
     return ' '.join(arguments)
 
 def _execute(rctx, command_string, quiet):
@@ -33,10 +34,10 @@ transitive_maven_jar = repository_rule(
         implementation = _transitive_maven_jar_impl,
         attrs = {
             "artifacts" : attr.string_list(default = [], mandatory = True),
+            "repositories" : attr.string_list(default = [], mandatory = False),
             "quiet" : attr.bool(default = False, mandatory = False),
             "_timeout" : attr.int(default = MAX_TIMEOUT),
-			"_generate_workspace_tool" : attr.label(executable = True, allow_files = True, cfg = "host", default = Label("//transitive_maven_jar:generate_workspace_deploy.jar"))
-			#TODO(petros): add support for private repositories.
+            "_generate_workspace_tool" : attr.label(executable = True, allow_files = True, cfg = "host", default = Label("//transitive_maven_jar:generate_workspace_deploy.jar"))
         },
         local = False,
 )

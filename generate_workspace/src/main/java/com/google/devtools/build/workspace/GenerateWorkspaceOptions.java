@@ -53,6 +53,12 @@ public class GenerateWorkspaceOptions {
   public List<String> mavenProjects = new ArrayList<>();
 
   @Parameter(
+          names = {"--repositories", "-r"},
+          description = "Repositories to query for artifacts."
+  )
+  public List<String> repositories = new ArrayList<>();
+
+  @Parameter(
       names = {"--artifact", "-a"},
       splitter = NoSplitter.class,
       description = "Maven artifact coordinates (e.g. groupId:artifactId:version)."
