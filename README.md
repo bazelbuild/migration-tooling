@@ -1,4 +1,4 @@
-[![Build Status](http://ci.bazel.io/buildStatus/icon?job=migration-tooling)](http://ci.bazel.io/job/migration-tooling)
+[![Build Status](https://ci.bazel.io/buildStatus/icon?job=migration-tooling)](https://ci.bazel.io/job/migration-tooling)
 
 # Migration tooling
 
