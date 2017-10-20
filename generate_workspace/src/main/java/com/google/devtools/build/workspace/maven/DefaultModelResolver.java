@@ -69,12 +69,16 @@ public class DefaultModelResolver implements ModelResolver {
   private final VersionResolver versionResolver;
 
   public DefaultModelResolver() {
+    this(Sets.newHashSet(MAVEN_CENTRAL));
+  }
+
+  public DefaultModelResolver(Set<Repository> repositories) {
     this(
-        Aether.defaultOption(),
-        Sets.newHashSet(MAVEN_CENTRAL),
-        Maps.newHashMap(),
-        new DefaultModelBuilderFactory().newInstance()
-            .setProfileSelector(new DefaultProfileSelector())
+            Aether.defaultOption(),
+            repositories,
+            Maps.newHashMap(),
+            new DefaultModelBuilderFactory().newInstance()
+                    .setProfileSelector(new DefaultProfileSelector())
     );
   }
 
