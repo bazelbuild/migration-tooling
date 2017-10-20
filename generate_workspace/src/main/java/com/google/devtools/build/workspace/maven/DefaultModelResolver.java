@@ -147,7 +147,8 @@ public class DefaultModelResolver implements ModelResolver {
     try {
       URLConnection urlConnection = url.openConnection();
       if (!(urlConnection instanceof HttpURLConnection)) {
-        return false;
+        // For non-URL connections, treat any non-empty POM as valid.
+        return urlConnection.getContentLength() > 0;
       }
 
       HttpURLConnection connection = (HttpURLConnection) urlConnection;
