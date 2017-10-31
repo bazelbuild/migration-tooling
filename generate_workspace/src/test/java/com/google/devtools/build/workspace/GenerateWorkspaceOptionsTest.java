@@ -22,9 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Tests for option parsing.
- */
+/** Tests for option parsing. */
 @RunWith(JUnit4.class)
 public class GenerateWorkspaceOptionsTest {
   @Test
@@ -60,6 +58,25 @@ public class GenerateWorkspaceOptionsTest {
   }
 
   @Test
+  public void repository() throws Exception {
+    GenerateWorkspaceOptions options = new GenerateWorkspaceOptions();
+    JCommander optionParser = JCommander.newBuilder().addObject(options).build();
+    optionParser.parse("--repositories", "http://central.maven.org/maven2/");
+    assertThat(options.repositories).contains("http://central.maven.org/maven2/");
+  }
+
+  @Test
+  public void multipleRepositories() throws Exception {
+    GenerateWorkspaceOptions options = new GenerateWorkspaceOptions();
+    JCommander optionParser = JCommander.newBuilder().addObject(options).build();
+    optionParser.parse(
+        "--repositories", "http://central.maven.org/maven2/,http://repo.spring.io/libs-milestone/");
+    assertThat(options.repositories)
+        .containsExactly(
+            "http://central.maven.org/maven2/", "http://repo.spring.io/libs-milestone/");
+  }
+
+  @Test
   public void alias() throws Exception {
     GenerateWorkspaceOptions options = new GenerateWorkspaceOptions();
     JCommander optionParser = JCommander.newBuilder().addObject(options).build();
@@ -90,5 +107,4 @@ public class GenerateWorkspaceOptionsTest {
     Rule aliasedRule = options.aliases.get(0);
     assertThat(aliasedRule.name()).isEqualTo("a_b");
   }
-
 }

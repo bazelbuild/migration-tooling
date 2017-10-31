@@ -8,5 +8,6 @@ java_library(
         "//third_party:aether",
         "//third_party:com_google_guava_guava",
         "//third_party/jcommander",
+        "//third_party:maven_model",
     ],
 )

@@ -30,13 +30,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-/**
- * Generates a WORKSPACE file for Bazel from other types of dependency trackers.
- */
+/** Generates a WORKSPACE file for Bazel from other types of dependency trackers. */
 public class GenerateWorkspace {
 
-  private final static Logger logger = Logger.getLogger(
-      MethodHandles.lookup().lookupClass().getName());
+  private static final Logger logger =
+      Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
   private final Resolver resolver;
   private final List<String> inputs;
@@ -58,8 +56,13 @@ public class GenerateWorkspace {
     }
 
     try {
-      GenerateWorkspace workspaceFileGenerator = new GenerateWorkspace(
-          args, options.outputDir, options.directToWorkspace, options.aliases);
+      GenerateWorkspace workspaceFileGenerator =
+          new GenerateWorkspace(
+              args,
+              options.outputDir,
+              options.directToWorkspace,
+              options.repositories,
+              options.aliases);
       workspaceFileGenerator.generateFromPom(options.mavenProjects, options.scopes);
       workspaceFileGenerator.generateFromArtifacts(options.artifacts);
       workspaceFileGenerator.writeResults();
@@ -69,13 +72,20 @@ public class GenerateWorkspace {
     }
   }
 
-  private GenerateWorkspace(String[] args, String outputDirStr, boolean directToWorkspace, List<Rule> aliases)
+  private GenerateWorkspace(
+      String[] args,
+      String outputDirStr,
+      boolean directToWorkspace,
+      List<String> repositories,
+      List<Rule> aliases)
       throws IOException {
-    this.resolver = new Resolver(new DefaultModelResolver(), aliases);
+    DefaultModelResolver defaultModelResolver = new DefaultModelResolver(repositories);
+    this.resolver = new Resolver(defaultModelResolver, aliases);
     this.inputs = Lists.newArrayList();
-    this.resultWriter = directToWorkspace
-        ? new WorkspaceWriter(args, outputDirStr)
-        : new BzlWriter(args, outputDirStr);
+    this.resultWriter =
+        directToWorkspace
+            ? new WorkspaceWriter(args, outputDirStr)
+            : new BzlWriter(args, outputDirStr);
   }
 
   private void generateFromPom(List<String> projects, Set<String> scopes) {

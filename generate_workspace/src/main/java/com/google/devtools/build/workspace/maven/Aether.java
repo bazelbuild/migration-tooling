@@ -66,6 +66,14 @@ public class Aether {
     this.remoteRepositories = remoteRepositories;
   }
 
+  public void addRemoteRepository(RemoteRepository repo) {
+    this.remoteRepositories.add(repo);
+  }
+
+  public List<RemoteRepository> getRemoteRepositories() {
+    return this.remoteRepositories;
+  }
+
   /** Given an artifacts requests a version range for it. */
   List<String> requestVersionRange(Artifact artifact) throws VersionRangeResolutionException {
     VersionRangeRequest rangeRequest = new VersionRangeRequest(artifact, remoteRepositories, null);
