@@ -57,7 +57,7 @@ public class BzlWriter extends AbstractWriter {
       logger.severe("Could not write " + generatedFile + ": " + e.getMessage());
       return;
     }
-    System.out.println("Wrote " + generatedFile.toAbsolutePath());
+    System.err.println("Wrote " + generatedFile.toAbsolutePath());
   }
 
   private void writeBzl(PrintStream outputStream, Collection<Rule> rules) {

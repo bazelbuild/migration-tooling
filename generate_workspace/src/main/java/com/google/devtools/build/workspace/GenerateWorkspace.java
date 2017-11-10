@@ -48,7 +48,7 @@ public class GenerateWorkspace {
     try {
       optionParser.parse(args);
     } catch (ParameterException e) {
-      System.out.println("Unable to parse options: " + e.getLocalizedMessage());
+      System.err.println("Unable to parse options: " + e.getLocalizedMessage());
       optionParser.usage();
       return;
     }

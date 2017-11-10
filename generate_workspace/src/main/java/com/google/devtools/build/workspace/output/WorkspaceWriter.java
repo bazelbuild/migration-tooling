@@ -76,7 +76,7 @@ public class WorkspaceWriter extends AbstractWriter {
               + e.getMessage());
       return;
     }
-    System.out.println("Wrote:\n" + workspaceFile + "\n" + buildFile);
+    System.err.println("Wrote:\n" + workspaceFile + "\n" + buildFile);
   }
 
   /**
