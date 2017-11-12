@@ -23,21 +23,24 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Collection;
-import java.util.Set;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.building.UrlModelSource;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Tests for {@link Resolver}.
- */
+/** Tests for {@link Resolver}. */
 @RunWith(JUnit4.class)
 public class ResolverTest {
   private static final String GROUP_ID = "x";
@@ -60,13 +63,25 @@ public class ResolverTest {
 
   @Test
   public void testArtifactResolution() throws Exception {
+    String coords = "x:y:1.2.3";
     DefaultModelResolver modelResolver = mock(DefaultModelResolver.class);
-    Resolver resolver = new Resolver(modelResolver, ALIASES);
-    resolver.resolveArtifact("x:y:1.2.3");
+    when(modelResolver.resolveModel(fromCoords(coords)))
+        .thenReturn(new UrlModelSource(new URL("http://repo.foo.org/maven/x/y/1.2.3/y-1.2.3.pom")));
+    String httpGetBody = "5fe28b9518e58819180a43a850fbc0dd24b7c050";
+    Resolver resolver =
+        new Resolver(modelResolver, ALIASES) {
+          protected InputStream httpGet(String url) throws IOException {
+            return new ByteArrayInputStream(httpGetBody.getBytes());
+          }
+        };
+    resolver.resolveArtifact(coords);
+
     Collection<Rule> rules = resolver.getRules();
     assertThat(rules).hasSize(1);
     Rule rule = rules.iterator().next();
     assertThat(rule.name()).isEqualTo("x_y");
+    assertThat(rule.getRepository()).isEqualTo("http://repo.foo.org/maven/");
+    assertThat(rule.getSha1()).isEqualTo("5fe28b9518e58819180a43a850fbc0dd24b7c050");
   }
 
   @Test
@@ -77,8 +92,9 @@ public class ResolverTest {
     assertThat(Resolver.extractSha1("5fe28b9518e58819180a43a850fbc0dd24b7c050\n"))
         .isEqualTo("5fe28b9518e58819180a43a850fbc0dd24b7c050");
 
-    assertThat(Resolver.extractSha1(
-         "83cd2cd674a217ade95a4bb83a8a14f351f48bd0  /home/maven/repository-staging/to-ibiblio/maven2/antlr/antlr/2.7.7/antlr-2.7.7.jar"))
+    assertThat(
+            Resolver.extractSha1(
+                "83cd2cd674a217ade95a4bb83a8a14f351f48bd0  /home/maven/repository-staging/to-ibiblio/maven2/antlr/antlr/2.7.7/antlr-2.7.7.jar"))
         .isEqualTo("83cd2cd674a217ade95a4bb83a8a14f351f48bd0");
   }
 
@@ -131,10 +147,10 @@ public class ResolverTest {
   @Test
   public void nonConflictingDepManagement() throws Exception {
     Aether aether = mock(Aether.class);
-    when(aether.requestVersionRange(
-        fromCoords("a:b:[1.0,4.0]"))).thenReturn(newArrayList("1.0", "2.0", "3.0", "4.0"));
-    when(aether.requestVersionRange(
-        fromCoords("a:b:[2.0,)"))).thenReturn(newArrayList("2.0", "3.0"));
+    when(aether.requestVersionRange(fromCoords("a:b:[1.0,4.0]")))
+        .thenReturn(newArrayList("1.0", "2.0", "3.0", "4.0"));
+    when(aether.requestVersionRange(fromCoords("a:b:[2.0,)")))
+        .thenReturn(newArrayList("2.0", "3.0"));
     VersionResolver versionResolver = new VersionResolver(aether);
 
     Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
@@ -152,10 +168,10 @@ public class ResolverTest {
   @Test
   public void nonConflictingDepManagementRange() throws Exception {
     Aether aether = mock(Aether.class);
-    when(aether.requestVersionRange(
-        fromCoords("a:b:[1.0,4.0]"))).thenReturn(newArrayList("1.0", "1.2", "2.0", "3.0", "4.0"));
-    when(aether.requestVersionRange(
-        fromCoords("a:b:[1.2,3.0]"))).thenReturn(newArrayList("1.2", "2.0", "3.0"));
+    when(aether.requestVersionRange(fromCoords("a:b:[1.0,4.0]")))
+        .thenReturn(newArrayList("1.0", "1.2", "2.0", "3.0", "4.0"));
+    when(aether.requestVersionRange(fromCoords("a:b:[1.2,3.0]")))
+        .thenReturn(newArrayList("1.2", "2.0", "3.0"));
     VersionResolver versionResolver = new VersionResolver(aether);
 
     Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
@@ -173,10 +189,9 @@ public class ResolverTest {
   @Test
   public void depManagementDoesntAddDeps() throws Exception {
     Aether aether = mock(Aether.class);
-    when(aether.requestVersionRange(
-        fromCoords("c:d:[2.0,)"))).thenReturn(newArrayList("2.0"));
-    when(aether.requestVersionRange(
-        fromCoords("a:b:[1.0,)"))).thenReturn(newArrayList("1.0", "2.0"));
+    when(aether.requestVersionRange(fromCoords("c:d:[2.0,)"))).thenReturn(newArrayList("2.0"));
+    when(aether.requestVersionRange(fromCoords("a:b:[1.0,)")))
+        .thenReturn(newArrayList("1.0", "2.0"));
     VersionResolver versionResolver = new VersionResolver(aether);
 
     Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
@@ -195,25 +210,19 @@ public class ResolverTest {
   public void scopesHonoredForRoot() throws Exception {
     Model mockModel = mock(Model.class);
     // Only "compile" should go through.
-    when(mockModel.getDependencies()).thenReturn(
-        ImmutableList.of(
-            getDependency("a:b:1.0", "compile"),
-            getDependency("c:d:1.0", "test")));
+    when(mockModel.getDependencies())
+        .thenReturn(
+            ImmutableList.of(
+                getDependency("a:b:1.0", "compile"), getDependency("c:d:1.0", "test")));
 
     Aether aether = mock(Aether.class);
-    when(aether.requestVersionRange(
-        fromCoords("a:b:[1.0,)"))).thenReturn(newArrayList("1.0"));
-    when(aether.requestVersionRange(
-        fromCoords("c:d:[1.0,)"))).thenReturn(newArrayList("1.0"));
+    when(aether.requestVersionRange(fromCoords("a:b:[1.0,)"))).thenReturn(newArrayList("1.0"));
+    when(aether.requestVersionRange(fromCoords("c:d:[1.0,)"))).thenReturn(newArrayList("1.0"));
     VersionResolver versionResolver = new VersionResolver(aether);
 
     Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
 
-    resolver.traverseDeps(
-        mockModel,
-        Sets.newHashSet("compile"),
-        Sets.newHashSet(),
-        null);
+    resolver.traverseDeps(mockModel, Sets.newHashSet("compile"), Sets.newHashSet(), null);
     Collection<Rule> rules = resolver.getRules();
     assertThat(rules).hasSize(1);
     Rule actual = rules.iterator().next();
@@ -224,19 +233,17 @@ public class ResolverTest {
   public void scopesIgnoredForNonRoot() throws Exception {
     Model mockModel = mock(Model.class);
     // "compile" and "runtime" should go through.
-    when(mockModel.getDependencies()).thenReturn(
-        ImmutableList.of(
-            getDependency("a:b:1.0", "compile"),
-            getDependency("c:d:1.0", "runtime"),
-            getDependency("e:f:1.0", "test")));
+    when(mockModel.getDependencies())
+        .thenReturn(
+            ImmutableList.of(
+                getDependency("a:b:1.0", "compile"),
+                getDependency("c:d:1.0", "runtime"),
+                getDependency("e:f:1.0", "test")));
 
     Aether aether = mock(Aether.class);
-    when(aether.requestVersionRange(
-        fromCoords("a:b:[1.0,)"))).thenReturn(newArrayList("1.0"));
-    when(aether.requestVersionRange(
-        fromCoords("c:d:[1.0,)"))).thenReturn(newArrayList("1.0"));
-    when(aether.requestVersionRange(
-        fromCoords("e:f:[1.0,)"))).thenReturn(newArrayList("1.0"));
+    when(aether.requestVersionRange(fromCoords("a:b:[1.0,)"))).thenReturn(newArrayList("1.0"));
+    when(aether.requestVersionRange(fromCoords("c:d:[1.0,)"))).thenReturn(newArrayList("1.0"));
+    when(aether.requestVersionRange(fromCoords("e:f:[1.0,)"))).thenReturn(newArrayList("1.0"));
     VersionResolver versionResolver = new VersionResolver(aether);
 
     Resolver resolver = new Resolver(mock(DefaultModelResolver.class), versionResolver, ALIASES);
@@ -269,16 +276,16 @@ public class ResolverTest {
   @Test
   public void aliasWins() throws Exception {
     Aether aether = mock(Aether.class);
-    when(aether.requestVersionRange(
-        fromCoords("a:b:[1.0,)"))).thenReturn(newArrayList("1.0"));
+    when(aether.requestVersionRange(fromCoords("a:b:[1.0,)"))).thenReturn(newArrayList("1.0"));
     VersionResolver versionResolver = new VersionResolver(aether);
 
     Rule aliasedRule = new Rule(fromCoords("a:b:0"), "c");
     Model mockModel = mock(Model.class);
     when(mockModel.getDependencies()).thenReturn(ImmutableList.of(getDependency("a:b:1.0")));
 
-    Resolver resolver = new Resolver(
-        mock(DefaultModelResolver.class), versionResolver, ImmutableList.of(aliasedRule));
+    Resolver resolver =
+        new Resolver(
+            mock(DefaultModelResolver.class), versionResolver, ImmutableList.of(aliasedRule));
     resolver.traverseDeps(
         mockModel,
         Sets.newHashSet(),
