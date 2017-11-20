@@ -15,7 +15,6 @@
 package com.google.devtools.build.workspace.maven;
 
 import static com.google.devtools.build.workspace.maven.Rule.MAVEN_CENTRAL_URL;
-import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
@@ -27,9 +26,9 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.apache.maven.model.Model;
@@ -55,7 +54,7 @@ public class DefaultModelResolver implements ModelResolver {
     MAVEN_CENTRAL.setUrl(MAVEN_CENTRAL_URL);
   }
 
-  private final Set<Repository> repositories;
+  private final Set<String> repositoryUrls;
   private final Map<String, ModelSource> ruleNameToModelSource;
   private final DefaultModelBuilder modelBuilder;
   private final Aether aether;
@@ -77,15 +76,7 @@ public class DefaultModelResolver implements ModelResolver {
                                 .build())
                     .collect(Collectors.toList()))
             .build(),
-        repositoryUrls
-            .stream()
-            .map(
-                (String url) -> {
-                  Repository r = new Repository();
-                  r.setUrl(url);
-                  return r;
-                })
-            .collect(Collectors.toSet()),
+        repositoryUrls,
         Maps.newHashMap(),
         new DefaultModelBuilderFactory()
             .newInstance()
@@ -94,10 +85,10 @@ public class DefaultModelResolver implements ModelResolver {
 
   private DefaultModelResolver(
       Aether aether,
-      Set<Repository> repositories,
+      Collection<String> repositoryUrls,
       Map<String, ModelSource> ruleNameToModelSource,
       DefaultModelBuilder modelBuilder) {
-    this.repositories = repositories;
+    this.repositoryUrls = new TreeSet<>(repositoryUrls);
     this.ruleNameToModelSource = ruleNameToModelSource;
     this.modelBuilder = modelBuilder;
     this.aether = aether;
@@ -115,15 +106,14 @@ public class DefaultModelResolver implements ModelResolver {
     if (ruleNameToModelSource.containsKey(ruleName)) {
       return ruleNameToModelSource.get(ruleName);
     }
-    for (Repository repository : repositories) {
+    for (String repositoryUrl : repositoryUrls) {
       UrlModelSource modelSource =
-          getModelSource(repository.getUrl(), groupId, artifactId, version);
+          getModelSource(repositoryUrl, groupId, artifactId, version);
       if (modelSource != null) {
         return modelSource;
       }
     }
 
-    List<String> attemptedUrls = repositories.stream().map(Repository::getUrl).collect(toList());
     throw new UnresolvableModelException(
         "Could not find any repositories that knew how to "
             + "resolve "
@@ -133,7 +123,7 @@ public class DefaultModelResolver implements ModelResolver {
             + ":"
             + version
             + " (checked "
-            + Joiner.on(", ").join(attemptedUrls)
+            + Joiner.on(", ").join(repositoryUrls)
             + ")",
         groupId,
         artifactId,
@@ -210,7 +200,7 @@ public class DefaultModelResolver implements ModelResolver {
   // For compatibility with older versions of ModelResolver which don't have this method,
   // don't add @Override.
   public void addRepository(Repository repository) {
-    repositories.add(repository);
+    repositoryUrls.add(repository.getUrl());
   }
 
   @Override
@@ -220,7 +210,7 @@ public class DefaultModelResolver implements ModelResolver {
 
   @Override
   public ModelResolver newCopy() {
-    return new DefaultModelResolver(aether, repositories, ruleNameToModelSource, modelBuilder);
+    return new DefaultModelResolver(aether, repositoryUrls, ruleNameToModelSource, modelBuilder);
   }
 
   public VersionResolver getVersionResolver() {
