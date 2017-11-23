@@ -17,6 +17,8 @@ package com.google.devtools.build.workspace.maven;
 import static com.google.devtools.build.workspace.maven.ArtifactBuilder.InvalidArtifactCoordinateException;
 
 import com.google.common.annotations.VisibleForTesting;
+
+import java.util.Collections;
 import java.util.List;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
@@ -69,9 +71,13 @@ class VersionResolver {
    */
   private List<String> requestVersionList(String groupId, String artifactId, String versionSpec)
       throws VersionRangeResolutionException, InvalidArtifactCoordinateException {
-    String transformedSpec = makeVersionRange(versionSpec);
-    Artifact artifact = ArtifactBuilder.fromCoords(groupId, artifactId, transformedSpec);
-    return aether.requestVersionRange(artifact);
+    if (isVersionRange(versionSpec)) {
+      String transformedSpec = makeVersionRange(versionSpec);
+      Artifact artifact = ArtifactBuilder.fromCoords(groupId, artifactId, transformedSpec);
+      return aether.requestVersionRange(artifact);
+    } else {
+      return Collections.singletonList(versionSpec);
+    }
   }
 
   /**
