@@ -82,6 +82,7 @@ public class DefaultModelResolver implements ModelResolver {
             .map(
                 (String url) -> {
                   Repository r = new Repository();
+                  r.setId(url);
                   r.setUrl(url);
                   return r;
                 })
