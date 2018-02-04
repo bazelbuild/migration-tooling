@@ -12,6 +12,13 @@ To migrate a Maven project to Bazel, build:
 bazel run //generate_workspace -- --maven_project=/path/to/maven/project
 ```
 
+or
+
+```
+bazel build generate_workspace
+java -jar ./transitive_maven_jar/generate_workspace_deploy.jar
+```
+
 This will create a file `generate_workspace.bzl`. Copy it to your workspace
 and add the following to your WORKSPACE file:
 
