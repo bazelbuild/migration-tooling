@@ -1,4 +1,4 @@
-[![Build Status](https://ci.bazel.io/buildStatus/icon?job=migration-tooling)](https://ci.bazel.io/job/migration-tooling)
+[![Build status](https://badge.buildkite.com/3d265f4a4ef0aa6c54208278c5062491bb074298069d30b051.svg)](https://buildkite.com/bazel/migration-tooling-postsubmit)
 
 # Migration tooling
 
