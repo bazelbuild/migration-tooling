@@ -26,7 +26,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +47,8 @@ import org.eclipse.aether.repository.RemoteRepository;
 
 /** Resolver to find the repository a given Maven artifact should be fetched from. */
 public class DefaultModelResolver implements ModelResolver {
+
+  public static Set<String> REPOSITORY_BLACKLIST = new HashSet<>(Arrays.asList("maven.dyndns.org"));
 
   private static final Logger logger =
       Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
@@ -86,7 +91,7 @@ public class DefaultModelResolver implements ModelResolver {
                   r.setUrl(url);
                   return r;
                 })
-            .collect(Collectors.toSet()),
+            .collect(Collectors.toCollection(LinkedHashSet::new)),
         Maps.newHashMap(),
         new DefaultModelBuilderFactory()
             .newInstance()
@@ -168,6 +173,12 @@ public class DefaultModelResolver implements ModelResolver {
                   + "-"
                   + version
                   + ".pom");
+
+      // skip blacklisted ones
+      if (REPOSITORY_BLACKLIST.contains(urlUrl.getHost())) {
+        return null;
+      }
+
       if (pomFileExists(urlUrl)) {
         UrlModelSource urlModelSource = new UrlModelSource(urlUrl);
         ruleNameToModelSource.put(Rule.name(groupId, artifactId), urlModelSource);
