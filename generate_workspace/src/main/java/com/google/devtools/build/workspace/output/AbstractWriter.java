@@ -45,18 +45,19 @@ public abstract class AbstractWriter {
     for (String parent : rule.getParents()) {
       builder.append(indent).append("# ").append(parent).append("\n");
     }
-    builder.append(indent).append(ruleName).append("(\n");
-    builder.append(indent).append("    name = \"").append(rule.name()).append("\",\n");
-    builder.append(indent).append("    artifact = \"").append(rule.toMavenArtifactString())
+    builder.append(indent).append("if \"").append(rule.name()).append("\" not in excludes:\n");
+    builder.append(indent).append("  ").append(ruleName).append("(\n");
+    builder.append(indent).append("  ").append("    name = \"").append(rule.name()).append("\",\n");
+    builder.append(indent).append("  ").append("    artifact = \"").append(rule.toMavenArtifactString())
         .append("\",\n");
     if (rule.hasCustomRepository()) {
-      builder.append(indent).append("    repository = \"").append(rule.getRepository())
+      builder.append(indent).append("  ").append("    repository = \"").append(rule.getRepository())
           .append("\",\n");
     }
     if (rule.getSha1() != null) {
-      builder.append(indent).append("    sha1 = \"").append(rule.getSha1()).append("\",\n");
+      builder.append(indent).append("  ").append("    sha1 = \"").append(rule.getSha1()).append("\",\n");
     }
-    builder.append(indent).append(")\n\n");
+    builder.append(indent).append("  ").append(")\n\n");
     return builder.toString();
   }
 
@@ -65,19 +66,20 @@ public abstract class AbstractWriter {
    */
   protected String formatJavaLibrary(Rule rule, String ruleName, String indent) {
     StringBuilder builder = new StringBuilder();
-    builder.append(indent).append(ruleName).append("(\n");
-    builder.append(indent).append("    name = \"").append(rule.name()).append("\",\n");
-    builder.append(indent).append("    visibility = [\"//visibility:public\"],\n");
-    builder.append(indent).append("    exports = [\"@").append(rule.name()).append("//jar\"],\n");
+    builder.append(indent).append("if \"").append(rule.name()).append("\" not in excludes:\n");
+    builder.append(indent).append("  ").append(ruleName).append("(\n");
+    builder.append(indent).append("  ").append("    name = \"").append(rule.name()).append("\",\n");
+    builder.append(indent).append("  ").append("    visibility = [\"//visibility:public\"],\n");
+    builder.append(indent).append("  ").append("    exports = [\"@").append(rule.name()).append("//jar\"],\n");
     Set<Rule> dependencies = rule.getDependencies();
     if (!dependencies.isEmpty()) {
-      builder.append(indent).append("    runtime_deps = [\n");
+      builder.append(indent).append("  ").append("    runtime_deps = [\n");
       for (Rule r : rule.getDependencies()) {
-        builder.append(indent).append("        \":").append(r.name()).append("\",\n");
+        builder.append(indent).append("  ").append("        \":").append(r.name()).append("\",\n");
       }
-      builder.append(indent).append("    ],\n");
+      builder.append(indent).append("  ").append("    ],\n");
     }
-    builder.append(indent).append(")\n\n");
+    builder.append(indent).append("  ").append(")\n\n");
     return builder.toString();
   }
 }

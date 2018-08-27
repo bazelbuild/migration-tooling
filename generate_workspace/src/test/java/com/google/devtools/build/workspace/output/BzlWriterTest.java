@@ -87,15 +87,25 @@ public class BzlWriterTest {
     String fileContents = Files.toString(
         new File(System.getenv("TEST_TMPDIR") + "/generate_workspace.bzl"),
         Charset.defaultCharset());
-    assertThat(fileContents).contains("def generated_maven_jars():\n  native.maven_jar(\n"
-        + "      name = \"x_y\",\n"
-        + "      artifact = \"x:y:1.2.3\",\n"
-        + "  )\n");
-    assertThat(fileContents).contains("def generated_java_libraries():\n  native.java_library(\n"
-        + "      name = \"x_y\",\n"
-        + "      visibility = [\"//visibility:public\"],\n"
-        + "      exports = [\"@x_y//jar\"],\n"
-        + "  )\n");
+    assertThat(fileContents).contains(
+            "def generated_maven_jars():\n"
+          + "  excludes = native.existing_rules().keys()\n\n"
+          + "  if \"x_y\" not in excludes:\n"
+          + "    native.maven_jar(\n"
+          + "        name = \"x_y\",\n"
+          + "        artifact = \"x:y:1.2.3\",\n"
+          + "    )\n"
+    );
+    assertThat(fileContents).contains(
+            "def generated_java_libraries():\n"
+          + "  excludes = native.existing_rules().keys()\n\n"
+          + "  if \"x_y\" not in excludes:\n"
+          + "    native.java_library(\n"
+          + "        name = \"x_y\",\n"
+          + "        visibility = [\"//visibility:public\"],\n"
+          + "        exports = [\"@x_y//jar\"],\n"
+          + "    )\n"
+    );
   }
 
   @Test

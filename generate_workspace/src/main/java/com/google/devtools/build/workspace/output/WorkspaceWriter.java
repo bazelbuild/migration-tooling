@@ -84,6 +84,7 @@ public class WorkspaceWriter extends AbstractWriter {
    */
   public void writeWorkspace(PrintStream outputStream, Collection<Rule> rules) {
     writeHeader(outputStream, args);
+    outputStream.println("excludes = native.existing_rules().keys()\n");
     for (Rule rule : rules) {
       outputStream.println(formatMavenJar(rule, "maven_jar", ""));
     }
@@ -91,6 +92,7 @@ public class WorkspaceWriter extends AbstractWriter {
 
   public void writeBuild(PrintStream outputStream, Collection<Rule> rules) {
     writeHeader(outputStream, args);
+    outputStream.println("excludes = native.existing_rules().keys()\n");
     for (Rule rule : rules) {
       outputStream.println(formatJavaLibrary(rule, "java_library", ""));
     }

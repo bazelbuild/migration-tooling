@@ -61,7 +61,9 @@ public class WorkspaceWriterTest {
         System.getenv("TEST_TMPDIR"));
     writer.writeWorkspace(ps, Sets.newHashSet());
     assertThat(baos.toString(String.valueOf(Charset.defaultCharset()))).contains(
-        "# generate_workspace --artifact=x:y:1.2.3 --artifact=a:b:3.2.1");
+        "# generate_workspace --artifact=x:y:1.2.3 --artifact=a:b:3.2.1\n\n\n"
+      + "excludes = native.existing_rules().keys()\n"
+    );
   }
 
   @Test
@@ -69,10 +71,12 @@ public class WorkspaceWriterTest {
     Set<Rule> rules = ImmutableSet.of(
         new Rule(new DefaultArtifact("x:y:1.2.3")));
     String content = getWorkspaceFileContent(rules);
-    assertThat(content).contains("maven_jar(\n"
-        + "    name = \"x_y\",\n"
-        + "    artifact = \"x:y:1.2.3\",\n"
-        + ")"
+    assertThat(content).contains(
+            "if \"x_y\" not in excludes:\n"
+          + "  maven_jar(\n"
+          + "      name = \"x_y\",\n"
+          + "      artifact = \"x:y:1.2.3\",\n"
+          + "  )"
     );
   }
 
@@ -82,11 +86,13 @@ public class WorkspaceWriterTest {
     rule.addParent("some parent");
     Set<Rule> rules = ImmutableSet.of(rule);
     String content = getWorkspaceFileContent(rules);
-    assertThat(content).contains("# some parent\n"
-            + "maven_jar(\n"
-            + "    name = \"x_y\",\n"
-            + "    artifact = \"x:y:1.2.3\",\n"
-            + ")"
+    assertThat(content).contains(
+            "# some parent\n"
+          + "if \"x_y\" not in excludes:\n"
+          + "  maven_jar(\n"
+          + "      name = \"x_y\",\n"
+          + "      artifact = \"x:y:1.2.3\",\n"
+          + "  )"
     );
   }
 
@@ -99,15 +105,17 @@ public class WorkspaceWriterTest {
     rule.addDependency(dep2);
     Set<Rule> rules = ImmutableSet.of(rule, dep1, dep2);
     String content = getBuildFileContent(rules);
-    assertThat(content).contains("java_library(\n"
-            + "    name = \"x_y\",\n"
-            + "    visibility = [\"//visibility:public\"],\n"
-            + "    exports = [\"@x_y//jar\"],\n"
-            + "    runtime_deps = [\n"
-            + "        \":dep_dep1\",\n"
-            + "        \":dep_dep2\",\n"
-            + "    ],\n"
-            + ")"
+    assertThat(content).contains(
+            "if \"x_y\" not in excludes:\n"
+          + "  java_library(\n"
+          + "      name = \"x_y\",\n"
+          + "      visibility = [\"//visibility:public\"],\n"
+          + "      exports = [\"@x_y//jar\"],\n"
+          + "      runtime_deps = [\n"
+          + "          \":dep_dep1\",\n"
+          + "          \":dep_dep2\",\n"
+          + "      ],\n"
+          + "  )"
     );
   }
 }
