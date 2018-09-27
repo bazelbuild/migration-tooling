@@ -66,6 +66,7 @@ public class BzlWriter extends AbstractWriter {
     if (rules.isEmpty()) {
       outputStream.println("  pass\n");
     }
+    outputStream.println("  excludes = native.existing_rules().keys()\n");
     for (Rule rule : rules) {
       outputStream.println(formatMavenJar(rule, "native.maven_jar", "  "));
     }
@@ -76,6 +77,7 @@ public class BzlWriter extends AbstractWriter {
     if (rules.isEmpty()) {
       outputStream.println("  pass\n");
     }
+    outputStream.println("  excludes = native.existing_rules().keys()\n");
     for (Rule rule : rules) {
       outputStream.println(formatJavaLibrary(rule, "native.java_library", "  "));
     }
