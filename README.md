@@ -1,3 +1,7 @@
+# DEPRECATED
+
+This project is deprecated. Use [build-deps](https://github.com/johnynek/bazel-deps) instead.
+
 [![Build status](https://badge.buildkite.com/3d265f4a4ef0aa6c54208278c5062491bb074298069d30b051.svg)](https://buildkite.com/bazel/migration-tooling-postsubmit)
 
 # Migration tooling
