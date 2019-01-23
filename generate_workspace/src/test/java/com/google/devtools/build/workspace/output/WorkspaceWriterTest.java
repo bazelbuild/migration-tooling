@@ -69,11 +69,11 @@ public class WorkspaceWriterTest {
     Set<Rule> rules = ImmutableSet.of(
         new Rule(new DefaultArtifact("x:y:1.2.3")));
     String content = getWorkspaceFileContent(rules);
-    assertThat(content).contains("maven_jar(\n"
-        + "    name = \"x_y\",\n"
-        + "    artifact = \"x:y:1.2.3\",\n"
+    assertThat(content).contains(String.format("maven_jar(%n"
+        + "    name = \"x_y\",%n"
+        + "    artifact = \"x:y:1.2.3\",%n"
         + ")"
-    );
+    ));
   }
 
   @Test
@@ -82,12 +82,12 @@ public class WorkspaceWriterTest {
     rule.addParent("some parent");
     Set<Rule> rules = ImmutableSet.of(rule);
     String content = getWorkspaceFileContent(rules);
-    assertThat(content).contains("# some parent\n"
-            + "maven_jar(\n"
-            + "    name = \"x_y\",\n"
-            + "    artifact = \"x:y:1.2.3\",\n"
+    assertThat(content).contains(String.format("# some parent%n"
+            + "maven_jar(%n"
+            + "    name = \"x_y\",%n"
+            + "    artifact = \"x:y:1.2.3\",%n"
             + ")"
-    );
+    ));
   }
 
   @Test
@@ -99,15 +99,15 @@ public class WorkspaceWriterTest {
     rule.addDependency(dep2);
     Set<Rule> rules = ImmutableSet.of(rule, dep1, dep2);
     String content = getBuildFileContent(rules);
-    assertThat(content).contains("java_library(\n"
-            + "    name = \"x_y\",\n"
-            + "    visibility = [\"//visibility:public\"],\n"
-            + "    exports = [\"@x_y//jar\"],\n"
-            + "    runtime_deps = [\n"
-            + "        \":dep_dep1\",\n"
-            + "        \":dep_dep2\",\n"
-            + "    ],\n"
+    assertThat(content).contains(String.format("java_library(%n"
+            + "    name = \"x_y\",%n"
+            + "    visibility = [\"//visibility:public\"],%n"
+            + "    exports = [\"@x_y//jar\"],%n"
+            + "    runtime_deps = [%n"
+            + "        \":dep_dep1\",%n"
+            + "        \":dep_dep2\",%n"
+            + "    ],%n"
             + ")"
-    );
+    ));
   }
 }
