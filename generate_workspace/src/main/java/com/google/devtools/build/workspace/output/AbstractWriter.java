@@ -25,6 +25,7 @@ import java.util.Set;
 public abstract class AbstractWriter {
   public abstract void write(Collection<Rule> rules);
 
+  private static final String lineSeparator = System.lineSeparator();
   /**
    * Writes the list of sources as a comment to outputStream.
    */
@@ -32,7 +33,7 @@ public abstract class AbstractWriter {
     outputStream.println("# The following dependencies were calculated from:");
     outputStream.println("#");
     outputStream.println("# generate_workspace " + String.join(" ", argv));
-    outputStream.print("\n\n");
+    outputStream.print(String.format("%n%n"));
   }
 
   protected String formatMavenJar(Rule rule, String ruleName, String indent) {
@@ -42,21 +43,22 @@ public abstract class AbstractWriter {
       return "";
     }
     StringBuilder builder = new StringBuilder();
+    String ending = "\"," + lineSeparator;
     for (String parent : rule.getParents()) {
-      builder.append(indent).append("# ").append(parent).append("\n");
+      builder.append(indent).append("# ").append(parent).append(lineSeparator);
     }
-    builder.append(indent).append(ruleName).append("(\n");
-    builder.append(indent).append("    name = \"").append(rule.name()).append("\",\n");
+    builder.append(indent).append(ruleName).append("(" + lineSeparator);
+    builder.append(indent).append("    name = \"").append(rule.name()).append(ending);
     builder.append(indent).append("    artifact = \"").append(rule.toMavenArtifactString())
-        .append("\",\n");
+        .append(ending);
     if (rule.hasCustomRepository()) {
       builder.append(indent).append("    repository = \"").append(rule.getRepository())
-          .append("\",\n");
+          .append(ending);
     }
     if (rule.getSha1() != null) {
-      builder.append(indent).append("    sha1 = \"").append(rule.getSha1()).append("\",\n");
+      builder.append(indent).append("    sha1 = \"").append(rule.getSha1()).append(ending);
     }
-    builder.append(indent).append(")\n\n");
+    builder.append(indent).append(String.format(")%n%n"));
     return builder.toString();
   }
 
@@ -65,19 +67,20 @@ public abstract class AbstractWriter {
    */
   protected String formatJavaLibrary(Rule rule, String ruleName, String indent) {
     StringBuilder builder = new StringBuilder();
-    builder.append(indent).append(ruleName).append("(\n");
-    builder.append(indent).append("    name = \"").append(rule.name()).append("\",\n");
-    builder.append(indent).append("    visibility = [\"//visibility:public\"],\n");
-    builder.append(indent).append("    exports = [\"@").append(rule.name()).append("//jar\"],\n");
+    String ending = "\"," + lineSeparator;
+    builder.append(indent).append(ruleName).append("(" + lineSeparator);
+    builder.append(indent).append("    name = \"").append(rule.name()).append(ending);
+    builder.append(indent).append("    visibility = [\"//visibility:public\"]," + lineSeparator);
+    builder.append(indent).append("    exports = [\"@").append(rule.name()).append("//jar\"]," + lineSeparator);
     Set<Rule> dependencies = rule.getDependencies();
     if (!dependencies.isEmpty()) {
-      builder.append(indent).append("    runtime_deps = [\n");
+      builder.append(indent).append("    runtime_deps = [" + lineSeparator);
       for (Rule r : rule.getDependencies()) {
-        builder.append(indent).append("        \":").append(r.name()).append("\",\n");
+        builder.append(indent).append("        \":").append(r.name()).append(ending);
       }
-      builder.append(indent).append("    ],\n");
+      builder.append(indent).append("    ]," + lineSeparator);
     }
-    builder.append(indent).append(")\n\n");
+    builder.append(indent).append(String.format(")%n%n"));
     return builder.toString();
   }
 }

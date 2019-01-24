@@ -64,17 +64,17 @@ public class BzlWriter extends AbstractWriter {
     writeHeader(outputStream, argv);
     outputStream.println("def generated_maven_jars():");
     if (rules.isEmpty()) {
-      outputStream.println("  pass\n");
+      outputStream.println(String.format("  pass%n"));
     }
     for (Rule rule : rules) {
       outputStream.println(formatMavenJar(rule, "native.maven_jar", "  "));
     }
 
-    outputStream.append("\n\n");
+    outputStream.append(String.format("%n%n"));
 
     outputStream.println("def generated_java_libraries():");
     if (rules.isEmpty()) {
-      outputStream.println("  pass\n");
+      outputStream.println(String.format("  pass%n"));
     }
     for (Rule rule : rules) {
       outputStream.println(formatJavaLibrary(rule, "native.java_library", "  "));

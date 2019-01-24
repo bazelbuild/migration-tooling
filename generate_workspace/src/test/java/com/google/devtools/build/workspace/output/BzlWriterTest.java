@@ -48,8 +48,8 @@ public class BzlWriterTest {
     String fileContents = Files.toString(
         new File(System.getenv("TEST_TMPDIR") + "/generate_workspace.bzl"),
         Charset.defaultCharset());
-    assertThat(fileContents).contains("def generated_maven_jars():\n  pass\n");
-    assertThat(fileContents).contains("def generated_java_libraries():\n  pass\n");
+    assertThat(fileContents).contains(String.format("def generated_maven_jars():%n  pass%n"));
+    assertThat(fileContents).contains(String.format("def generated_java_libraries():%n  pass%n"));
   }
 
   /** Ensures that it automatically creates output directory if they do not exist */
@@ -87,15 +87,17 @@ public class BzlWriterTest {
     String fileContents = Files.toString(
         new File(System.getenv("TEST_TMPDIR") + "/generate_workspace.bzl"),
         Charset.defaultCharset());
-    assertThat(fileContents).contains("def generated_maven_jars():\n  native.maven_jar(\n"
-        + "      name = \"x_y\",\n"
-        + "      artifact = \"x:y:1.2.3\",\n"
-        + "  )\n");
-    assertThat(fileContents).contains("def generated_java_libraries():\n  native.java_library(\n"
-        + "      name = \"x_y\",\n"
-        + "      visibility = [\"//visibility:public\"],\n"
-        + "      exports = [\"@x_y//jar\"],\n"
-        + "  )\n");
+    assertThat(fileContents).contains(String.format(
+          "def generated_maven_jars():%n  native.maven_jar(%n"
+        + "      name = \"x_y\",%n"
+        + "      artifact = \"x:y:1.2.3\",%n"
+        + "  )%n"));
+    assertThat(fileContents).contains(String.format(
+          "def generated_java_libraries():%n  native.java_library(%n"
+        + "      name = \"x_y\",%n"
+        + "      visibility = [\"//visibility:public\"],%n"
+        + "      exports = [\"@x_y//jar\"],%n"
+        + "  )%n"));
   }
 
   @Test
@@ -108,7 +110,7 @@ public class BzlWriterTest {
     assertThat(fileContents).doesNotContain("x:y:1.2.3");
     assertThat(fileContents).contains("exports = [\"@z//jar\"],");
   }
-  
+
   @Test
   public void writeCommand() throws Exception {
     BzlWriter writer = new BzlWriter(new String[]{"x", "y", "z"}, System.getenv("TEST_TMPDIR"));
