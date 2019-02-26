@@ -56,9 +56,14 @@ class VersionResolver {
     }
 
     if (isInvalidRangeResult(versions)) {
-      String errorMessage =
-          messageForInvalidArtifact(groupId, artifactId, versionSpec, "Invalid Range Result");
-      throw new InvalidArtifactCoordinateException(errorMessage);
+      if (isVersionRange(versionSpec)) {
+        // Version range resolved to no artifacts.
+        String errorMessage =
+            messageForInvalidArtifact(groupId, artifactId, versionSpec, "Invalid Range Result");
+        throw new InvalidArtifactCoordinateException(errorMessage);
+      }
+      // Single version; assume OK.
+      return versionSpec;
     }
     return selectVersion(versionSpec, versions);
   }
